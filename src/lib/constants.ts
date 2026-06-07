@@ -1,5 +1,4 @@
 export const LOGO_SRC = "/killspng dropshadow.png";
-export const HERO_BG_SRC = encodeURI("/Jun 5, 2026, 01_35_26 PM.png");
 
 /** Canonical brand name — always one word, no spaces */
 export const BRAND_NAME = "KillsComfort" as const;

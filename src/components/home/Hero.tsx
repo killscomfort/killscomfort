@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { BrandText } from "@/components/ui/BrandText";
 import { LatestReleaseCallout } from "@/components/home/LatestReleaseCallout";
-import { HERO_BG_SRC, LOGO_SRC, SITE } from "@/lib/constants";
+import { HOME_HERO_IMAGE } from "@/lib/about";
+import { LOGO_SRC, SITE } from "@/lib/constants";
 import type { MusicRelease } from "@/lib/music";
 
 const containerVariants = {
@@ -33,11 +34,13 @@ export function Hero({ latestRelease }: HeroProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div className="absolute inset-0 min-h-screen w-full overflow-hidden">
-        <div
-          className="hero-bg-ken-burns h-full min-h-screen w-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url("${HERO_BG_SRC}")` }}
-          role="img"
-          aria-label={`${SITE.founder} performing live`}
+        <Image
+          src={HOME_HERO_IMAGE}
+          alt={`${SITE.founder} performing live`}
+          fill
+          priority
+          className="hero-bg-ken-burns object-cover object-center"
+          sizes="100vw"
         />
       </div>
 

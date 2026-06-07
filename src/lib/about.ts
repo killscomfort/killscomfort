@@ -1,4 +1,5 @@
 export const ABOUT_HERO_IMAGE = "/about/FINALS-1.png";
+export const HOME_HERO_IMAGE = "/about/FINALS-9.png";
 export const HOME_ARTIST_IMAGE = "/about/FINALS-60.png";
 
 /** Curated brand photos — full set lives in /public/about */
