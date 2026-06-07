@@ -14,6 +14,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isLandingPage = pathname.startsWith("/lp");
+  const isAdmin = pathname.startsWith("/admin");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -21,7 +22,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isLandingPage) return null;
+  if (isLandingPage || isAdmin) return null;
 
   return (
     <header

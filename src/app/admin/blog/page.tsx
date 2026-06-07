@@ -1,53 +1,76 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createBlogPost, deleteBlogPost } from "@/lib/admin/actions";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPanel } from "@/components/admin/AdminCard";
+import { DeleteButton } from "@/components/admin/DeleteButton";
+import { Input, Textarea } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { formatDate } from "@/lib/utils";
+import type { BlogPost } from "@/types/database";
 
 export default async function AdminBlogPage() {
   const supabase = await createClient();
   const { data: posts } = await supabase
     .from("blog_posts")
-    .select("id, title, slug, category, published, created_at")
+    .select("*")
     .order("created_at", { ascending: false });
 
+  const items = (posts || []) as BlogPost[];
+
   return (
-    <div className="pt-24">
-      <section className="section-padding">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex items-center justify-between">
-            <h1 className="text-display text-3xl uppercase text-bone">Blog</h1>
-            <Link href="/admin" className="text-sm text-muted-gold hover:text-bone">
-              ← Admin
-            </Link>
-          </div>
+    <>
+      <AdminPageHeader
+        title="Blog"
+        description="Journal posts for SEO and brand storytelling."
+      />
 
-          <p className="mt-4 text-bone/60">
-            Create and manage journal posts. Use the Supabase dashboard or extend
-            this page with a create form.
-          </p>
+      <div className="grid gap-8 lg:grid-cols-2">
+        <AdminPanel title="New Post">
+          <form action={createBlogPost} className="space-y-4">
+            <Input name="title" label="Title" required />
+            <Input
+              name="slug"
+              label="Slug (optional — auto-generated from title)"
+            />
+            <Input name="category" label="Category" defaultValue="Music" />
+            <Textarea name="excerpt" label="Excerpt" rows={2} />
+            <Textarea name="content" label="Content" required rows={6} />
+            <label className="flex items-center gap-2 text-sm text-bone/80">
+              <input type="checkbox" name="published" className="accent-muted-gold" />
+              Publish immediately
+            </label>
+            <Button type="submit" size="sm">
+              Create Post
+            </Button>
+          </form>
+        </AdminPanel>
 
-          <div className="mt-8 space-y-4">
-            {!posts?.length ? (
-              <p className="text-bone/50">
-                No posts in database. Sample posts are currently static — migrate
-                via admin create form or Supabase.
-              </p>
-            ) : (
-              posts.map((post) => (
-                <div
-                  key={post.id}
-                  className="flex items-center justify-between border border-clay/20 p-4"
-                >
-                  <div>
-                    <h3 className="text-bone">{post.title}</h3>
-                    <p className="text-xs text-bone/40">
-                      {post.category} — {post.published ? "Published" : "Draft"}
-                    </p>
-                  </div>
+        <div className="space-y-4">
+          <h2 className="text-display text-lg uppercase text-bone">
+            All Posts ({items.length})
+          </h2>
+          {items.length === 0 ? (
+            <p className="text-bone/50">No posts yet.</p>
+          ) : (
+            items.map((post) => (
+              <div
+                key={post.id}
+                className="flex items-start justify-between gap-4 border border-clay/20 bg-warm-charcoal/50 p-4"
+              >
+                <div>
+                  <h3 className="text-bone">{post.title}</h3>
+                  <p className="text-xs text-bone/40">
+                    /{post.slug} · {post.category} ·{" "}
+                    {post.published ? "Published" : "Draft"} ·{" "}
+                    {formatDate(post.created_at)}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+                <DeleteButton action={deleteBlogPost} id={post.id} />
+              </div>
+            ))
+          )}
         </div>
-      </section>
-    </div>
+      </div>
+    </>
   );
 }

@@ -34,7 +34,7 @@ export async function createClient() {
 
 export function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   return Boolean(
     url &&
       key &&
@@ -43,7 +43,7 @@ export function isSupabaseConfigured() {
   );
 }
 
-export async function createServiceClient() {
+export async function createAnonClient() {
   if (!isSupabaseConfigured()) {
     throw new Error("Supabase is not configured");
   }
@@ -51,6 +51,19 @@ export async function createServiceClient() {
   const { createClient } = await import("@supabase/supabase-js");
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
+export async function createServiceClient() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey || serviceKey.includes("placeholder")) {
+    throw new Error("Supabase service role key is not configured");
+  }
+
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceKey
   );
 }

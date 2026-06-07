@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { UserRoleSelect } from "@/components/admin/UserRoleSelect";
 import { formatDate } from "@/lib/utils";
 import type { Profile } from "@/types/database";
 
@@ -13,46 +14,48 @@ export default async function AdminUsersPage() {
   const profiles = (users || []) as Profile[];
 
   return (
-    <div className="pt-24">
-      <section className="section-padding">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex items-center justify-between">
-            <h1 className="text-display text-3xl uppercase text-bone">Users</h1>
-            <Link href="/admin" className="text-sm text-muted-gold hover:text-bone">
-              ← Admin
-            </Link>
-          </div>
+    <>
+      <AdminPageHeader
+        title="Users"
+        description="Registered accounts and role management."
+      />
 
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-clay/20 text-left text-bone/50">
-                  <th className="pb-3 pr-4">Name</th>
-                  <th className="pb-3 pr-4">Email</th>
-                  <th className="pb-3 pr-4">Role</th>
-                  <th className="pb-3">Joined</th>
+      <div className="overflow-x-auto border border-clay/20">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-clay/20 bg-warm-charcoal/80 text-left text-bone/50">
+              <th className="px-4 py-3">Name</th>
+              <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Role</th>
+              <th className="px-4 py-3">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {profiles.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-bone/50">
+                  No users yet.
+                </td>
+              </tr>
+            ) : (
+              profiles.map((user) => (
+                <tr key={user.id} className="border-b border-clay/10">
+                  <td className="px-4 py-3 text-bone">
+                    {user.full_name || "—"}
+                  </td>
+                  <td className="px-4 py-3 text-bone/70">{user.email}</td>
+                  <td className="px-4 py-3">
+                    <UserRoleSelect id={user.id} role={user.role} />
+                  </td>
+                  <td className="px-4 py-3 text-bone/50">
+                    {formatDate(user.created_at)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {profiles.map((user) => (
-                  <tr key={user.id} className="border-b border-clay/10">
-                    <td className="py-3 pr-4 text-bone">
-                      {user.full_name || "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-bone/70">{user.email}</td>
-                    <td className="py-3 pr-4 text-muted-gold uppercase text-xs">
-                      {user.role}
-                    </td>
-                    <td className="py-3 text-bone/50">
-                      {formatDate(user.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </div>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

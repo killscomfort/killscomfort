@@ -115,10 +115,24 @@ create policy "Users can view own profile" on public.profiles
   for select using (auth.uid() = id);
 create policy "Users can update own profile" on public.profiles
   for update using (auth.uid() = id);
-create policy "Admins can view all profiles" on public.profiles
-  for select using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
   );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
+create policy "Admins can view all profiles" on public.profiles
+  for select using (public.is_admin());
 
 -- Public read for published content
 create policy "Public can read published posts" on public.blog_posts
@@ -138,39 +152,34 @@ create policy "Anyone can create inquiries" on public.inquiries
 
 -- Admin policies (full access)
 create policy "Admins full access inquiries" on public.inquiries
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 create policy "Admins full access blog" on public.blog_posts
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 create policy "Admins full access events" on public.events
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 create policy "Admins full access music" on public.music_entries
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 create policy "Admins full access landing pages" on public.landing_pages
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 create policy "Admins full access site content" on public.site_content
-  for all using (
-    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
-  );
+  for all using (public.is_admin());
 
 -- Auto-create profile on signup
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
 begin
   insert into public.profiles (id, email, full_name)
   values (new.id, new.email, new.raw_user_meta_data->>'full_name');
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
+
+revoke all on function public.handle_new_user() from public;
+revoke all on function public.handle_new_user() from anon, authenticated;
 
 create trigger on_auth_user_created
   after insert on auth.users

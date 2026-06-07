@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAnonClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { inquirySchema, simpleInquirySchema } from "@/lib/validations";
 import {
   sendInquiryNotification,
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     let saved = false;
 
     if (isSupabaseConfigured()) {
-      const supabase = await createServiceClient();
+      const supabase = await createAnonClient();
       const { error: dbError } = await supabase.from("inquiries").insert({
         name: data.name,
         email: data.email,

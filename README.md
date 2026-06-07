@@ -18,7 +18,6 @@ Official site for the KillsComfort brand — music, merch, events, and booking.
 ### 1. Install dependencies
 
 ```bash
-cd killscomfort
 npm install
 ```
 
