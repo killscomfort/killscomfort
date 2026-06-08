@@ -1,24 +1,13 @@
 import { Resend } from "resend";
 import { SITE } from "@/lib/constants";
 import type { InquiryInput, SimpleInquiryInput } from "@/lib/validations";
-
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+import { sendEmail } from "@/lib/resend-client";
 
 export async function sendInquiryNotification(
   inquiry: InquiryInput | SimpleInquiryInput
 ) {
-  if (!resend) {
-    console.log("[email] Resend not configured — skipping notification");
-    return;
-  }
-
-  const to = process.env.INQUIRY_NOTIFICATION_EMAIL || SITE.email;
-
-  await resend.emails.send({
-    from: process.env.EMAIL_FROM || `${SITE.name} <${SITE.email}>`,
-    to,
+  return sendEmail({
+    to: process.env.INQUIRY_NOTIFICATION_EMAIL || SITE.email,
     subject: `New Booking Inquiry — ${inquiry.name}`,
     html: `
       <h2>New Booking Inquiry</h2>
@@ -36,17 +25,8 @@ export async function sendInquiryNotification(
   });
 }
 
-export async function sendInquiryConfirmation(
-  name: string,
-  email: string
-) {
-  if (!resend) {
-    console.log("[email] Resend not configured — skipping confirmation");
-    return;
-  }
-
-  await resend.emails.send({
-    from: process.env.EMAIL_FROM || `${SITE.name} <${SITE.email}>`,
+export async function sendInquiryConfirmation(name: string, email: string) {
+  return sendEmail({
     to: email,
     subject: `We got your inquiry — ${SITE.name}`,
     html: `

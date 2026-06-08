@@ -102,6 +102,8 @@ export async function POST(request: NextRequest) {
       state: string;
       postal_code: string;
       country: string;
+      event_date?: string | null;
+      event_notes?: string | null;
     };
 
     const emailPayload = {
@@ -114,10 +116,17 @@ export async function POST(request: NextRequest) {
       totalCents: order.total_cents,
     };
 
-    await Promise.allSettled([
+    const [notificationResult, confirmationResult] = await Promise.all([
       sendOrderNotification(emailPayload),
       sendOrderConfirmation(emailPayload),
     ]);
+
+    if (!notificationResult.ok && !notificationResult.skipped) {
+      console.error("[email] Admin order notification failed:", notificationResult.error);
+    }
+    if (!confirmationResult.ok && !confirmationResult.skipped) {
+      console.error("[email] Customer confirmation failed:", confirmationResult.error);
+    }
 
     return NextResponse.json({
       success: true,

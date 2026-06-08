@@ -87,9 +87,10 @@ function WalletButtons({
     : null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 [&_button]:min-h-12 [&_button]:w-full">
       {variant === "full" && canUseApplePay() && applePayConfig && (
-        <ApplePayOneTimePaymentButton
+        <div>
+          <ApplePayOneTimePaymentButton
           applePayConfig={applePayConfig}
           paymentRequest={{
             countryCode: "US",
@@ -108,10 +109,12 @@ function WalletButtons({
           type="buy"
           locale="en"
         />
+        </div>
       )}
 
       {variant === "full" && googlePayConfig && (
-        <GooglePayOneTimePaymentButton
+        <div>
+          <GooglePayOneTimePaymentButton
           googlePayConfig={googlePayConfig}
           transactionInfo={{
             countryCode: "US",
@@ -127,6 +130,13 @@ function WalletButtons({
           buttonColor="black"
           buttonSizeMode="fill"
         />
+        </div>
+      )}
+
+      {(applePayConfig || googlePayConfig) && variant === "full" && (
+        <p className="pt-1 text-center text-[10px] uppercase tracking-widest text-bone/30">
+          or
+        </p>
       )}
 
       <PayPalOneTimePaymentButton

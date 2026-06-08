@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { CheckoutPaymentMethods } from "@/components/checkout/CheckoutPaymentMethods";
+import { AcceptedPaymentMethods } from "@/components/checkout/AcceptedPaymentMethods";
+import { CheckoutPaymentStep } from "@/components/checkout/CheckoutPaymentStep";
 import { BOOKING_SERVICES } from "@/lib/booking-services";
 import { formatPrice } from "@/lib/merch";
 
@@ -141,8 +141,9 @@ export function ServiceCheckoutForm() {
           </p>
         )}
         <p className="mt-1 text-xs text-bone/40">
-          PayPal, Venmo, and debit/credit cards accepted.
+          Secure checkout — PayPal, Venmo, cards, and mobile wallets.
         </p>
+        <AcceptedPaymentMethods compact />
 
         {!checkoutReady ? (
           <form onSubmit={handleContinue} className="mt-6 space-y-4">
@@ -185,55 +186,17 @@ export function ServiceCheckoutForm() {
             </Button>
           </form>
         ) : (
-          <div className="mt-6" id="paypal-button-container">
-            <p className="mb-4 text-sm text-bone/70">
-              Order <span className="text-muted-gold">{checkoutReady.orderNumber}</span>
-              {checkoutReady.demoMode
-                ? " — test mode (no charge)."
-                : " — complete payment below."}
-            </p>
-
-            {checkoutReady.demoMode ? (
-              <Button
-                type="button"
-                className="w-full"
-                onClick={async () => {
-                  try {
-                    setError("");
-                    await handleCapture(checkoutReady.paypalOrderId);
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : "Payment failed.");
-                  }
-                }}
-              >
-                Complete Test Payment ({formatPrice(totalCents)})
-              </Button>
-            ) : (
-              <>
-                <Script
-                  src="https://www.paypal.com/sdk/js"
-                  strategy="lazyOnload"
-                />
-                <CheckoutPaymentMethods
-                  variant="standard"
-                  paypalOrderId={checkoutReady.paypalOrderId}
-                  totalCents={totalCents}
-                  onCapture={handleCapture}
-                  onError={setError}
-                />
-              </>
-            )}
-
-            {error && <p className="mt-4 text-sm text-dried-blood">{error}</p>}
-
-            <button
-              type="button"
-              onClick={() => setCheckoutReady(null)}
-              className="mt-4 text-xs uppercase tracking-widest text-bone/50 hover:text-bone"
-            >
-              Edit details
-            </button>
-          </div>
+          <CheckoutPaymentStep
+            orderNumber={checkoutReady.orderNumber}
+            paypalOrderId={checkoutReady.paypalOrderId}
+            totalCents={totalCents}
+            demoMode={checkoutReady.demoMode}
+            error={error}
+            editLabel="Edit details"
+            onCapture={handleCapture}
+            onError={setError}
+            onEdit={() => setCheckoutReady(null)}
+          />
         )}
       </div>
     </div>
