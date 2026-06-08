@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { LOGO_SRC, NAV_LINKS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { CartLink } from "@/components/layout/CartLink";
 
 export function Header() {
   const pathname = usePathname();
@@ -55,6 +56,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <CartLink />
           <Button href="/book" size="sm">
             Book Me
           </Button>
@@ -82,6 +84,9 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <div className="px-2 py-3">
+              <CartLink />
+            </div>
             <Button href="/book" className="mt-4 w-full">
               Book Me
             </Button>

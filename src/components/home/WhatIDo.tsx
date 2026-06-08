@@ -11,9 +11,9 @@ const offerings = [
   },
   {
     icon: Headphones,
-    title: "Production",
+    title: "Production & Sound",
     description:
-      "Original tracks, remixes, and sonic branding. Music that carries the grit of the streets with the polish of experience.",
+      "Original tracks, remixes, sonic branding, and sound engineering — studio-trained at SAE Institute, with the grit of the streets and the polish of experience.",
   },
   {
     icon: Sparkles,

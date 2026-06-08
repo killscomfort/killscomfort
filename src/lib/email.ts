@@ -25,6 +25,7 @@ export async function sendInquiryNotification(
       <p><strong>Name:</strong> ${inquiry.name}</p>
       <p><strong>Email:</strong> ${inquiry.email}</p>
       ${"phone" in inquiry && inquiry.phone ? `<p><strong>Phone:</strong> ${inquiry.phone}</p>` : ""}
+      <p><strong>Preferred contact:</strong> ${inquiry.preferred_contact}</p>
       <p><strong>Event Type:</strong> ${inquiry.event_type}</p>
       ${inquiry.event_date ? `<p><strong>Date:</strong> ${inquiry.event_date}</p>` : ""}
       ${"event_location" in inquiry && inquiry.event_location ? `<p><strong>Location:</strong> ${inquiry.event_location}</p>` : ""}

@@ -4,19 +4,23 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { EVENT_TYPES, BUDGET_RANGES } from "@/lib/constants";
+import { EVENT_TYPES, BUDGET_RANGES, CONTACT_METHODS } from "@/lib/constants";
 
 interface InquiryFormProps {
   simplified?: boolean;
   source?: string;
 }
 
-export function InquiryForm({ simplified = false, source = "website" }: InquiryFormProps) {
+export function InquiryForm({
+  simplified = false,
+  source = "website",
+}: InquiryFormProps) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [preferredContact, setPreferredContact] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,6 +34,7 @@ export function InquiryForm({ simplified = false, source = "website" }: InquiryF
       name: form.get("name") as string,
       email: form.get("email") as string,
       phone: (form.get("phone") as string) || undefined,
+      preferred_contact: form.get("preferred_contact") as string,
       event_type: form.get("event_type") as string,
       event_date: (form.get("event_date") as string) || undefined,
       event_location: (form.get("event_location") as string) || undefined,
@@ -106,15 +111,28 @@ export function InquiryForm({ simplified = false, source = "website" }: InquiryF
         />
       </div>
 
+      <div className={simplified ? "space-y-6" : "grid gap-6 sm:grid-cols-2"}>
+        <Select
+          name="preferred_contact"
+          label="Preferred Contact Method *"
+          options={CONTACT_METHODS}
+          required
+          error={fieldErrors.preferred_contact}
+          onChange={(e) => setPreferredContact(e.target.value)}
+        />
+        <Input
+          name="phone"
+          type="tel"
+          label={preferredContact === "Phone" ? "Phone *" : "Phone"}
+          placeholder={preferredContact === "Phone" ? "Your phone number" : "(optional)"}
+          required={preferredContact === "Phone"}
+          error={fieldErrors.phone}
+        />
+      </div>
+
       {!simplified && (
         <>
           <div className="grid gap-6 sm:grid-cols-2">
-            <Input
-              name="phone"
-              type="tel"
-              label="Phone"
-              placeholder="(optional)"
-            />
             <Select
               name="event_type"
               label="Event Type *"
@@ -122,20 +140,20 @@ export function InquiryForm({ simplified = false, source = "website" }: InquiryF
               required
               error={fieldErrors.event_type}
             />
+            <Input name="event_date" type="date" label="Event Date" />
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
-            <Input name="event_date" type="date" label="Event Date" />
             <Input
               name="event_location"
               label="Event Location / Venue"
               placeholder="City, venue name..."
             />
+            <Select
+              name="budget_range"
+              label="Estimated Budget"
+              options={BUDGET_RANGES}
+            />
           </div>
-          <Select
-            name="budget_range"
-            label="Estimated Budget"
-            options={BUDGET_RANGES}
-          />
         </>
       )}
 

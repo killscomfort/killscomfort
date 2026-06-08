@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { Suspense } from "react";
-import { BrandText } from "@/components/ui/BrandText";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InquiryForm } from "@/components/forms/InquiryForm";
 import { createMetadata } from "@/lib/seo";
@@ -25,31 +25,22 @@ export default function BookPage() {
             className="mx-auto"
           />
 
-          <div className="mb-12 border border-clay/20 bg-warm-charcoal/30 p-6 text-center">
-            <p className="text-xl text-bone/70">
-              <BrandText variant="inline">
-                &ldquo;Gregory brought an energy that transformed the entire night.
-                Professional, versatile, and rooted in the culture.&rdquo;
-              </BrandText>
-            </p>
-            <p className="mt-2 text-lg text-muted-gold">
-              <BrandText variant="inline">— Event Director, Miami</BrandText>
-            </p>
-          </div>
-
-          <div className="mb-8 flex flex-wrap items-center justify-center gap-4 text-xs uppercase tracking-widest text-bone/30">
-            {["Club Space", "E11EVEN", "Treehouse", "LIV"].map((v) => (
-              <span key={v}>{v}</span>
-            ))}
-          </div>
-
-          <p className="mb-2 text-center text-sm text-bone/50">
-            Trusted by 150+ events
-          </p>
-
           <Suspense fallback={<div className="text-center text-bone/50">Loading form...</div>}>
             <InquiryForm source="booking-page" />
           </Suspense>
+
+          <div className="mt-12 border border-clay/30 bg-warm-charcoal/30 p-8 text-center">
+            <h3 className="text-display text-xl uppercase text-bone">Ready to Pay?</h3>
+            <p className="mt-3 text-sm text-bone/60">
+              Book a deposit, private lesson, or event ticket with PayPal, Venmo, or card.
+            </p>
+            <Link
+              href="/book/pay"
+              className="mt-6 inline-flex items-center justify-center bg-muted-gold px-8 py-3 text-sm text-near-black hover:bg-desert-sand"
+            >
+              Book & Pay
+            </Link>
+          </div>
         </div>
       </section>
     </div>

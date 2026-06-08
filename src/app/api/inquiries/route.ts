@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
         email: data.email,
         event_type: data.event_type,
         phone: "phone" in data ? data.phone || null : null,
+        preferred_contact: data.preferred_contact,
         event_date: data.event_date || null,
         event_location:
           "event_location" in data ? data.event_location || null : null,

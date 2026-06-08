@@ -12,9 +12,11 @@ export function normalizeBrandName(text: unknown): string {
 export const SITE = {
   name: BRAND_NAME,
   founder: "Gregory Tovar",
+  founderRoles: "DJ, producer, and sound engineer",
+  founderEducation: "SAE Institute alum",
   tagline: "Growth lives on the otherside of killing your comforts",
   description:
-    "Miami-based DJ, producer, and creative visionary building a movement rooted in self-discovery, creative expression, and service to others.",
+    "Miami-based DJ, producer, sound engineer, SAE Institute alum, and creative visionary building a movement rooted in self-discovery, creative expression, and service to others.",
   location: "Miami, Florida",
   email: "Killscomfort@gmail.com",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://killscomfort.com",
@@ -38,11 +40,14 @@ export const EVENT_TYPES = [
   "Club Night",
   "Festival",
   "Private Event",
+  "Private Lessons",
   "Corporate",
   "Wedding",
   "Brand Partnership",
   "Other",
 ] as const;
+
+export const CONTACT_METHODS = ["Email", "Phone"] as const;
 
 export const BUDGET_RANGES = [
   "Under $500",

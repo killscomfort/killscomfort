@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createMetadata } from "@/lib/seo";
-import { ABOUT_GALLERY_IMAGES, ABOUT_HERO_IMAGE } from "@/lib/about";
+import { ABOUT_GALLERY_IMAGES, ABOUT_HERO_IMAGE, FOUNDER_BIO } from "@/lib/about";
 import { SITE } from "@/lib/constants";
 
 export const metadata = createMetadata({
@@ -17,9 +17,9 @@ const offerings = [
       "Versatile, high-energy sets for clubs, festivals, and private events. House, techno, hip-hop — built to read the room and move the crowd.",
   },
   {
-    title: "Production",
+    title: "Production & Sound",
     description:
-      "Original tracks, remixes, and sonic branding. Music that carries the grit of the streets with the polish of experience.",
+      "Original tracks, remixes, sonic branding, and sound engineering — studio-trained at SAE Institute, with the grit of the streets and the polish of experience.",
   },
   {
     title: "Event Curation",
@@ -71,8 +71,9 @@ export default function AboutPage() {
         <div className="mx-auto max-w-2xl space-y-6 text-base leading-relaxed text-bone/70 sm:text-lg">
           <p>
             {SITE.founder} grew up in Miami — a melting pot where every block
-            carries a different rhythm. The streets taught him what no classroom
-            could: grit, gratitude, and the power of showing up for others.
+            carries a different rhythm. An {SITE.founderEducation}, he honed the
+            craft in the studio; the streets taught him grit, gratitude, and the
+            power of showing up for others.
           </p>
           <p>
             <strong className="text-bone">{SITE.name}</strong> isn&apos;t just a
@@ -80,11 +81,7 @@ export default function AboutPage() {
             every event is an invitation to step past what&apos;s familiar and
             find something real.
           </p>
-          <p>
-            {SITE.founder} is a Miami-born DJ and producer building a movement
-            from the streets up — not from a studio. Raw energy, real culture,
-            and music as service.
-          </p>
+          <p>{FOUNDER_BIO}</p>
           <p>
             Music isn&apos;t ego here — it&apos;s service. Creating experiences
             for others, building safe spaces for creative expression, and

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { HOME_ARTIST_IMAGE } from "@/lib/about";
+import { HOME_ARTIST_IMAGE, FOUNDER_BIO } from "@/lib/about";
 import { SITE } from "@/lib/constants";
 
 export function WhoIs() {
@@ -24,7 +24,7 @@ export function WhoIs() {
             <SectionHeading
               label="The Artist"
               title={`Who Is ${SITE.name}`}
-              description={`${SITE.founder} is a Miami-born DJ and producer building a movement from the streets up — not from a studio. Raw energy, real culture, and music as service.`}
+              description={FOUNDER_BIO}
             />
             <p className="text-bone/70 leading-relaxed">
               For cold traffic and first-time visitors: this isn&apos;t a template DJ page.

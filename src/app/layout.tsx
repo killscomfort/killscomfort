@@ -3,6 +3,7 @@ import { PT_Serif } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { FooterWrapper } from "@/components/layout/FooterWrapper";
 import { Analytics } from "@/components/layout/Analytics";
+import { Providers } from "@/components/providers/Providers";
 import { createMetadata, artistJsonLd } from "@/lib/seo";
 import "./globals.css";
 
@@ -30,10 +31,12 @@ export default function RootLayout({
         />
       </head>
       <body className={ptSerif.className}>
-        <Analytics />
-        <Header />
-        <main>{children}</main>
-        <FooterWrapper />
+        <Providers>
+          <Analytics />
+          <Header />
+          <main>{children}</main>
+          <FooterWrapper />
+        </Providers>
       </body>
     </html>
   );

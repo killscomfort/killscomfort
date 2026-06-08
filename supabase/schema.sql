@@ -19,6 +19,7 @@ create table public.inquiries (
   name text not null,
   email text not null,
   phone text,
+  preferred_contact text check (preferred_contact in ('Email', 'Phone')),
   event_type text not null,
   event_date date,
   event_location text,
@@ -29,6 +30,34 @@ create table public.inquiries (
   utm_source text,
   utm_medium text,
   utm_campaign text,
+  created_at timestamptz not null default now()
+);
+
+-- Merch orders
+create table public.orders (
+  id uuid primary key default gen_random_uuid(),
+  order_number text not null unique,
+  customer_name text not null,
+  customer_email text not null,
+  customer_phone text,
+  shipping_address jsonb not null,
+  subtotal_cents integer not null,
+  total_cents integer not null,
+  status text not null default 'pending' check (status in ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
+  paypal_order_id text,
+  paypal_capture_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  product_slug text not null,
+  product_name text not null,
+  price_cents integer not null,
+  quantity integer not null default 1 check (quantity > 0),
+  size text,
   created_at timestamptz not null default now()
 );
 
@@ -104,6 +133,8 @@ create table public.site_content (
 -- RLS policies
 alter table public.profiles enable row level security;
 alter table public.inquiries enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
 alter table public.blog_posts enable row level security;
 alter table public.events enable row level security;
 alter table public.music_entries enable row level security;
@@ -152,6 +183,10 @@ create policy "Anyone can create inquiries" on public.inquiries
 
 -- Admin policies (full access)
 create policy "Admins full access inquiries" on public.inquiries
+  for all using (public.is_admin());
+create policy "Admins full access orders" on public.orders
+  for all using (public.is_admin());
+create policy "Admins full access order items" on public.order_items
   for all using (public.is_admin());
 create policy "Admins full access blog" on public.blog_posts
   for all using (public.is_admin());

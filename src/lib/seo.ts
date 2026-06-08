@@ -54,7 +54,11 @@ export function artistJsonLd() {
     founder: {
       "@type": "Person",
       name: SITE.founder,
-      jobTitle: "DJ & Producer",
+      jobTitle: "DJ, Producer & Sound Engineer",
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: "SAE Institute",
+      },
     },
     address: {
       "@type": "PostalAddress",

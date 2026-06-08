@@ -167,4 +167,12 @@
       rgba(0, 0, 0, 0.65) 100%
     );
   }
+
+  apple-pay-button {
+    display: block;
+    width: 100%;
+    --apple-pay-button-width: 100%;
+    --apple-pay-button-height: 48px;
+    --apple-pay-button-border-radius: 0px;
+  }
 }

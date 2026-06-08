@@ -1,5 +1,6 @@
 export type UserRole = "user" | "premium" | "admin";
 export type InquiryStatus = "new" | "read" | "responded" | "archived";
+export type OrderStatus = "pending" | "paid" | "failed" | "refunded" | "cancelled";
 export type MusicCategory = "dj_mix" | "original" | "remix";
 export type LandingTemplate = "booking" | "partnership";
 
@@ -19,6 +20,7 @@ export interface Inquiry {
   name: string;
   email: string;
   phone: string | null;
+  preferred_contact: string | null;
   event_type: string;
   event_date: string | null;
   event_location: string | null;
@@ -29,6 +31,33 @@ export interface Inquiry {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  created_at: string;
+}
+
+export interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string | null;
+  shipping_address: Record<string, string | null>;
+  subtotal_cents: number;
+  total_cents: number;
+  status: OrderStatus;
+  paypal_order_id: string | null;
+  paypal_capture_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_slug: string;
+  product_name: string;
+  price_cents: number;
+  quantity: number;
+  size: string | null;
   created_at: string;
 }
 

@@ -75,6 +75,9 @@ export default async function AdminInquiriesPage({
 
               <div className="mt-4 grid gap-2 text-sm text-bone/70 sm:grid-cols-2 lg:grid-cols-3">
                 <p>Event: {inquiry.event_type}</p>
+                {inquiry.preferred_contact && (
+                  <p>Contact via: {inquiry.preferred_contact}</p>
+                )}
                 {inquiry.event_date && (
                   <p>Date: {formatDate(inquiry.event_date)}</p>
                 )}

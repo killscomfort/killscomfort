@@ -10,6 +10,7 @@ import {
   Calendar,
   Music,
   Megaphone,
+  ShoppingBag,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -19,6 +20,7 @@ import { SITE } from "@/lib/constants";
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/inquiries", label: "Inquiries", icon: Mail },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/blog", label: "Blog", icon: FileText },
   { href: "/admin/events", label: "Events", icon: Calendar },
@@ -30,7 +32,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-clay/20 bg-warm-charcoal">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-clay/20 bg-warm-charcoal lg:flex">
       <div className="border-b border-clay/20 px-6 py-5">
         <Link href="/admin" className="block">
           <p className="text-display text-lg uppercase text-bone">{SITE.name}</p>

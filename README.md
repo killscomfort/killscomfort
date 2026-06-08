@@ -1,6 +1,6 @@
 # KillsComfort Website
 
-Full-stack website for Gregory Tovar / KillsComfort — DJ, producer, and creative brand based in Miami.
+Full-stack website for Gregory Tovar / KillsComfort — DJ, producer, sound engineer, and creative brand based in Miami.
 
 Official site for the KillsComfort brand — music, merch, events, and booking.
 
