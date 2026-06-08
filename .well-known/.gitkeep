@@ -1,0 +1,4 @@
+# Place PayPal's downloaded file here (no file extension):
+# apple-developer-merchantid-domain-association
+#
+# Or set APPLE_PAY_DOMAIN_ASSOCIATION in Vercel instead of committing this file.

@@ -10,7 +10,13 @@ import { CheckoutPaymentStep } from "@/components/checkout/CheckoutPaymentStep";
 import { useCart } from "@/lib/cart/CartProvider";
 import { formatPrice } from "@/lib/merch";
 
-export function CheckoutForm() {
+export function CheckoutForm({
+  applePayEnabled = false,
+  applePayDomainName,
+}: {
+  applePayEnabled?: boolean;
+  applePayDomainName?: string;
+}) {
   const router = useRouter();
   const { items, subtotalCents, updateQuantity, removeItem, clearCart, ready } = useCart();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -251,6 +257,8 @@ export function CheckoutForm() {
               demoMode={checkoutReady.demoMode}
               error={error}
               editLabel="Edit shipping info"
+              applePayEnabled={applePayEnabled}
+              applePayDomainName={applePayDomainName}
               onCapture={handleCapture}
               onError={setError}
               onEdit={() => setCheckoutReady(null)}

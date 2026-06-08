@@ -13,6 +13,8 @@ type CheckoutPaymentStepProps = {
   demoMode?: boolean;
   error: string;
   editLabel?: string;
+  applePayEnabled?: boolean;
+  applePayDomainName?: string;
   onCapture: (paypalOrderId: string) => Promise<void>;
   onError: (message: string) => void;
   onEdit: () => void;
@@ -25,6 +27,8 @@ export function CheckoutPaymentStep({
   demoMode,
   error,
   editLabel = "Edit details",
+  applePayEnabled = false,
+  applePayDomainName,
   onCapture,
   onError,
   onEdit,
@@ -69,6 +73,8 @@ export function CheckoutPaymentStep({
             <CheckoutPaymentMethods
               paypalOrderId={paypalOrderId}
               totalCents={totalCents}
+              applePayEnabled={applePayEnabled}
+              applePayDomainName={applePayDomainName}
               onCapture={onCapture}
               onError={onError}
             />

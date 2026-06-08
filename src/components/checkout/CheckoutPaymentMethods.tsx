@@ -35,7 +35,16 @@ type CheckoutPaymentMethodsProps = {
   onCapture: (paypalOrderId: string) => Promise<void>;
   onError: (message: string) => void;
   variant?: "full" | "standard";
+  applePayEnabled?: boolean;
+  applePayDomainName?: string;
 };
+
+function formatApplePayError(message: string) {
+  if (/merchant|domain|verify|validation/i.test(message)) {
+    return "Apple Pay is not verified for this site yet. Use PayPal, Venmo, or card instead.";
+  }
+  return message;
+}
 
 function WalletButtons({
   paypalOrderId,
@@ -43,6 +52,8 @@ function WalletButtons({
   onCapture,
   onError,
   variant = "full",
+  applePayEnabled = false,
+  applePayDomainName,
 }: CheckoutPaymentMethodsProps) {
   const { eligiblePaymentMethods, isLoading } = useEligibleMethods({
     payload: { currencyCode: "USD" },
@@ -88,10 +99,12 @@ function WalletButtons({
 
   return (
     <div className="space-y-3 [&_button]:min-h-12 [&_button]:w-full">
-      {variant === "full" && canUseApplePay() && applePayConfig && (
+      {variant === "full" && applePayEnabled && canUseApplePay() && applePayConfig && (
         <div>
           <ApplePayOneTimePaymentButton
           applePayConfig={applePayConfig}
+          displayName={SITE.name}
+          domainName={applePayDomainName}
           paymentRequest={{
             countryCode: "US",
             currencyCode: "USD",
@@ -103,7 +116,7 @@ function WalletButtons({
           }}
           createOrder={createOrder}
           onApprove={onApproveApplePay}
-          onError={(err) => onError(err.message)}
+          onError={(err) => onError(formatApplePayError(err.message))}
           applePaySessionVersion={4}
           buttonstyle="black"
           type="buy"
@@ -133,7 +146,7 @@ function WalletButtons({
         </div>
       )}
 
-      {(applePayConfig || googlePayConfig) && variant === "full" && (
+      {variant === "full" && ((applePayEnabled && applePayConfig) || googlePayConfig) && (
         <p className="pt-1 text-center text-[10px] uppercase tracking-widest text-bone/30">
           or
         </p>
@@ -254,6 +267,8 @@ function PaymentMethodsInner(props: CheckoutPaymentMethodsProps) {
 
 export function CheckoutPaymentMethods({
   variant = "full",
+  applePayEnabled = false,
+  applePayDomainName,
   ...props
 }: CheckoutPaymentMethodsProps) {
   const clientId = getPublicPayPalClientId();
@@ -278,7 +293,12 @@ export function CheckoutPaymentMethods({
       components={components}
       pageType="checkout"
     >
-      <PaymentMethodsInner variant={variant} {...props} />
+      <PaymentMethodsInner
+        variant={variant}
+        applePayEnabled={applePayEnabled}
+        applePayDomainName={applePayDomainName}
+        {...props}
+      />
     </PayPalProvider>
   );
 }

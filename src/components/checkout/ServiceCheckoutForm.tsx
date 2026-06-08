@@ -9,7 +9,13 @@ import { CheckoutPaymentStep } from "@/components/checkout/CheckoutPaymentStep";
 import { BOOKING_SERVICES } from "@/lib/booking-services";
 import { formatPrice } from "@/lib/merch";
 
-export function ServiceCheckoutForm() {
+export function ServiceCheckoutForm({
+  applePayEnabled = false,
+  applePayDomainName,
+}: {
+  applePayEnabled?: boolean;
+  applePayDomainName?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialSlug = searchParams.get("service") || BOOKING_SERVICES[0]?.slug || "";
@@ -193,6 +199,8 @@ export function ServiceCheckoutForm() {
             demoMode={checkoutReady.demoMode}
             error={error}
             editLabel="Edit details"
+            applePayEnabled={applePayEnabled}
+            applePayDomainName={applePayDomainName}
             onCapture={handleCapture}
             onError={setError}
             onEdit={() => setCheckoutReady(null)}

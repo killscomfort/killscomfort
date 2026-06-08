@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCheckoutForm } from "@/components/checkout/ServiceCheckoutForm";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
+import { getApplePayDomainName, isApplePayEnabled } from "@/lib/apple-pay";
 
 export const metadata = createMetadata({
   title: "Book & Pay",
@@ -12,6 +13,9 @@ export const metadata = createMetadata({
 });
 
 export default function BookPayPage() {
+  const applePayEnabled = isApplePayEnabled();
+  const applePayDomainName = getApplePayDomainName();
+
   return (
     <div className="pt-24">
       <section className="section-padding">
@@ -34,7 +38,10 @@ export default function BookPayPage() {
 
           <div className="mt-12">
             <Suspense fallback={<p className="text-center text-bone/50">Loading...</p>}>
-              <ServiceCheckoutForm />
+              <ServiceCheckoutForm
+                applePayEnabled={applePayEnabled}
+                applePayDomainName={applePayDomainName}
+              />
             </Suspense>
           </div>
         </div>

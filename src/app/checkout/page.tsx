@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { createMetadata } from "@/lib/seo";
+import { getApplePayDomainName, isApplePayEnabled } from "@/lib/apple-pay";
 
 export const metadata = createMetadata({
   title: "Checkout",
@@ -9,6 +10,9 @@ export const metadata = createMetadata({
 });
 
 export default function CheckoutPage() {
+  const applePayEnabled = isApplePayEnabled();
+  const applePayDomainName = getApplePayDomainName();
+
   return (
     <div className="pt-24">
       <section className="section-padding">
@@ -20,7 +24,10 @@ export default function CheckoutPage() {
             className="mx-auto"
           />
           <div className="mt-12">
-            <CheckoutForm />
+            <CheckoutForm
+              applePayEnabled={applePayEnabled}
+              applePayDomainName={applePayDomainName}
+            />
           </div>
         </div>
       </section>
