@@ -268,7 +268,6 @@ export function CheckoutPaymentMethods({
       environment={environment}
       components={components}
       pageType="checkout"
-      locale="en_US"
     >
       <PaymentMethodsInner variant={variant} {...props} />
     </PayPalProvider>
