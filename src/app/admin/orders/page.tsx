@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { getAdminServiceClient } from "@/lib/admin/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { formatDate } from "@/lib/utils";
@@ -14,7 +14,7 @@ export default async function AdminOrdersPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status } = await searchParams;
-  const supabase = await createClient();
+  const supabase = await getAdminServiceClient();
 
   let query = supabase
     .from("orders")
@@ -25,7 +25,7 @@ export default async function AdminOrdersPage({
     query = query.eq("status", status);
   }
 
-  const { data: orders } = await query;
+  const { data: orders, error } = await query;
   const items = (orders || []) as OrderWithItems[];
 
   const statuses = ["all", "pending", "paid", "failed", "cancelled", "refunded"];
@@ -67,7 +67,12 @@ export default async function AdminOrdersPage({
       </div>
 
       <div className="space-y-4">
-        {items.length === 0 ? (
+        {error && (
+          <p className="text-sm text-dried-blood">
+            Could not load orders: {error.message}
+          </p>
+        )}
+        {!error && items.length === 0 ? (
           <p className="text-bone/50">No orders yet.</p>
         ) : (
           items.map((order) => {
@@ -128,7 +133,7 @@ export default async function AdminOrdersPage({
                 </div>
 
                 <ul className="mt-4 space-y-1 border-t border-clay/20 pt-4 text-sm text-bone/70">
-                  {order.order_items.map((line) => (
+                  {(order.order_items ?? []).map((line) => (
                     <li key={line.id}>
                       {line.product_name}
                       {line.size ? ` (${line.size})` : ""} × {line.quantity} —{" "}

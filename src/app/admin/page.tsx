@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminServiceClient } from "@/lib/admin/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { formatDate } from "@/lib/utils";
@@ -8,6 +9,7 @@ import { formatPrice } from "@/lib/merch";
 
 export default async function AdminPage() {
   const supabase = await createClient();
+  const adminDb = await getAdminServiceClient();
 
   const [
     { count: inquiryCount },
@@ -26,8 +28,8 @@ export default async function AdminPage() {
       .from("inquiries")
       .select("*", { count: "exact", head: true })
       .eq("status", "new"),
-    supabase.from("orders").select("*", { count: "exact", head: true }),
-    supabase
+    adminDb.from("orders").select("*", { count: "exact", head: true }),
+    adminDb
       .from("orders")
       .select("*", { count: "exact", head: true })
       .eq("status", "paid"),
@@ -40,7 +42,7 @@ export default async function AdminPage() {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(5),
-    supabase
+    adminDb
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false })
@@ -134,7 +136,8 @@ export default async function AdminPage() {
             <p className="text-bone/50">No orders yet.</p>
           ) : (
             orders.map((order) => (
-              <AdminCard key={order.id} className="py-4">
+              <Link key={order.id} href="/admin/orders">
+                <AdminCard className="py-4 transition-colors hover:border-muted-gold/40">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-bone">{order.order_number}</p>
@@ -151,7 +154,8 @@ export default async function AdminPage() {
                     {order.status}
                   </span>
                 </div>
-              </AdminCard>
+                </AdminCard>
+              </Link>
             ))
           )}
         </div>

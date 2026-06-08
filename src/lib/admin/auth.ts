@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export async function requireAdmin() {
   const supabase = await createClient();
@@ -21,4 +21,10 @@ export async function requireAdmin() {
   }
 
   return supabase;
+}
+
+/** Verified admin session + service role client (bypasses RLS for admin reads/writes). */
+export async function getAdminServiceClient() {
+  await requireAdmin();
+  return createServiceClient();
 }

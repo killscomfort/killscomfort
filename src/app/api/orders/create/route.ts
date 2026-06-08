@@ -13,7 +13,10 @@ export async function POST(request: NextRequest) {
   try {
     if (!isPayPalConfigured()) {
       return NextResponse.json(
-        { message: "Checkout is not configured yet. Please try again later." },
+        {
+          message:
+            "Checkout is not configured. Add PAYPAL_CLIENT_SECRET to .env.local and restart the server.",
+        },
         { status: 503 }
       );
     }
