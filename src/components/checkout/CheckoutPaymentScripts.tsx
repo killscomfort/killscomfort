@@ -1,17 +1,21 @@
+"use client";
+
 import Script from "next/script";
 
-/** Required for Apple Pay and Google Pay via PayPal SDK v6. */
+/** Apple Pay + Google Pay SDKs — load before wallet buttons on checkout. */
 export function CheckoutPaymentScripts() {
   return (
     <>
       <Script
-        src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"
+        id="apple-pay-sdk"
+        src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"
         crossOrigin="anonymous"
-        strategy="lazyOnload"
+        strategy="afterInteractive"
       />
       <Script
+        id="google-pay-sdk"
         src="https://pay.google.com/gp/p/js/pay.js"
-        strategy="lazyOnload"
+        strategy="afterInteractive"
       />
     </>
   );

@@ -2,10 +2,19 @@ export function getPublicPayPalClientId() {
   return process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "";
 }
 
+export function getPayPalMode() {
+  return (
+    process.env.NEXT_PUBLIC_PAYPAL_MODE || process.env.PAYPAL_MODE || "sandbox"
+  );
+}
+
 export function getPayPalEnvironment(): "sandbox" | "production" {
-  const mode =
-    process.env.NEXT_PUBLIC_PAYPAL_MODE || process.env.PAYPAL_MODE || "sandbox";
-  return mode === "live" ? "production" : "sandbox";
+  return getPayPalMode() === "live" ? "production" : "sandbox";
+}
+
+export function isPayPalSandbox() {
+  const mode = getPayPalMode();
+  return mode !== "live" && mode !== "mock";
 }
 
 export function getGooglePayEnvironment(): "TEST" | "PRODUCTION" {

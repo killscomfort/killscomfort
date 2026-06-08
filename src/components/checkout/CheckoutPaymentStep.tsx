@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/merch";
 import { AcceptedPaymentMethods } from "@/components/checkout/AcceptedPaymentMethods";
 import { CheckoutPaymentMethods } from "@/components/checkout/CheckoutPaymentMethods";
 import { CheckoutPaymentScripts } from "@/components/checkout/CheckoutPaymentScripts";
+import { isPayPalSandbox } from "@/lib/paypal-client";
 
 type CheckoutPaymentStepProps = {
   orderNumber: string;
@@ -68,6 +69,12 @@ export function CheckoutPaymentStep({
         </Button>
       ) : (
         <>
+          {isPayPalSandbox() && (
+            <p className="mt-4 rounded border border-clay/30 bg-clay/10 px-3 py-2 text-xs text-bone/60">
+              PayPal sandbox: Apple Pay only works with Apple sandbox test cards in
+              Wallet, not real cards. Use live PayPal for real customer payments.
+            </p>
+          )}
           <CheckoutPaymentScripts />
           <div className="mt-4">
             <CheckoutPaymentMethods

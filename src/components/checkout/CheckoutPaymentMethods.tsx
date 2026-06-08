@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   PayPalProvider,
   PayPalOneTimePaymentButton,
@@ -20,14 +20,15 @@ import {
 import { Button } from "@/components/ui/Button";
 import { SITE } from "@/lib/constants";
 import {
-  canUseApplePay,
   formatPayPalAmount,
   getGooglePayEnvironment,
   getPayPalEnvironment,
   getPublicPayPalClientId,
+  isPayPalSandbox,
   PAYPAL_CHECKOUT_COMPONENTS,
   PAYPAL_STANDARD_COMPONENTS,
 } from "@/lib/paypal-client";
+import { useApplePayReady } from "@/hooks/useApplePayReady";
 
 type CheckoutPaymentMethodsProps = {
   paypalOrderId: string;
@@ -40,8 +41,20 @@ type CheckoutPaymentMethodsProps = {
 };
 
 function formatApplePayError(message: string) {
-  if (/merchant|domain|verify|validation/i.test(message)) {
-    return "Apple Pay is not verified for this site yet. Use PayPal, Venmo, or card instead.";
+  if (/merchant|domain|verify|validation|not verified/i.test(message)) {
+    return (
+      "Apple Pay merchant verification failed. Register www.killscomfort.com in PayPal " +
+      "(Developer Dashboard → your app → Apple Pay → Manage → Add Domain), then try again."
+    );
+  }
+  if (/not available|Apple Pay is not/i.test(message)) {
+    return "Apple Pay requires Safari on iPhone or Mac with a card in Wallet.";
+  }
+  if (isPayPalSandbox() && /declin|fail|authoriz/i.test(message)) {
+    return (
+      "Apple Pay test failed. PayPal is in sandbox mode — use an Apple sandbox test card " +
+      "in Wallet, or switch to live PayPal for real cards."
+    );
   }
   return message;
 }
@@ -55,13 +68,8 @@ function WalletButtons({
   applePayEnabled = false,
   applePayDomainName,
 }: CheckoutPaymentMethodsProps) {
-  const [resolvedDomainName, setResolvedDomainName] = useState(applePayDomainName);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setResolvedDomainName(window.location.hostname);
-    }
-  }, []);
+  const applePayReady = useApplePayReady(applePayEnabled);
+  const registeredDomain = applePayDomainName || "www.killscomfort.com";
 
   const { eligiblePaymentMethods, isLoading } = useEligibleMethods({
     payload: { currencyCode: "USD" },
@@ -105,14 +113,17 @@ function WalletButtons({
     ? eligiblePaymentMethods.getDetails("googlepay")?.config
     : null;
 
+  const wantsApplePay =
+    variant === "full" && applePayEnabled && Boolean(applePayConfig);
+
   return (
     <div className="space-y-3 [&_button]:min-h-12 [&_button]:w-full">
-      {variant === "full" && applePayEnabled && canUseApplePay() && applePayConfig && (
+      {wantsApplePay && applePayReady && applePayConfig && (
         <div>
           <ApplePayOneTimePaymentButton
           applePayConfig={applePayConfig}
           displayName={SITE.name}
-          domainName={resolvedDomainName || applePayDomainName}
+          domainName={registeredDomain}
           paymentRequest={{
             countryCode: "US",
             currencyCode: "USD",
