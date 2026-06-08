@@ -18,3 +18,16 @@ export function getCatalogItem(slug: string): CatalogItem | undefined {
 export function catalogItemRequiresShipping(item: CatalogItem) {
   return item.kind === "merch";
 }
+
+export function cartRequiresShipping(
+  items: { slug: string }[]
+) {
+  return items.some((line) => {
+    const product = getCatalogItem(line.slug);
+    return product ? catalogItemRequiresShipping(product) : true;
+  });
+}
+
+export function cartHasServices(items: { slug: string }[]) {
+  return items.some((line) => getCatalogItem(line.slug)?.kind === "service");
+}

@@ -1,4 +1,4 @@
-import { getCatalogItem } from "@/lib/catalog";
+import { cartHasServices, cartRequiresShipping, getCatalogItem } from "@/lib/catalog";
 import type { CheckoutInput } from "./validation";
 
 export type ValidatedOrderItem = {
@@ -53,27 +53,30 @@ export function createOrderNumber() {
 }
 
 export function buildShippingAddress(data: CheckoutInput) {
-  if (data.order_kind === "service" || !("shipping_line1" in data)) {
+  const needsShipping = cartRequiresShipping(data.items);
+  const hasServices = cartHasServices(data.items);
+
+  if (needsShipping && data.shipping_line1?.trim()) {
     return {
-      line1: "Service order — no shipping",
-      line2: null,
-      city: "Miami",
-      state: "FL",
-      postal_code: "33101",
-      country: "US",
-      event_date: data.order_kind === "service" ? data.event_date ?? null : null,
-      event_notes: data.order_kind === "service" ? data.event_notes ?? null : null,
+      line1: data.shipping_line1,
+      line2: data.shipping_line2 || null,
+      city: data.shipping_city ?? "",
+      state: data.shipping_state ?? "",
+      postal_code: data.shipping_postal_code ?? "",
+      country: data.shipping_country || "US",
+      event_date: hasServices ? data.event_date ?? null : null,
+      event_notes: hasServices ? data.event_notes ?? null : null,
     };
   }
 
   return {
-    line1: data.shipping_line1,
-    line2: data.shipping_line2 || null,
-    city: data.shipping_city,
-    state: data.shipping_state,
-    postal_code: data.shipping_postal_code,
-    country: data.shipping_country,
-    event_date: null,
-    event_notes: null,
+    line1: "Service order — no shipping",
+    line2: null,
+    city: "Miami",
+    state: "FL",
+    postal_code: "33101",
+    country: "US",
+    event_date: data.event_date ?? null,
+    event_notes: data.event_notes ?? null,
   };
 }

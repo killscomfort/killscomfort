@@ -19,7 +19,7 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-5xl">
           <SectionHeading
             title="Checkout"
-            description="Apple Pay, Google Pay, PayPal, Venmo, and cards."
+            description="Merch, bookings, lessons, and tickets — one cart, one checkout."
             align="center"
             className="mx-auto"
           />

@@ -8,7 +8,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getMerchItem } from "@/lib/merch";
+import { getCatalogItem } from "@/lib/catalog";
+import { LOGO_SRC } from "@/lib/constants";
 import type { CartItem, CartLine } from "./types";
 
 type CartContextValue = {
@@ -30,19 +31,24 @@ function lineKey(slug: string, size?: string) {
 }
 
 function hydrateItems(lines: CartLine[]): CartItem[] {
-  return lines
-    .map((line) => {
-      const product = getMerchItem(line.slug);
-      if (!product) return null;
-      return {
-        ...line,
-        name: product.name,
-        priceCents: product.priceCents,
-        image: product.image,
-        lineTotalCents: product.priceCents * line.quantity,
-      };
-    })
-    .filter((item): item is CartItem => item !== null);
+  const items: CartItem[] = [];
+
+  for (const line of lines) {
+    const product = getCatalogItem(line.slug);
+    if (!product) continue;
+
+    items.push({
+      ...line,
+      kind: product.kind,
+      name: product.name,
+      priceCents: product.priceCents,
+      description: product.description,
+      image: product.kind === "merch" ? product.image : LOGO_SRC,
+      lineTotalCents: product.priceCents * line.quantity,
+    });
+  }
+
+  return items;
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {

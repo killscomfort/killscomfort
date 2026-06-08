@@ -1,3 +1,5 @@
+import type { CatalogItem } from "@/lib/catalog";
+
 export type CartLine = {
   slug: string;
   quantity: number;
@@ -5,8 +7,10 @@ export type CartLine = {
 };
 
 export type CartItem = CartLine & {
+  kind: CatalogItem["kind"];
   name: string;
   priceCents: number;
-  image: string;
+  description?: string;
+  image?: string;
   lineTotalCents: number;
 };

@@ -32,13 +32,13 @@ export default function BookPage() {
           <div className="mt-12 border border-clay/30 bg-warm-charcoal/30 p-8 text-center">
             <h3 className="text-display text-xl uppercase text-bone">Ready to Pay?</h3>
             <p className="mt-3 text-sm text-bone/60">
-              Book a deposit, private lesson, or event ticket with PayPal, Venmo, or card.
+              Add a booking deposit, private lesson, or event ticket to your cart and checkout with PayPal, Venmo, or card.
             </p>
             <Link
-              href="/book/pay"
+              href="/services"
               className="mt-6 inline-flex items-center justify-center bg-muted-gold px-8 py-3 text-sm text-near-black hover:bg-desert-sand"
             >
-              Book & Pay
+              View Services
             </Link>
           </div>
         </div>

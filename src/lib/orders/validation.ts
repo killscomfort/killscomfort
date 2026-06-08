@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getCatalogItem } from "@/lib/catalog";
+import { cartHasServices, cartRequiresShipping, getCatalogItem } from "@/lib/catalog";
 
 const cartLineSchema = z.object({
   slug: z.string().min(1),
@@ -14,36 +14,53 @@ const customerFields = {
 };
 
 const shippingFields = {
-  shipping_line1: z.string().min(3, "Street address is required"),
+  shipping_line1: z.string().optional(),
   shipping_line2: z.string().optional(),
-  shipping_city: z.string().min(2, "City is required"),
-  shipping_state: z.string().min(2, "State is required"),
-  shipping_postal_code: z.string().min(3, "ZIP code is required"),
-  shipping_country: z.string().default("US"),
+  shipping_city: z.string().optional(),
+  shipping_state: z.string().optional(),
+  shipping_postal_code: z.string().optional(),
+  shipping_country: z.string().optional(),
 };
 
-export const merchCheckoutSchema = z.object({
-  order_kind: z.literal("merch").optional().default("merch"),
-  ...customerFields,
-  ...shippingFields,
-  items: z.array(cartLineSchema).min(1, "Cart is empty"),
-});
+export const checkoutSchema = z
+  .object({
+    ...customerFields,
+    items: z.array(cartLineSchema).min(1, "Cart is empty"),
+    ...shippingFields,
+    event_date: z.string().optional(),
+    event_notes: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!cartRequiresShipping(data.items)) return;
 
-export const serviceCheckoutSchema = z.object({
-  order_kind: z.literal("service"),
-  ...customerFields,
-  items: z.array(cartLineSchema).min(1, "Select a service"),
-  event_date: z.string().optional(),
-  event_notes: z.string().optional(),
-});
+    const required: [keyof typeof shippingFields, string][] = [
+      ["shipping_line1", "Street address is required"],
+      ["shipping_city", "City is required"],
+      ["shipping_state", "State is required"],
+      ["shipping_postal_code", "ZIP code is required"],
+    ];
 
-export const checkoutSchema = z.union([merchCheckoutSchema, serviceCheckoutSchema]);
+    for (const [field, message] of required) {
+      if (!data[field]?.trim()) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message });
+      }
+    }
+  });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
+/** @deprecated Use cartRequiresShipping */
 export function orderRequiresShipping(items: CheckoutInput["items"]) {
-  return items.some((line) => {
-    const product = getCatalogItem(line.slug);
-    return product ? product.kind === "merch" : true;
-  });
+  return cartRequiresShipping(items);
+}
+
+export function orderHasServices(items: CheckoutInput["items"]) {
+  return cartHasServices(items);
+}
+
+export function isServiceOnlyOrder(items: CheckoutInput["items"]) {
+  return (
+    items.length > 0 &&
+    items.every((line) => getCatalogItem(line.slug)?.kind === "service")
+  );
 }
