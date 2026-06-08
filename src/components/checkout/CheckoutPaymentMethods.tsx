@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PayPalProvider,
   PayPalOneTimePaymentButton,
@@ -55,6 +55,14 @@ function WalletButtons({
   applePayEnabled = false,
   applePayDomainName,
 }: CheckoutPaymentMethodsProps) {
+  const [resolvedDomainName, setResolvedDomainName] = useState(applePayDomainName);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setResolvedDomainName(window.location.hostname);
+    }
+  }, []);
+
   const { eligiblePaymentMethods, isLoading } = useEligibleMethods({
     payload: { currencyCode: "USD" },
   });
@@ -104,7 +112,7 @@ function WalletButtons({
           <ApplePayOneTimePaymentButton
           applePayConfig={applePayConfig}
           displayName={SITE.name}
-          domainName={applePayDomainName}
+          domainName={resolvedDomainName || applePayDomainName}
           paymentRequest={{
             countryCode: "US",
             currencyCode: "USD",

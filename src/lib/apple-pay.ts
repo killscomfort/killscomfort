@@ -1,7 +1,26 @@
 import fs from "fs";
 import path from "path";
+import {
+  PAYPAL_LIVE_APPLE_PAY_DOMAIN_ASSOCIATION,
+  PAYPAL_SANDBOX_APPLE_PAY_DOMAIN_ASSOCIATION,
+} from "@/lib/paypal-apple-pay-domains";
 
 const DOMAIN_FILE_NAME = "apple-developer-merchantid-domain-association";
+
+function getPayPalMode() {
+  return (
+    process.env.PAYPAL_MODE ||
+    process.env.NEXT_PUBLIC_PAYPAL_MODE ||
+    "sandbox"
+  );
+}
+
+function getBuiltInDomainAssociation() {
+  const mode = getPayPalMode();
+  if (mode === "live") return PAYPAL_LIVE_APPLE_PAY_DOMAIN_ASSOCIATION;
+  if (mode === "sandbox") return PAYPAL_SANDBOX_APPLE_PAY_DOMAIN_ASSOCIATION;
+  return "";
+}
 
 function readDomainAssociationFile() {
   const fromEnv = process.env.APPLE_PAY_DOMAIN_ASSOCIATION?.trim();
@@ -12,10 +31,13 @@ function readDomainAssociationFile() {
     path.join(process.cwd(), ".well-known", DOMAIN_FILE_NAME);
 
   try {
-    return fs.readFileSync(filePath, "utf8").trim();
+    const fromDisk = fs.readFileSync(filePath, "utf8").trim();
+    if (fromDisk) return fromDisk;
   } catch {
-    return "";
+    // fall through to PayPal's standard domain file for this environment
   }
+
+  return getBuiltInDomainAssociation();
 }
 
 /** True when the PayPal/Apple domain verification file is available to serve. */

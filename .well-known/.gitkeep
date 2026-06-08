@@ -1,4 +1,5 @@
-# Place PayPal's downloaded file here (no file extension):
+# PayPal Apple Pay domain verification file lives here:
 # apple-developer-merchantid-domain-association
 #
-# Or set APPLE_PAY_DOMAIN_ASSOCIATION in Vercel instead of committing this file.
+# A sandbox copy is committed for killscomfort.com. Override with
+# APPLE_PAY_DOMAIN_ASSOCIATION in Vercel if PayPal gives you a custom file.
