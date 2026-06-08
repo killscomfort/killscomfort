@@ -161,36 +161,61 @@ function WalletButtons({
   );
 }
 
-function CardFieldsPayment({
+function CardFieldsPaymentForm({
   paypalOrderId,
   totalCents,
   onCapture,
   onError,
-  variant = "full",
 }: CheckoutPaymentMethodsProps) {
   const { submit, submitResponse, error } = usePayPalCardFieldsOneTimePaymentSession();
 
   useEffect(() => {
-    if (variant !== "full" || !error) return;
+    if (!error) return;
     onError(error.message || "Card payment failed.");
-  }, [error, onError, variant]);
+  }, [error, onError]);
 
   useEffect(() => {
-    if (variant !== "full" || !submitResponse) return;
+    if (!submitResponse) return;
 
     if (submitResponse.state === "succeeded") {
       void onCapture(submitResponse.data.orderId || paypalOrderId);
     } else if (submitResponse.state === "failed") {
       onError(submitResponse.data.message || "Card payment failed.");
     }
-  }, [submitResponse, onCapture, onError, paypalOrderId, variant]);
-
-  if (variant !== "full") return null;
+  }, [submitResponse, onCapture, onError, paypalOrderId]);
 
   const fieldStyles = {
     height: "3rem",
     marginBottom: "0.75rem",
   };
+
+  return (
+    <div className="mt-6 border-t border-clay/20 pt-6">
+      <p className="mb-4 text-xs uppercase tracking-widest text-bone/50">
+        Or pay with card
+      </p>
+      <PayPalCardNumberField placeholder="Card number" containerStyles={fieldStyles} />
+      <div className="grid grid-cols-2 gap-3">
+        <PayPalCardExpiryField placeholder="MM/YY" containerStyles={fieldStyles} />
+        <PayPalCardCvvField placeholder="CVV" containerStyles={fieldStyles} />
+      </div>
+      <Button
+        type="button"
+        className="mt-2 w-full"
+        onClick={() => submit(paypalOrderId)}
+      >
+        Pay with Card ({formatPayPalAmount(totalCents)})
+      </Button>
+    </div>
+  );
+}
+
+function CardFieldsPayment({
+  totalCents,
+  variant = "full",
+  ...props
+}: CheckoutPaymentMethodsProps) {
+  if (variant !== "full") return null;
 
   return (
     <PayPalCardFieldsProvider
@@ -199,23 +224,7 @@ function CardFieldsPayment({
         currencyCode: "USD",
       }}
     >
-      <div className="mt-6 border-t border-clay/20 pt-6">
-        <p className="mb-4 text-xs uppercase tracking-widest text-bone/50">
-          Or pay with card
-        </p>
-        <PayPalCardNumberField placeholder="Card number" containerStyles={fieldStyles} />
-        <div className="grid grid-cols-2 gap-3">
-          <PayPalCardExpiryField placeholder="MM/YY" containerStyles={fieldStyles} />
-          <PayPalCardCvvField placeholder="CVV" containerStyles={fieldStyles} />
-        </div>
-        <Button
-          type="button"
-          className="mt-2 w-full"
-          onClick={() => submit(paypalOrderId)}
-        >
-          Pay with Card ({formatPayPalAmount(totalCents)})
-        </Button>
-      </div>
+      <CardFieldsPaymentForm totalCents={totalCents} variant={variant} {...props} />
     </PayPalCardFieldsProvider>
   );
 }
