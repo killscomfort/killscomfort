@@ -3,9 +3,14 @@
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.killscomfort.com";
 const domain = process.env.APPLE_PAY_DOMAIN_NAME || new URL(siteUrl).hostname;
 const fileUrl = `${siteUrl.replace(/\/$/, "")}/.well-known/apple-developer-merchantid-domain-association`;
+const clientId =
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID || "";
 const isSandbox =
   (process.env.PAYPAL_MODE || process.env.NEXT_PUBLIC_PAYPAL_MODE || "sandbox") ===
   "sandbox";
+const appDashboardUrl = clientId
+  ? `https://developer.paypal.com/dashboard/applications/${isSandbox ? "sandbox" : "live"}/${clientId}`
+  : `https://developer.paypal.com/dashboard/applications/${isSandbox ? "sandbox" : "live"}`;
 
 console.log("Apple Pay setup check for KillsComfort\n");
 console.log(`Site URL: ${siteUrl}`);
@@ -47,15 +52,15 @@ try {
 
   console.log("\nOK: Verification file is reachable on your site.");
   console.log("\nFinal step — register the domain in PayPal (one-time):");
+  console.log(`1. Open your REST app: ${appDashboardUrl}`);
+  console.log("2. Features → enable Apple Pay → Save");
+  console.log("3. Apple Pay → Manage → Add Domain → enter:", domain);
+  console.log("4. Click Register Domain");
   if (isSandbox) {
-    console.log("1. https://www.sandbox.paypal.com/businessmanage/account/payments");
-    console.log("2. Manage Apple Pay → Add Domain → enter:", domain);
-    console.log("3. Click Register Domain");
-  } else {
-    console.log("1. https://developer.paypal.com/dashboard/ → Live → Apps & Credentials");
-    console.log("2. Your app → Apple Pay → Add Domain → enter:", domain);
-    console.log("3. Click Register Domain");
+    console.log("\nIf Apple Pay is disabled on your sandbox business account:");
+    console.log("https://www.sandbox.paypal.com/bizsignup/add-product?product=payment_methods&capabilities=APPLE_PAY");
   }
+  console.log("\nOr run: npm run apple-pay:register");
   console.log("\nAfter registration, test Apple Pay on Safari at /checkout.");
 } catch (error) {
   console.error("\nFAIL: Could not reach verification URL.");

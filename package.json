@@ -9,6 +9,7 @@
     "lint": "next lint",
     "email:test": "node --env-file=.env.local scripts/test-order-email.mjs",
     "apple-pay:check": "node --env-file=.env.local scripts/setup-apple-pay.mjs",
+    "apple-pay:register": "node --env-file=.env.local scripts/register-apple-pay-domain.mjs",
     "db:generate": "supabase gen types typescript --local > src/types/database.ts"
   },
   "dependencies": {
