@@ -8,11 +8,7 @@ const BOOKING_INCLUDES = [
 export function BookingCredibility() {
   return (
     <>
-      <div className="mb-12 grid gap-6 sm:grid-cols-3">
-        <div className="border border-clay/20 p-6 text-center">
-          <p className="mb-2 text-2xl font-bold text-bone">150+</p>
-          <p className="text-sm text-bone/60">Events played</p>
-        </div>
+      <div className="mb-12 grid gap-6 sm:grid-cols-2">
         <div className="border border-clay/20 p-6 text-center">
           <p className="mb-2 text-2xl font-bold text-bone">SAE</p>
           <p className="text-sm text-bone/60">Institute trained</p>
