@@ -7,7 +7,7 @@ import { SITE } from "@/lib/constants";
 
 export const metadata = createMetadata({
   title: "Services",
-  description: `DJ booking deposits, private lessons, and event tickets — ${SITE.name}.`,
+  description: `DJ booking deposits and private lessons — ${SITE.name}.`,
   path: "/services",
 });
 
@@ -19,7 +19,7 @@ export default function ServicesPage() {
           <SectionHeading
             label="Booking"
             title="Services"
-            description="Deposits, lessons, and tickets — add to cart and checkout securely."
+            description="Deposits and lessons — add to cart and checkout securely."
             align="center"
             className="mx-auto"
           />

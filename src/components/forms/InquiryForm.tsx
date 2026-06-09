@@ -4,16 +4,18 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { EVENT_TYPES, BUDGET_RANGES, CONTACT_METHODS } from "@/lib/constants";
+import { EVENT_TYPES, BUDGET_RANGES, CONTACT_METHODS, SITE } from "@/lib/constants";
 
 interface InquiryFormProps {
   simplified?: boolean;
   source?: string;
+  bookingPage?: boolean;
 }
 
 export function InquiryForm({
   simplified = false,
   source = "website",
+  bookingPage = false,
 }: InquiryFormProps) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -74,19 +76,32 @@ export function InquiryForm({
   }
 
   if (success) {
+    if (bookingPage) {
+      return (
+        <div className="py-12 text-center">
+          <p className="mb-4 text-2xl text-bone">Inquiry received ✦</p>
+          <p className="mx-auto max-w-md text-sm text-bone/60">
+            I&apos;ll get back to you within 24 hours with availability and a custom
+            quote. Check your email (and spam folder) for a response from{" "}
+            {SITE.email}.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="border border-moss-green/40 bg-moss-green/10 p-8 text-center">
         <h3 className="text-display text-2xl uppercase text-bone">Message Received</h3>
         <p className="mt-4 text-bone/70">
           Thanks for reaching out. Gregory reviews every inquiry personally and
-          will respond within 24–48 hours. Check your email for a confirmation.
+          will respond within 24 hours. Check your email for a confirmation.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form method="POST" onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <p className="border border-dried-blood/50 bg-dried-blood/10 px-4 py-3 text-sm text-dried-blood">
           {error}
@@ -140,7 +155,11 @@ export function InquiryForm({
               required
               error={fieldErrors.event_type}
             />
-            <Input name="event_date" type="date" label="Event Date" />
+            <Input
+              name="event_date"
+              type="date"
+              label="Event Date (approximate is fine)"
+            />
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             <Input
@@ -166,7 +185,11 @@ export function InquiryForm({
             required
             error={fieldErrors.event_type}
           />
-          <Input name="event_date" type="date" label="Event Date" />
+          <Input
+            name="event_date"
+            type="date"
+            label="Event Date (approximate is fine)"
+          />
         </div>
       )}
 

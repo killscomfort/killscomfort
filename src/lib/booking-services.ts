@@ -5,7 +5,7 @@ export type BookingService = {
   description: string;
 };
 
-/** Paid services — deposits and tickets. Custom quotes still go through /book inquiry. */
+/** Paid services — deposits and lessons. Custom quotes still go through /book inquiry. */
 export const BOOKING_SERVICES: BookingService[] = [
   {
     slug: "dj-booking-deposit",
@@ -20,12 +20,6 @@ export const BOOKING_SERVICES: BookingService[] = [
     priceCents: 7500,
     description:
       "One-on-one session — DJ technique, production, or sound engineering with Gregory Tovar.",
-  },
-  {
-    slug: "event-ticket",
-    name: "Event Ticket",
-    priceCents: 2500,
-    description: "General admission to select KillsComfort events. You'll receive event details by email.",
   },
 ];
 

@@ -1,7 +1,11 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InquiryForm } from "@/components/forms/InquiryForm";
+import {
+  BookingCredibility,
+  BookingTestimonial,
+} from "@/components/booking/BookingCredibility";
+import { BookingDepositCta } from "@/components/booking/BookingDepositCta";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -20,26 +24,20 @@ export default function BookPage() {
           <SectionHeading
             label="Booking"
             title="Let's Create Something Unforgettable"
-            description="Direct, professional, and personal. Every inquiry gets a response within 24–48 hours."
+            description="Every inquiry gets a response within 24 hours."
             align="center"
             className="mx-auto"
           />
 
-          <Suspense fallback={<div className="text-center text-bone/50">Loading form...</div>}>
-            <InquiryForm source="booking-page" />
-          </Suspense>
+          <div className="mt-12">
+            <BookingCredibility />
 
-          <div className="mt-12 border border-clay/30 bg-warm-charcoal/30 p-8 text-center">
-            <h3 className="text-display text-xl uppercase text-bone">Ready to Pay?</h3>
-            <p className="mt-3 text-sm text-bone/60">
-              Add a booking deposit, private lesson, or event ticket to your cart and checkout with PayPal, Venmo, or card.
-            </p>
-            <Link
-              href="/services"
-              className="mt-6 inline-flex items-center justify-center bg-muted-gold px-8 py-3 text-sm text-near-black hover:bg-desert-sand"
-            >
-              View Services
-            </Link>
+            <Suspense fallback={<div className="text-center text-bone/50">Loading form...</div>}>
+              <InquiryForm source="booking-page" bookingPage />
+            </Suspense>
+
+            <BookingTestimonial />
+            <BookingDepositCta />
           </div>
         </div>
       </section>

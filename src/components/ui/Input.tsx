@@ -103,7 +103,9 @@ export function Select({
         )}
         {...props}
       >
-        <option value="">Select...</option>
+        <option value="" disabled>
+          Select...
+        </option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
