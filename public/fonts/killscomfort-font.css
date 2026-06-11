@@ -1,0 +1,52 @@
+/* ─── KillsComfort Custom Font ─────────────────────────────────────────────── */
+/* Drop KillsComfort.woff2 and KillsComfort.ttf into your /public/fonts/ dir  */
+
+@font-face {
+  font-family: 'KillsComfort';
+  src: url('/fonts/KillsComfort.woff2') format('woff2'),
+       url('/fonts/KillsComfort.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Usage Examples ──────────────────────────────────────────────────────── */
+
+/* Brand headers */
+.font-killscomfort {
+  font-family: 'KillsComfort', 'Old English Text MT', serif;
+  letter-spacing: 0.05em;
+}
+
+/* Chrome/metallic text effect (CSS approximation) */
+.chrome-text {
+  font-family: 'KillsComfort', serif;
+  background: linear-gradient(
+    180deg,
+    #e8e8e8 0%,
+    #ffffff 25%,
+    #8a8a8a 50%,
+    #ffffff 75%,
+    #b0b0b0 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.15));
+}
+
+/* Tailwind config addition (for Next.js / killscomfort.com):
+ *
+ * // tailwind.config.js
+ * module.exports = {
+ *   theme: {
+ *     extend: {
+ *       fontFamily: {
+ *         killscomfort: ['KillsComfort', 'serif'],
+ *       },
+ *     },
+ *   },
+ * }
+ *
+ * Then use: className="font-killscomfort"
+ */
