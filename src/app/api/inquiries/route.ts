@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { inquirySchema, simpleInquirySchema } from "@/lib/validations";
+import { getClientIp } from "@/lib/request-ip";
 import {
   sendInquiryNotification,
   sendInquiryConfirmation,
@@ -11,6 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const schema = body.simplified ? simpleInquirySchema : inquirySchema;
     const parsed = schema.safeParse(body);
+    const visitorIp = getClientIp(request);
 
     if (!parsed.success) {
       const errors: Record<string, string> = {};
@@ -29,14 +31,12 @@ export async function POST(request: NextRequest) {
       const { error: dbError } = await supabase.from("inquiries").insert({
         name: data.name,
         email: data.email,
-        event_type: data.event_type,
+        event_type: "General Inquiry",
         phone: "phone" in data ? data.phone || null : null,
         preferred_contact: data.preferred_contact,
         event_date: data.event_date || null,
-        event_location:
-          "event_location" in data ? data.event_location || null : null,
-        budget_range: "budget_range" in data ? data.budget_range || null : null,
         message: data.message || null,
+        visitor_ip: visitorIp,
         source: data.source || "website",
         utm_source: data.utm_source || null,
         utm_medium: data.utm_medium || null,
@@ -53,7 +53,10 @@ export async function POST(request: NextRequest) {
 
       saved = true;
     } else if (process.env.NODE_ENV === "development") {
-      console.log("[dev] Inquiry received (Supabase not configured):", data);
+      console.log("[dev] Inquiry received (Supabase not configured):", {
+        ...data,
+        visitor_ip: visitorIp,
+      });
       saved = true;
     } else {
       return NextResponse.json(
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     await Promise.allSettled([
-      sendInquiryNotification(parsed.data),
+      sendInquiryNotification(parsed.data, visitorIp),
       sendInquiryConfirmation(parsed.data.name, parsed.data.email),
     ]);
 

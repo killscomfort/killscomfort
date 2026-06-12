@@ -8,12 +8,12 @@
   --color-mid-gray: #6e6e6e;
   --color-dried-blood: #cc3b3b;
 
-  /* Accents: sampled from inverted hero image */
-  --color-muted-gold: #8ecae6;
-  --color-burnt-sienna: #6ba4be;
-  --color-clay: #5c8fa8;
-  --color-desert-sand: #bed2dc;
-  --color-moss-green: #2d4f63;
+  /* Accents — monochrome white */
+  --color-muted-gold: #ffffff;
+  --color-burnt-sienna: #ffffff;
+  --color-clay: #ffffff;
+  --color-desert-sand: #ffffff;
+  --color-moss-green: #ffffff;
 
   --font-display: var(--font-pt-serif);
   --font-script: var(--font-pt-serif);
@@ -166,6 +166,178 @@
       rgba(0, 0, 0, 0.35) 80%,
       rgba(0, 0, 0, 0.65) 100%
     );
+  }
+
+  @keyframes music-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .music-marquee-track {
+    animation: music-marquee 45s linear infinite;
+    will-change: transform;
+  }
+
+  .music-marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .music-carousel-mask {
+      overflow-x: auto;
+      mask-image: none;
+    }
+
+    .music-marquee-track {
+      animation: none;
+    }
+  }
+
+  .music-carousel-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 6%,
+      black 94%,
+      transparent
+    );
+  }
+
+  .sparkle-item {
+    isolation: isolate;
+  }
+
+  .sparkle-item__aura {
+    position: absolute;
+    inset: -3px;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 70%
+    );
+    background-size: 220% 220%;
+    animation: sparkle-aura 3.2s ease-in-out infinite;
+    opacity: 0.7;
+  }
+
+  .sparkle-item__shine {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .sparkle-item__shine::after {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: -80%;
+    width: 45%;
+    height: 220%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.95),
+      rgba(255, 255, 255, 0.15),
+      transparent
+    );
+    transform: skewX(-18deg);
+    animation: sparkle-sweep 2.6s ease-in-out infinite;
+  }
+
+  .sparkle-item__spark {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    line-height: 1;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.95);
+    animation: sparkle-twinkle 2.1s ease-in-out infinite;
+  }
+
+  .sparkle-item__spark--1 {
+    top: -6px;
+    right: 10%;
+    font-size: 11px;
+    animation-delay: 0s;
+  }
+
+  .sparkle-item__spark--2 {
+    bottom: -2px;
+    left: 14%;
+    font-size: 9px;
+    animation-delay: 0.65s;
+  }
+
+  .sparkle-item__spark--3 {
+    top: 18%;
+    right: -4px;
+    font-size: 8px;
+    animation-delay: 1.25s;
+  }
+
+  @keyframes sparkle-sweep {
+    0%,
+    72% {
+      left: -80%;
+      opacity: 0;
+    }
+    82% {
+      opacity: 1;
+    }
+    100% {
+      left: 130%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes sparkle-twinkle {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0.2) rotate(0deg);
+    }
+    45% {
+      opacity: 1;
+      transform: scale(1.1) rotate(35deg);
+    }
+    70% {
+      opacity: 0.2;
+      transform: scale(0.6) rotate(70deg);
+    }
+  }
+
+  @keyframes sparkle-aura {
+    0%,
+    100% {
+      background-position: 0% 50%;
+      opacity: 0.45;
+    }
+    50% {
+      background-position: 100% 50%;
+      opacity: 0.85;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sparkle-item__aura,
+    .sparkle-item__shine::after,
+    .sparkle-item__spark {
+      animation: none;
+    }
+
+    .sparkle-item__spark {
+      opacity: 0.35;
+    }
   }
 
   apple-pay-button {

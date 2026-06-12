@@ -29,11 +29,11 @@ export const COLORS = {
   bone: "#FFFFFF",
   midGray: "#6E6E6E",
   driedBlood: "#CC3B3B",
-  mutedGold: "#8ECAE6",
-  burntSienna: "#6BA4BE",
-  clay: "#5C8FA8",
-  desertSand: "#BED2DC",
-  mossGreen: "#2D4F63",
+  mutedGold: "#FFFFFF",
+  burntSienna: "#FFFFFF",
+  clay: "#FFFFFF",
+  desertSand: "#FFFFFF",
+  mossGreen: "#FFFFFF",
 } as const;
 
 export const EVENT_TYPES = [

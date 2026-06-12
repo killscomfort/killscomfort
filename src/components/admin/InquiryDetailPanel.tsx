@@ -293,6 +293,12 @@ export function InquiryDetailPanel({
                   <dd className="text-bone">{inquiry.source}</dd>
                 </div>
               )}
+              {inquiry.visitor_ip && (
+                <div>
+                  <dt className="text-xs uppercase tracking-widest text-bone/40">Visitor IP</dt>
+                  <dd className="font-mono text-sm text-bone">{inquiry.visitor_ip}</dd>
+                </div>
+              )}
             </dl>
 
             {inquiry.message && (

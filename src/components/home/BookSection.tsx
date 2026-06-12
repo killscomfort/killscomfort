@@ -7,8 +7,7 @@ export function BookSection() {
     <section id="book" className="section-padding border-t border-clay/20 bg-warm-charcoal/40 grain-overlay">
       <div className="relative mx-auto max-w-3xl">
         <SectionHeading
-          label="Booking"
-          title="Book Me"
+          title="Check Availability"
           description="Clubs, festivals, private events, brand partnerships. Every inquiry gets a personal response within 24–48 hours."
           align="center"
           className="mx-auto"

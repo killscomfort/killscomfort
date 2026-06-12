@@ -10,7 +10,7 @@ const cartLineSchema = z.object({
 const customerFields = {
   customer_name: z.string().min(2, "Name is required"),
   customer_email: z.string().email("Valid email required"),
-  customer_phone: z.string().optional(),
+  customer_phone: z.string().trim().min(1, "Phone number is required"),
 };
 
 const shippingFields = {

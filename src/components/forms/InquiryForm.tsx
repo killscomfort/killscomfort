@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { EVENT_TYPES, BUDGET_RANGES, CONTACT_METHODS, SITE } from "@/lib/constants";
+import { CONTACT_METHODS, SITE } from "@/lib/constants";
 import { trackGenerateLead } from "@/lib/analytics";
 
 interface InquiryFormProps {
@@ -23,7 +23,6 @@ export function InquiryForm({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [preferredContact, setPreferredContact] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,10 +37,7 @@ export function InquiryForm({
       email: form.get("email") as string,
       phone: (form.get("phone") as string) || undefined,
       preferred_contact: form.get("preferred_contact") as string,
-      event_type: form.get("event_type") as string,
       event_date: (form.get("event_date") as string) || undefined,
-      event_location: (form.get("event_location") as string) || undefined,
-      budget_range: (form.get("budget_range") as string) || undefined,
       message: (form.get("message") as string) || undefined,
       source,
       utm_source: searchParams.get("utm_source") || undefined,
@@ -68,7 +64,6 @@ export function InquiryForm({
       }
 
       trackGenerateLead({
-        event_type: data.event_type,
         source: data.source,
         utm_source: data.utm_source,
         utm_medium: data.utm_medium,
@@ -142,70 +137,37 @@ export function InquiryForm({
           options={CONTACT_METHODS}
           required
           error={fieldErrors.preferred_contact}
-          onChange={(e) => setPreferredContact(e.target.value)}
         />
         <Input
           name="phone"
           type="tel"
-          label={preferredContact === "Phone" ? "Phone *" : "Phone"}
-          placeholder={preferredContact === "Phone" ? "Your phone number" : "(optional)"}
-          required={preferredContact === "Phone"}
+          label="Phone *"
+          placeholder="Your phone number"
+          required
           error={fieldErrors.phone}
         />
       </div>
 
       {!simplified && (
-        <>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Select
-              name="event_type"
-              label="Event Type *"
-              options={EVENT_TYPES}
-              required
-              error={fieldErrors.event_type}
-            />
-            <Input
-              name="event_date"
-              type="date"
-              label="Event Date (approximate is fine)"
-            />
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Input
-              name="event_location"
-              label="Event Location / Venue"
-              placeholder="City, venue name..."
-            />
-            <Select
-              name="budget_range"
-              label="Estimated Budget"
-              options={BUDGET_RANGES}
-            />
-          </div>
-        </>
+        <Input
+          name="event_date"
+          type="date"
+          label="Event Date (approximate is fine)"
+        />
       )}
 
       {simplified && (
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Select
-            name="event_type"
-            label="Event Type *"
-            options={EVENT_TYPES}
-            required
-            error={fieldErrors.event_type}
-          />
-          <Input
-            name="event_date"
-            type="date"
-            label="Event Date (approximate is fine)"
-          />
-        </div>
+        <Input
+          name="event_date"
+          type="date"
+          label="Event Date (approximate is fine)"
+        />
       )}
 
       <Textarea
         name="message"
-        label="Message / Details"
-        placeholder="Tell us about your event, vibe, audience..."
+        label="Event Details"
+        placeholder="Tell us about your event — type of event, vibe, audience, special requests..."
         error={fieldErrors.message}
       />
 

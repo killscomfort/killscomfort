@@ -264,7 +264,8 @@ export function CheckoutForm({
               <Input
                 name="customer_phone"
                 type="tel"
-                label="Phone (optional)"
+                label="Phone *"
+                required
                 error={fieldErrors.customer_phone}
               />
 

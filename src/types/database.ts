@@ -38,6 +38,7 @@ export interface Inquiry {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  visitor_ip: string | null;
   created_at: string;
 }
 

@@ -32,7 +32,7 @@ export default function ServicesPage() {
             .
           </p>
 
-          <div className="mt-12">
+          <div className="mt-8">
             <Suspense fallback={<p className="text-center text-bone/50">Loading services...</p>}>
               <ServiceCatalog />
             </Suspense>

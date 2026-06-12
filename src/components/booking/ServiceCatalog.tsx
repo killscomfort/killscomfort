@@ -32,21 +32,23 @@ export function ServiceCatalog() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {BOOKING_SERVICES.map((service) => (
         <article
           key={service.slug}
-          className="flex flex-col gap-4 border border-clay/30 bg-warm-charcoal/30 p-5 sm:flex-row sm:items-start sm:justify-between"
+          className="flex flex-col gap-3 border border-clay/30 bg-warm-charcoal/30 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-gold">Service</p>
-            <h3 className="mt-1 text-lg text-bone">{service.name}</h3>
-            <p className="mt-2 text-sm text-bone/60">{service.description}</p>
-            <p className="mt-3 text-sm text-muted-gold">{formatPrice(service.priceCents)}</p>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h3 className="text-base text-bone">{service.name}</h3>
+              <p className="text-sm text-muted-gold">{formatPrice(service.priceCents)}</p>
+            </div>
+            <p className="mt-1 text-sm leading-snug text-bone/60">{service.description}</p>
           </div>
           <Button
             type="button"
-            className="shrink-0 sm:min-w-40"
+            size="sm"
+            className="shrink-0 sm:min-w-36"
             onClick={() => handleAdd(service.slug)}
           >
             {addedSlug === service.slug ? "Added to Cart" : "Add to Cart"}
@@ -54,7 +56,7 @@ export function ServiceCatalog() {
         </article>
       ))}
 
-      <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+      <div className="flex flex-col gap-2 pt-2 sm:flex-row">
         <Button href="/checkout" className="w-full sm:w-auto">
           Go to Checkout
         </Button>

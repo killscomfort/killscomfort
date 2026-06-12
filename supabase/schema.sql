@@ -32,6 +32,7 @@ create table public.inquiries (
   utm_source text,
   utm_medium text,
   utm_campaign text,
+  visitor_ip text,
   created_at timestamptz not null default now()
 );
 
