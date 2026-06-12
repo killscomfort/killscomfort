@@ -1,79 +1,120 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { TrafficMapPoint } from "@/lib/traffic/queries";
+import "leaflet/dist/leaflet.css";
 
 type Props = {
   points: TrafficMapPoint[];
 };
 
-function projectUS(lat: number, lon: number, width: number, height: number) {
-  const x = ((lon + 125) / 59) * width;
-  const y = ((50 - lat) / 26) * height;
-  return { x, y };
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function popupHtml(point: TrafficMapPoint) {
+  const city = escapeHtml(point.city || "Unknown city");
+  const neighborhood = point.neighborhood
+    ? `<br><span style="opacity:0.75">${escapeHtml(point.neighborhood)}</span>`
+    : "";
+  const region = point.region
+    ? `<br><span style="opacity:0.6">${escapeHtml(point.region)}</span>`
+    : "";
+  const visits = point.count === 1 ? "1 visit" : `${point.count} visits`;
+
+  return `<strong>${city}</strong>${neighborhood}${region}<br><span style="opacity:0.85">${visits}</span>`;
 }
 
 export function TrafficUsaMap({ points }: Props) {
-  const width = 640;
-  const height = 360;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let cancelled = false;
+
+    void (async () => {
+      const L = (await import("leaflet")).default;
+      if (cancelled) return;
+
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+
+      const map = L.map(container, {
+        center: [39.8283, -98.5795],
+        zoom: 4,
+        minZoom: 3,
+        maxZoom: 12,
+        scrollWheelZoom: false,
+        attributionControl: true,
+      });
+
+      L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 19,
+        }
+      ).addTo(map);
+
+      const latLngs: [number, number][] = [];
+
+      for (const point of points) {
+        const latLng: [number, number] = [point.latitude, point.longitude];
+        latLngs.push(latLng);
+
+        const radius = Math.min(22, 7 + Math.sqrt(point.count) * 4);
+
+        L.circleMarker(latLng, {
+          radius,
+          color: "#ffffff",
+          weight: 1.5,
+          fillColor: "#ffffff",
+          fillOpacity: 0.65,
+        })
+          .bindPopup(popupHtml(point), { closeButton: false })
+          .addTo(map);
+      }
+
+      if (latLngs.length > 1) {
+        map.fitBounds(L.latLngBounds(latLngs), {
+          padding: [28, 28],
+          maxZoom: 8,
+        });
+      } else if (latLngs.length === 1) {
+        map.setView(latLngs[0], 10);
+      }
+
+      mapRef.current = map;
+    })();
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [points]);
 
   return (
-    <div className="overflow-x-auto">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="min-w-[280px] w-full"
-        role="img"
-        aria-label="USA traffic map"
-      >
-        <rect
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          rx={8}
-          className="fill-warm-charcoal stroke-clay/25"
-        />
-
-        <path
-          d="M40,120 L120,80 L200,70 L280,90 L360,75 L440,95 L520,85 L600,110 L580,180 L520,220 L440,250 L360,280 L280,300 L200,290 L120,260 L60,220 Z"
-          className="fill-near-black/40 stroke-clay/20"
-        />
-
-        {points.map((point) => {
-          const { x, y } = projectUS(
-            point.latitude,
-            point.longitude,
-            width,
-            height
-          );
-          const r = Math.min(10, 4 + point.count);
-          return (
-            <g key={`${point.latitude}-${point.longitude}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={r}
-                className="fill-muted-gold/70 stroke-near-black"
-                strokeWidth={1}
-              />
-              <title>
-                {point.city || "Unknown"}, {point.region || "US"} — {point.count}{" "}
-                visit{point.count === 1 ? "" : "s"}
-              </title>
-            </g>
-          );
-        })}
-
-        {points.length === 0 && (
-          <text
-            x={width / 2}
-            y={height / 2}
-            textAnchor="middle"
-            className="fill-bone/40 text-sm"
-          >
-            No US locations in this range
-          </text>
-        )}
-      </svg>
+    <div className="relative overflow-hidden rounded border border-clay/20">
+      <div ref={containerRef} className="z-0 h-[380px] w-full [&_.leaflet-control-attribution]:bg-near-black/80 [&_.leaflet-control-attribution]:text-bone/45 [&_.leaflet-control-attribution_a]:text-muted-gold" />
+      {points.length === 0 && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-near-black/70 text-sm text-bone/50">
+          No US city locations in this range
+        </div>
+      )}
     </div>
   );
 }

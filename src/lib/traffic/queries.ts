@@ -17,6 +17,7 @@ export type TrafficMapPoint = {
   latitude: number;
   longitude: number;
   city: string | null;
+  neighborhood: string | null;
   region: string | null;
   count: number;
 };
@@ -112,27 +113,49 @@ function buildChartPoints(rows: { created_at: string }[]): TrafficChartPoint[] {
 }
 
 function buildMapPoints(rows: PageView[]): TrafficMapPoint[] {
-  const grouped = new Map<string, TrafficMapPoint>();
+  const grouped = new Map<
+    string,
+    TrafficMapPoint & { latSum: number; lngSum: number }
+  >();
 
   for (const row of rows) {
     if (row.latitude == null || row.longitude == null) continue;
     if (row.country && row.country !== "US") continue;
-    const key = `${row.latitude.toFixed(3)}:${row.longitude.toFixed(3)}`;
+
+    const key = `${row.city || "Unknown"}|${row.region || ""}|${row.neighborhood || ""}`;
     const existing = grouped.get(key);
+
     if (existing) {
       existing.count += 1;
+      existing.latSum += row.latitude;
+      existing.lngSum += row.longitude;
+      existing.latitude = existing.latSum / existing.count;
+      existing.longitude = existing.lngSum / existing.count;
+      if (!existing.neighborhood && row.neighborhood) {
+        existing.neighborhood = row.neighborhood;
+      }
     } else {
       grouped.set(key, {
         latitude: row.latitude,
         longitude: row.longitude,
+        latSum: row.latitude,
+        lngSum: row.longitude,
         city: row.city,
+        neighborhood: row.neighborhood,
         region: row.region,
         count: 1,
       });
     }
   }
 
-  return Array.from(grouped.values());
+  return Array.from(grouped.values()).map((point) => ({
+    latitude: point.latitude,
+    longitude: point.longitude,
+    city: point.city,
+    neighborhood: point.neighborhood,
+    region: point.region,
+    count: point.count,
+  }));
 }
 
 function buildLocationStats(rows: PageView[]): TrafficLocationStat[] {
