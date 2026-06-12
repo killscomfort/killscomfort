@@ -22,7 +22,7 @@ export default function MerchPage() {
           />
 
           <p className="mx-auto mt-4 max-w-lg text-center text-sm text-bone/50">
-            Secure checkout via Stripe · Apple Pay · Google Pay · Cards
+            Add to cart, then checkout securely with Stripe · Apple Pay · Google Pay · Cards
           </p>
 
           <div className="mt-12">

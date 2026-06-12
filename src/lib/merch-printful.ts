@@ -24,13 +24,7 @@ export const MERCH_PRINTFUL_VARIANTS: Record<
     "36": { variantId: 0 },
     "38": { variantId: 0 },
   },
-  // Hoodie sizes from `src/lib/merch.ts`
-  "diamond-hoodie": {
-    S: { variantId: 0 },
-    M: { variantId: 0 },
-    L: { variantId: 0 },
-    XL: { variantId: 0 },
-  },
+  // Hoodie is sold on Etsy — not fulfilled via Printful on this site.
   // Sticker has no size selector; use DEFAULT
   "die-cut-stickers": {
     DEFAULT: { variantId: 0 },

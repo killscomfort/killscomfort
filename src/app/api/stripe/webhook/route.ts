@@ -26,12 +26,46 @@ function getWebhookSecret() {
   return secret;
 }
 
-function parseQuantity(value: string | undefined, fallback = 1) {
-  const parsed = Number(value || fallback);
+function parseQuantity(value: string | number | undefined, fallback = 1) {
+  const parsed = Number(value ?? fallback);
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 10) {
     throw new Error(`Invalid merch quantity: "${value}"`);
   }
   return parsed;
+}
+
+type MerchCartLine = {
+  slug: string;
+  size?: string;
+  quantity: number;
+};
+
+function parseMerchCart(metadata: Stripe.Metadata): MerchCartLine[] {
+  if (metadata.cart) {
+    const parsed = JSON.parse(metadata.cart) as MerchCartLine[];
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      throw new Error("Invalid merch cart metadata");
+    }
+
+    return parsed.map((line) => ({
+      slug: line.slug,
+      size: line.size || undefined,
+      quantity: parseQuantity(line.quantity, 1),
+    }));
+  }
+
+  const slug = metadata.slug;
+  if (!slug) {
+    throw new Error("Missing merch slug in checkout session metadata");
+  }
+
+  return [
+    {
+      slug,
+      size: metadata.size || undefined,
+      quantity: parseQuantity(metadata.quantity, 1),
+    },
+  ];
 }
 
 function requireAddressField(value: string | null | undefined, fieldName: string) {
@@ -87,20 +121,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, duplicate: true });
     }
 
-    const slug = metadata.slug;
-    if (!slug) {
-      throw new Error("Missing merch slug in checkout session metadata");
-    }
+    const cartLines = parseMerchCart(metadata);
 
-    const size = metadata.size || undefined;
-    const quantity = parseQuantity(metadata.quantity, 1);
-    const merchItem = getMerchItem(slug);
-
-    if (!merchItem) {
-      throw new Error(`Unknown merch slug from Stripe metadata: "${slug}"`);
-    }
-
-    const variantId = resolvePrintfulVariantId(slug, size);
     const shippingDetails =
       session.collected_information?.shipping_details || session.customer_details;
     const shippingAddress = shippingDetails?.address;
@@ -118,6 +140,20 @@ export async function POST(request: NextRequest) {
       throw new Error("Missing shipping address in Stripe session");
     }
 
+    const printfulItems = cartLines.map((line) => {
+      const merchItem = getMerchItem(line.slug);
+      if (!merchItem) {
+        throw new Error(`Unknown merch slug from Stripe metadata: "${line.slug}"`);
+      }
+
+      return {
+        variant_id: resolvePrintfulVariantId(line.slug, line.size),
+        quantity: line.quantity,
+        retail_price: (merchItem.priceCents / 100).toFixed(2),
+        name: merchItem.name,
+      };
+    });
+
     const externalId = `stripe-session-${stripeSessionId}`;
     const printfulResult = await createPrintfulOrder({
       externalId,
@@ -132,29 +168,20 @@ export async function POST(request: NextRequest) {
         country_code: requireAddressField(shippingAddress.country, "country"),
         zip: requireAddressField(shippingAddress.postal_code, "postal_code"),
       },
-      items: [
-        {
-          variant_id: variantId,
-          quantity,
-          retail_price: (merchItem.priceCents / 100).toFixed(2),
-          name: merchItem.name,
-        },
-      ],
+      items: printfulItems,
     });
 
     await updateFulfillmentRecord({
       recordId,
       status: "fulfilled",
       printfulOrderId: printfulResult.printfulOrderId,
-      notes: `external_id=${printfulResult.externalId}`,
+      notes: `external_id=${printfulResult.externalId};items=${cartLines.length}`,
     });
 
     console.log("[stripe-webhook] fulfilled merch order", {
       stripeSessionId,
       printfulOrderId: printfulResult.printfulOrderId,
-      slug,
-      size,
-      quantity,
+      items: cartLines,
     });
 
     return NextResponse.json({ received: true, fulfilled: true });

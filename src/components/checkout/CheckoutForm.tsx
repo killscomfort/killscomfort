@@ -10,7 +10,7 @@ import { AcceptedPaymentMethods } from "@/components/checkout/AcceptedPaymentMet
 import { CheckoutPaymentStep } from "@/components/checkout/CheckoutPaymentStep";
 import { useCart } from "@/lib/cart/CartProvider";
 import { cartHasServices, cartRequiresShipping } from "@/lib/catalog";
-import { isServiceOnlyOrder } from "@/lib/orders/validation";
+import { isMerchOnlyOrder, isServiceOnlyOrder } from "@/lib/orders/validation";
 import { formatPrice } from "@/lib/merch";
 import { trackPurchase } from "@/lib/analytics";
 
@@ -40,6 +40,36 @@ export function CheckoutForm({
   const requiresShipping = useMemo(() => cartRequiresShipping(cartLines), [cartLines]);
   const hasServices = useMemo(() => cartHasServices(cartLines), [cartLines]);
   const serviceOnly = useMemo(() => isServiceOnlyOrder(cartLines), [cartLines]);
+  const merchOnly = useMemo(() => isMerchOnlyOrder(cartLines), [cartLines]);
+
+  async function handleStripeCheckout() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/cart-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cartLines }),
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.error || "Could not start checkout.");
+        return;
+      }
+
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        setError("Could not start checkout. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleContinue(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -242,11 +272,28 @@ export function CheckoutForm({
             Subtotal: <span className="text-muted-gold">{formatPrice(subtotalCents)}</span>
           </p>
           <p className="mt-1 text-xs text-bone/40">
-            Secure checkout — PayPal, Venmo, cards, and mobile wallets.
+            {merchOnly
+              ? "Secure checkout via Stripe · Apple Pay · Google Pay · Cards"
+              : "Secure checkout — PayPal, Venmo, cards, and mobile wallets."}
           </p>
-          <AcceptedPaymentMethods compact />
+          {!merchOnly && <AcceptedPaymentMethods compact />}
 
-          {!checkoutReady ? (
+          {merchOnly ? (
+            <div className="mt-6 space-y-4">
+              {error && <p className="text-sm text-dried-blood">{error}</p>}
+              <Button
+                type="button"
+                className="w-full"
+                disabled={loading}
+                onClick={handleStripeCheckout}
+              >
+                {loading ? "Redirecting to Stripe…" : "Checkout with Stripe"}
+              </Button>
+              <p className="text-xs text-bone/45">
+                Shipping address is collected securely on Stripe checkout.
+              </p>
+            </div>
+          ) : !checkoutReady ? (
             <form onSubmit={handleContinue} className="mt-6 space-y-4">
               <Input
                 name="customer_name"

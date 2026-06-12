@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ConversionTracker } from "@/components/analytics/ConversionTracker";
+import { ClearCartOnSuccess } from "@/components/checkout/ClearCartOnSuccess";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -21,6 +22,7 @@ export default async function MerchThankYouPage({
   return (
     <div className="flex min-h-screen items-center justify-center bg-near-black text-bone">
       <ConversionTracker dedupeKey={dedupeKey} kind="purchase" transactionId={sessionId} />
+      <ClearCartOnSuccess />
       <div className="mx-auto max-w-md px-6 text-center">
         <div className="mx-auto mb-10 w-40">
           <Image

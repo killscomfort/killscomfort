@@ -5,6 +5,8 @@ export type MerchItem = {
   description: string;
   image: string;
   sizes?: string[];
+  /** External checkout (e.g. Etsy) — Buy Now instead of Add to Cart */
+  buyUrl?: string;
 };
 
 export const MERCH_ITEMS: MerchItem[] = [
@@ -22,7 +24,8 @@ export const MERCH_ITEMS: MerchItem[] = [
     priceCents: 7000,
     description: "Diamond logo hoodie — heavyweight comfort, movement energy.",
     image: "/merch/hoodie.png",
-    sizes: ["S", "M", "L", "XL"],
+    buyUrl:
+      "https://www.etsy.com/listing/4401287030/killscomfort-diamond-hoodie",
   },
   {
     slug: "die-cut-stickers",
@@ -35,6 +38,10 @@ export const MERCH_ITEMS: MerchItem[] = [
 
 export function getMerchItem(slug: string) {
   return MERCH_ITEMS.find((item) => item.slug === slug);
+}
+
+export function isCartMerchItem(item: MerchItem) {
+  return !item.buyUrl;
 }
 
 export function formatPrice(cents: number) {

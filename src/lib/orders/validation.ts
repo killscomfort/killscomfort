@@ -64,3 +64,10 @@ export function isServiceOnlyOrder(items: CheckoutInput["items"]) {
     items.every((line) => getCatalogItem(line.slug)?.kind === "service")
   );
 }
+
+export function isMerchOnlyOrder(items: CheckoutInput["items"]) {
+  return (
+    items.length > 0 &&
+    items.every((line) => getCatalogItem(line.slug)?.kind === "merch")
+  );
+}

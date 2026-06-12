@@ -10,6 +10,7 @@ import {
 } from "react";
 import { getCatalogItem } from "@/lib/catalog";
 import { LOGO_SRC } from "@/lib/constants";
+import { isCartMerchItem } from "@/lib/merch";
 import type { CartItem, CartLine } from "./types";
 
 type CartContextValue = {
@@ -36,6 +37,7 @@ function hydrateItems(lines: CartLine[]): CartItem[] {
   for (const line of lines) {
     const product = getCatalogItem(line.slug);
     if (!product) continue;
+    if (product.kind === "merch" && !isCartMerchItem(product)) continue;
 
     items.push({
       ...line,
@@ -72,6 +74,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, ready]);
 
   const addItem = useCallback((line: CartLine) => {
+    const product = getCatalogItem(line.slug);
+    if (product?.kind === "merch" && !isCartMerchItem(product)) return;
+
     setLines((current) => {
       const key = lineKey(line.slug, line.size);
       const existing = current.find(

@@ -28,10 +28,10 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col justify-end overflow-hidden">
+    <section className="relative flex min-h-screen flex-col overflow-hidden">
       <div className="absolute inset-0 w-full overflow-hidden">
         <video
-          className="h-full w-full object-cover object-center grayscale contrast-125 brightness-75 saturate-0"
+          className="h-full w-full object-cover object-[50%_28%] grayscale contrast-125 brightness-75 saturate-0"
           autoPlay
           loop
           muted
@@ -50,8 +50,11 @@ export function Hero() {
       <div className="hero-glow-pulse absolute inset-0 bg-gradient-to-r from-muted-gold/10 via-transparent to-burnt-sienna/10 mix-blend-soft-light" />
       <div className="grain-overlay absolute inset-0" />
 
+      {/* Keeps upper hero clear so the video (face) stays visible */}
+      <div className="relative z-10 min-h-[42vh] flex-1 sm:min-h-[48vh] lg:min-h-[52vh]" aria-hidden />
+
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-28 pt-8 text-center sm:px-6 sm:pb-36 lg:px-8 lg:pb-40"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-24 pt-0 text-center sm:px-6 sm:pb-28 lg:px-8 lg:pb-32"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -62,7 +65,7 @@ export function Hero() {
             alt={SITE.name}
             width={720}
             height={160}
-            className="mx-auto h-auto w-full max-w-[400px] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:max-w-[480px] lg:max-w-2xl"
+            className="mx-auto h-auto w-full max-w-[280px] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:max-w-[340px] lg:max-w-[380px]"
             priority
           />
         </motion.div>

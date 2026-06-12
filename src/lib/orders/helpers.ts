@@ -1,4 +1,5 @@
 import { cartHasServices, cartRequiresShipping, getCatalogItem } from "@/lib/catalog";
+import { isCartMerchItem } from "@/lib/merch";
 import type { CheckoutInput } from "./validation";
 
 export type ValidatedOrderItem = {
@@ -17,6 +18,9 @@ export function buildOrderItems(items: CheckoutInput["items"]) {
     const product = getCatalogItem(line.slug);
     if (!product) {
       throw new Error(`Unknown item: ${line.slug}`);
+    }
+    if (product.kind === "merch" && !isCartMerchItem(product)) {
+      throw new Error(`${product.name} must be purchased on Etsy`);
     }
     if (product.kind === "merch" && product.sizes?.length && !line.size) {
       throw new Error(`Size is required for ${product.name}`);
