@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
-import { SITE } from "@/lib/constants";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

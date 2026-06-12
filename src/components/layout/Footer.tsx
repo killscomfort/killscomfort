@@ -47,11 +47,11 @@ function DeezerIcon({ className }: SocialIconProps) {
 }
 
 const CONNECT_LINKS = [
-  { href: SOCIAL_LINKS.instagram, label: "Instagram", Icon: InstagramIcon },
-  { href: SOCIAL_LINKS.soundcloud, label: "SoundCloud", Icon: SoundCloudIcon },
-  { href: SOCIAL_LINKS.spotify, label: "Spotify", Icon: SpotifyIcon },
-  { href: SOCIAL_LINKS.appleMusic, label: "Apple Music", Icon: AppleMusicIcon },
-  { href: SOCIAL_LINKS.deezer, label: "Deezer", Icon: DeezerIcon },
+  { href: SOCIAL_LINKS.instagram, label: "Instagram", Icon: InstagramIcon, external: true },
+  { href: SOCIAL_LINKS.soundcloud, label: "SoundCloud", Icon: SoundCloudIcon, external: true },
+  { href: SOCIAL_LINKS.spotify, label: "Spotify", Icon: SpotifyIcon, external: true },
+  { href: SOCIAL_LINKS.appleMusic, label: "Apple Music", Icon: AppleMusicIcon, external: true },
+  { href: SOCIAL_LINKS.deezer, label: "Deezer", Icon: DeezerIcon, external: true },
   { href: `mailto:${SITE.email}`, label: "Email", Icon: Mail, external: false },
 ] as const;
 
