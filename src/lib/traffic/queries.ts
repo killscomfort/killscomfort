@@ -46,17 +46,19 @@ export type TrafficDashboardData = {
   excludedIps: ExcludedIp[];
 };
 
+type RangeQuery = {
+  gte: (col: string, val: string) => RangeQuery;
+  lte: (col: string, val: string) => RangeQuery;
+};
+
 function applyRangeFilter<T>(
   query: T,
   from: string | null,
   to: string | null
 ): T {
-  let q = query as {
-    gte: (col: string, val: string) => typeof query;
-    lte: (col: string, val: string) => typeof query;
-  };
-  if (from) q = q.gte("created_at", from) as typeof query;
-  if (to) q = q.lte("created_at", to) as typeof query;
+  let q = query as RangeQuery;
+  if (from) q = q.gte("created_at", from);
+  if (to) q = q.lte("created_at", to);
   return q as T;
 }
 
@@ -66,12 +68,16 @@ function filterExcluded(rows: PageView[], excluded: string[]): PageView[] {
   return rows.filter((row) => !row.visitor_ip || !blocked.has(row.visitor_ip));
 }
 
+type NeqQuery = {
+  neq: (col: string, val: string) => NeqQuery;
+};
+
 function applyExcludedToQuery<T>(query: T, excluded: string[]): T {
-  let q = query as { neq: (col: string, val: string) => T };
+  let q = query as NeqQuery;
   for (const ip of excluded) {
-    q = q.neq("visitor_ip", ip) as T;
+    q = q.neq("visitor_ip", ip);
   }
-  return q;
+  return q as T;
 }
 
 function parseReferrerLabel(referrer: string | null): string {
