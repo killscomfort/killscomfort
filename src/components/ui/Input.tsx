@@ -5,11 +5,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export function Input({ label, error, className, id, ...props }: InputProps) {
+export function Input({ label, error, className, id, type, ...props }: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
+  const isDateLike =
+    type === "date" || type === "datetime-local" || type === "time";
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       {label && (
         <label htmlFor={inputId} className="block text-sm text-bone/80">
           {label}
@@ -17,10 +19,13 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
       )}
       <input
         id={inputId}
+        type={type}
         className={cn(
-          "w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-bone placeholder:text-mid-gray",
-          "focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
+          "box-border w-full min-w-0 max-w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-base text-bone placeholder:text-mid-gray",
+          "h-[3.125rem] focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
           "transition-colors duration-200",
+          isDateLike &&
+            "input-date appearance-none leading-normal [-webkit-appearance:none]",
           error && "border-dried-blood",
           className
         )}
@@ -47,7 +52,7 @@ export function Textarea({
   const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       {label && (
         <label htmlFor={inputId} className="block text-sm text-bone/80">
           {label}
@@ -56,7 +61,7 @@ export function Textarea({
       <textarea
         id={inputId}
         className={cn(
-          "w-full resize-y border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-bone placeholder:text-mid-gray",
+          "box-border w-full min-w-0 max-w-full resize-y border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-bone placeholder:text-mid-gray",
           "focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
           "transition-colors duration-200 min-h-[120px]",
           error && "border-dried-blood",
@@ -86,7 +91,7 @@ export function Select({
   const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       {label && (
         <label htmlFor={inputId} className="block text-sm text-bone/80">
           {label}
@@ -95,8 +100,8 @@ export function Select({
       <select
         id={inputId}
         className={cn(
-          "w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-bone",
-          "focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
+          "box-border w-full min-w-0 max-w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-base text-bone",
+          "h-[3.125rem] focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
           "transition-colors duration-200",
           error && "border-dried-blood",
           className

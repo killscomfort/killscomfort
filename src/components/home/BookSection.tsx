@@ -4,8 +4,11 @@ import { InquiryForm } from "@/components/forms/InquiryForm";
 
 export function BookSection() {
   return (
-    <section id="book" className="section-padding border-t border-clay/20 bg-warm-charcoal/40 grain-overlay">
-      <div className="relative mx-auto max-w-3xl">
+    <section
+      id="book"
+      className="section-padding border-t border-clay/20 bg-warm-charcoal/40 grain-overlay pb-28 md:pb-20"
+    >
+      <div className="relative mx-auto w-full min-w-0 max-w-3xl">
         <SectionHeading
           title="Check Availability"
           description="Clubs, festivals, private events, brand partnerships. Every inquiry gets a personal response within 24–48 hours."

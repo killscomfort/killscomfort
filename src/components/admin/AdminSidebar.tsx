@@ -11,6 +11,7 @@ import {
   Music,
   Megaphone,
   ShoppingBag,
+  BarChart3,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { SITE } from "@/lib/constants";
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/inquiries", label: "Inquiries", icon: Mail },
+  { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/blog", label: "Blog", icon: FileText },

@@ -145,6 +145,39 @@ create table public.site_content (
   updated_at timestamptz not null default now()
 );
 
+-- First-party site traffic
+create table public.page_views (
+  id uuid primary key default gen_random_uuid(),
+  visitor_ip text,
+  path text not null,
+  referrer text,
+  utm_source text,
+  utm_medium text,
+  utm_campaign text,
+  gclid text,
+  city text,
+  neighborhood text,
+  region text,
+  country text,
+  latitude double precision,
+  longitude double precision,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+
+create index page_views_created_at_idx on public.page_views (created_at desc);
+create index page_views_visitor_ip_idx on public.page_views (visitor_ip);
+
+create table public.excluded_ips (
+  id uuid primary key default gen_random_uuid(),
+  ip_address text not null unique,
+  label text not null,
+  city text,
+  region text,
+  created_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+
 -- RLS policies
 alter table public.profiles enable row level security;
 alter table public.inquiries enable row level security;
@@ -156,6 +189,8 @@ alter table public.events enable row level security;
 alter table public.music_entries enable row level security;
 alter table public.landing_pages enable row level security;
 alter table public.site_content enable row level security;
+alter table public.page_views enable row level security;
+alter table public.excluded_ips enable row level security;
 
 -- Profiles: users read/update own, admins read all
 create policy "Users can view own profile" on public.profiles
@@ -215,6 +250,10 @@ create policy "Admins full access music" on public.music_entries
 create policy "Admins full access landing pages" on public.landing_pages
   for all using (public.is_admin());
 create policy "Admins full access site content" on public.site_content
+  for all using (public.is_admin());
+create policy "Admins full access page views" on public.page_views
+  for all using (public.is_admin());
+create policy "Admins full access excluded ips" on public.excluded_ips
   for all using (public.is_admin());
 
 -- Auto-create profile on signup

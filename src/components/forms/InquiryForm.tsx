@@ -105,14 +105,20 @@ export function InquiryForm({
   }
 
   return (
-    <form method="POST" onSubmit={handleSubmit} className="space-y-6">
+    <form method="POST" onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
       {error && (
         <p className="border border-dried-blood/50 bg-dried-blood/10 px-4 py-3 text-sm text-dried-blood">
           {error}
         </p>
       )}
 
-      <div className={simplified ? "space-y-6" : "grid gap-6 sm:grid-cols-2"}>
+      <div
+        className={
+          simplified
+            ? "space-y-6"
+            : "grid grid-cols-1 gap-6 md:grid-cols-2 [&>*]:min-w-0"
+        }
+      >
         <Input
           name="name"
           label="Name *"
@@ -130,7 +136,13 @@ export function InquiryForm({
         />
       </div>
 
-      <div className={simplified ? "space-y-6" : "grid gap-6 sm:grid-cols-2"}>
+      <div
+        className={
+          simplified
+            ? "space-y-6"
+            : "grid grid-cols-1 gap-6 md:grid-cols-2 [&>*]:min-w-0"
+        }
+      >
         <Select
           name="preferred_contact"
           label="Preferred Contact Method *"
@@ -148,21 +160,11 @@ export function InquiryForm({
         />
       </div>
 
-      {!simplified && (
-        <Input
-          name="event_date"
-          type="date"
-          label="Event Date (approximate is fine)"
-        />
-      )}
-
-      {simplified && (
-        <Input
-          name="event_date"
-          type="date"
-          label="Event Date (approximate is fine)"
-        />
-      )}
+      <Input
+        name="event_date"
+        type="date"
+        label="Event Date (approximate is fine)"
+      />
 
       <Textarea
         name="message"

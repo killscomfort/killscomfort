@@ -18,6 +18,7 @@ function revalidateAdmin() {
   revalidatePath("/admin/events");
   revalidatePath("/admin/music");
   revalidatePath("/admin/landing-pages");
+  revalidatePath("/admin/traffic");
 }
 
 export async function updateInquiryStatus(formData: FormData) {

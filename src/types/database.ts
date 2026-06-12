@@ -126,3 +126,32 @@ export interface LandingPage {
   created_at: string;
   updated_at: string;
 }
+
+export interface PageView {
+  id: string;
+  visitor_ip: string | null;
+  path: string;
+  referrer: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  gclid: string | null;
+  city: string | null;
+  neighborhood: string | null;
+  region: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  user_agent: string | null;
+  created_at: string;
+}
+
+export interface ExcludedIp {
+  id: string;
+  ip_address: string;
+  label: string;
+  city: string | null;
+  region: string | null;
+  created_by: string | null;
+  created_at: string;
+}
