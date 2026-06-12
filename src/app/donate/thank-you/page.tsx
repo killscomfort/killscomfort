@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ConversionTracker } from "@/components/analytics/ConversionTracker";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -9,9 +10,17 @@ export const metadata = createMetadata({
   path: "/donate/thank-you",
 });
 
-export default function DonateThankYouPage() {
+export default async function DonateThankYouPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id: sessionId } = await searchParams;
+  const dedupeKey = sessionId ? `donate-${sessionId}` : "donate-thank-you";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#1a1a1a] text-[#f0ece4]">
+      <ConversionTracker dedupeKey={dedupeKey} kind="donate" transactionId={sessionId} />
       <div className="mx-auto max-w-md px-6 text-center">
         <div className="mx-auto mb-10 w-40">
           <Image

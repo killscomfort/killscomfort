@@ -4,6 +4,7 @@ import { getAdminServiceClient } from "@/lib/admin/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { formatDate } from "@/lib/utils";
+import { INQUIRY_STATUS_LABELS, normalizeInquiryStatus } from "@/lib/inquiry-status";
 import type { Inquiry, Order } from "@/types/database";
 import { formatPrice } from "@/lib/merch";
 
@@ -114,7 +115,7 @@ export default async function AdminPage() {
                         : "text-bone/40"
                     }`}
                   >
-                    {inquiry.status}
+                    {INQUIRY_STATUS_LABELS[normalizeInquiryStatus(inquiry.status)]}
                   </span>
                 </div>
               </AdminCard>

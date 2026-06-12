@@ -29,6 +29,81 @@ export async function updateInquiryStatus(formData: FormData) {
   revalidateAdmin();
 }
 
+export async function updateInquiryStatusById(id: string, status: InquiryStatus) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("inquiries").update({ status }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function updateInquiry(formData: FormData) {
+  const supabase = await requireAdmin();
+  const id = String(formData.get("id"));
+  const status = String(formData.get("status")) as InquiryStatus;
+  const eventDate = String(formData.get("event_date") || "").trim();
+
+  const { error } = await supabase
+    .from("inquiries")
+    .update({
+      status,
+      phone: String(formData.get("phone") || "").trim() || null,
+      preferred_contact: String(formData.get("preferred_contact") || "").trim() || null,
+      event_type: String(formData.get("event_type")).trim(),
+      event_date: eventDate || null,
+      event_location: String(formData.get("event_location") || "").trim() || null,
+      budget_range: String(formData.get("budget_range") || "").trim() || null,
+      message: String(formData.get("message") || "").trim() || null,
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function deleteInquiry(id: string) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from("inquiries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function archiveInquiryById(id: string) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase
+    .from("inquiries")
+    .update({ status: "archived" })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function restoreInquiryById(id: string) {
+  const supabase = await requireAdmin();
+  const { error } = await supabase
+    .from("inquiries")
+    .update({ status: "new" })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function archiveOldInquiries(): Promise<{ archived: number }> {
+  const supabase = await requireAdmin();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90); // matches ARCHIVE_OLD_INQUIRIES_DAYS
+
+  const { data, error } = await supabase
+    .from("inquiries")
+    .update({ status: "archived" })
+    .neq("status", "archived")
+    .lt("created_at", cutoff.toISOString())
+    .select("id");
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+  return { archived: data?.length ?? 0 };
+}
+
 export async function updateUserRole(formData: FormData) {
   const supabase = await requireAdmin();
   const id = String(formData.get("id"));

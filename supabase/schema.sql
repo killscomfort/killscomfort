@@ -25,7 +25,9 @@ create table public.inquiries (
   event_location text,
   budget_range text,
   message text,
-  status text not null default 'new' check (status in ('new', 'read', 'responded', 'archived')),
+  status text not null default 'new' check (status in (
+    'new', 'contacted', 'negotiation', 'deposit_made', 'collect_full_amount', 'prep_for_event', 'archived'
+  )),
   source text default 'website',
   utm_source text,
   utm_medium text,

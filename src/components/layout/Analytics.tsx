@@ -1,9 +1,26 @@
 import Script from "next/script";
+import { Suspense } from "react";
+import { AnalyticsPageView } from "@/components/layout/AnalyticsPageView";
+import { getAnalyticsConfig } from "@/lib/analytics-config";
 
 export function Analytics() {
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
-  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const {
+    gaId,
+    googleAdsId,
+    gtmId,
+    gtagPrimaryId,
+    googleTagEnabled,
+    anyGoogleEnabled,
+  } = getAnalyticsConfig();
+  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
+
+  const gtagConfigLines: string[] = [];
+  if (googleAdsId) {
+    gtagConfigLines.push(`gtag('config','${googleAdsId}');`);
+  }
+  if (gaId) {
+    gtagConfigLines.push(`gtag('config','${gaId}',{send_page_view:false});`);
+  }
 
   return (
     <>
@@ -27,15 +44,19 @@ export function Analytics() {
         </>
       )}
 
-      {gaId && !gtmId && (
+      {googleTagEnabled && (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${gtagPrimaryId}`}
             strategy="afterInteractive"
           />
-          <Script id="ga4" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-            gtag('js',new Date());gtag('config','${gaId}');`}
+          <Script id="google-tag" strategy="afterInteractive">
+            {`window.dataLayer=window.dataLayer||[];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag=gtag;
+            gtag('js',new Date());
+            (function(){try{var p=new URLSearchParams(window.location.search);var g=p.get('gclid');if(g)sessionStorage.setItem('kc_gclid',g);}catch(e){}})();
+            ${gtagConfigLines.join("")}`}
           </Script>
         </>
       )}
@@ -49,6 +70,12 @@ export function Analytics() {
           document,'script','https://connect.facebook.net/en_US/fbevents.js');
           fbq('init','${metaPixelId}');fbq('track','PageView');`}
         </Script>
+      )}
+
+      {anyGoogleEnabled && (
+        <Suspense fallback={null}>
+          <AnalyticsPageView />
+        </Suspense>
       )}
     </>
   );

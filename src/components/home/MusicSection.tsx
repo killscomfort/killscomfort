@@ -3,15 +3,24 @@ import { ReleaseCard } from "@/components/music/ReleaseCard";
 import { AudioPreview } from "@/components/music/AudioPreview";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
-import { FEATURED_RELEASES, getLatestRelease } from "@/lib/music";
+import {
+  FEATURED_RELEASES,
+  getLatestRelease,
+  getSpotlightRelease,
+} from "@/lib/music";
 import { formatDate } from "@/lib/utils";
 
 export function MusicSection() {
   const latest = getLatestRelease();
+  const spotlight = getSpotlightRelease();
   const otherFeatured = FEATURED_RELEASES.filter(
-    (r) => r.title !== latest.title
+    (r) => r.title !== latest.title && r.title !== spotlight?.title
   );
   const listenUrl = latest.links.listen ?? latest.links.spotify;
+  const spotlightListenUrl =
+    spotlight?.links.listen ??
+    spotlight?.links.spotify ??
+    spotlight?.links.soundcloud;
 
   return (
     <section className="section-padding bg-warm-charcoal/40 grain-overlay">
@@ -72,6 +81,58 @@ export function MusicSection() {
             </div>
           </div>
         </div>
+
+        {spotlight && spotlight.title !== latest.title && (
+          <div className="group relative mx-auto mb-10 max-w-xl overflow-hidden border border-muted-gold/50 bg-warm-charcoal/90 shadow-[0_0_40px_-8px_rgba(142,202,230,0.35)] transition-colors hover:border-muted-gold/70">
+            <div className="absolute inset-y-0 left-0 w-1 bg-muted-gold/80" aria-hidden />
+            <div className="flex items-center gap-5 p-5 sm:gap-6 sm:p-6">
+              <div className="relative h-28 w-28 shrink-0 overflow-hidden bg-near-black ring-2 ring-muted-gold/40 sm:h-32 sm:w-32">
+                <Image
+                  src={spotlight.coverUrl}
+                  alt={`${spotlight.title} cover art`}
+                  width={128}
+                  height={128}
+                  unoptimized
+                  className="h-full w-full object-cover"
+                />
+                {spotlight.previewUrl && (
+                  <AudioPreview
+                    previewUrl={spotlight.previewUrl}
+                    title={spotlight.title}
+                    overlay
+                    className="!bottom-1.5 !right-1.5 !gap-1 !px-2 !py-1 !text-[9px]"
+                  />
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase tracking-[0.35em] text-muted-gold">
+                  {spotlight.spotlightLabel ?? "Spotlight"}
+                </p>
+                <h3 className="text-display mt-2 text-xl text-bone sm:text-2xl">
+                  {spotlight.title}
+                </h3>
+                <p className="mt-1 text-xs text-bone/50">
+                  {formatDate(spotlight.releaseDate)}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-bone/70">
+                  One of my proudest remixes — from the getmadmix series. Turn
+                  it up.
+                </p>
+                {spotlightListenUrl && (
+                  <a
+                    href={spotlightListenUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex text-[10px] uppercase tracking-widest text-muted-gold transition-colors hover:text-bone"
+                  >
+                    Listen Now
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {otherFeatured.length > 0 && (
           <div className="mx-auto grid max-w-2xl grid-cols-3 gap-6 sm:gap-8">

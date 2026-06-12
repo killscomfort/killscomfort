@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { EVENT_TYPES, BUDGET_RANGES, CONTACT_METHODS, SITE } from "@/lib/constants";
+import { trackGenerateLead } from "@/lib/analytics";
 
 interface InquiryFormProps {
   simplified?: boolean;
@@ -65,6 +66,14 @@ export function InquiryForm({
         }
         return;
       }
+
+      trackGenerateLead({
+        event_type: data.event_type,
+        source: data.source,
+        utm_source: data.utm_source,
+        utm_medium: data.utm_medium,
+        utm_campaign: data.utm_campaign,
+      });
 
       setSuccess(true);
       (e.target as HTMLFormElement).reset();

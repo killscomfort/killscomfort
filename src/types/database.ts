@@ -1,5 +1,12 @@
 export type UserRole = "user" | "premium" | "admin";
-export type InquiryStatus = "new" | "read" | "responded" | "archived";
+export type InquiryStatus =
+  | "new"
+  | "contacted"
+  | "negotiation"
+  | "deposit_made"
+  | "collect_full_amount"
+  | "prep_for_event"
+  | "archived";
 export type OrderStatus = "pending" | "paid" | "failed" | "refunded" | "cancelled";
 export type MusicCategory = "dj_mix" | "original" | "remix";
 export type LandingTemplate = "booking" | "partnership";

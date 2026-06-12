@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ConversionTracker } from "@/components/analytics/ConversionTracker";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -9,9 +10,17 @@ export const metadata = createMetadata({
   path: "/merch/thank-you",
 });
 
-export default function MerchThankYouPage() {
+export default async function MerchThankYouPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id: sessionId } = await searchParams;
+  const dedupeKey = sessionId ? `merch-${sessionId}` : "merch-thank-you";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-near-black text-bone">
+      <ConversionTracker dedupeKey={dedupeKey} kind="purchase" transactionId={sessionId} />
       <div className="mx-auto max-w-md px-6 text-center">
         <div className="mx-auto mb-10 w-40">
           <Image

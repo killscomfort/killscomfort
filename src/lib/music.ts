@@ -15,6 +15,9 @@ export type MusicRelease = {
   releaseDate: string;
   category: MusicCategory;
   featured?: boolean;
+  /** Home page spotlight — e.g. a proud project */
+  spotlight?: boolean;
+  spotlightLabel?: string;
   coverUrl: string;
   previewUrl?: string;
   links: MusicReleaseLinks;
@@ -97,9 +100,11 @@ export const MUSIC_RELEASES: MusicRelease[] = [
     },
   },
   {
-    title: "DICKAINTFREEREMIX (getmadmix)",
+    title: "THISDICKAINTFREE (getmadmix)",
     releaseDate: "2025-01-24",
     category: "remix",
+    spotlight: true,
+    spotlightLabel: "Proud Project",
     coverUrl:
       "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/3e/16/553e161d-ef48-1ce6-c524-cf54856b862a/artwork.jpg/1000x1000bb.jpg",
     previewUrl:
@@ -257,19 +262,6 @@ export const SOUNDCLOUD_MIXES: MusicRelease[] = [
     },
   },
   {
-    title: "THISDICKAINTFREEREMIX (getmadmix)",
-    releaseDate: "2025-02-11",
-    category: "remix",
-    coverUrl:
-      "https://i1.sndcdn.com/artworks-HtzICFxKLdMXKEEA-Bj6UjQ-t500x500.png",
-    links: {
-      soundcloud:
-        "https://soundcloud.com/killscomfort/thisdickaintfreeremix-getmadmix",
-      listen:
-        "https://soundcloud.com/killscomfort/thisdickaintfreeremix-getmadmix",
-    },
-  },
-  {
     title: "Lanez House Remix Kills X Tono",
     releaseDate: "2024-09-13",
     category: "remix",
@@ -302,6 +294,10 @@ export function getLatestRelease(): MusicRelease {
     (a, b) =>
       new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
   )[0];
+}
+
+export function getSpotlightRelease(): MusicRelease | undefined {
+  return MUSIC_RELEASES.find((r) => r.spotlight);
 }
 
 export function releasesByCategory(category: MusicCategory) {

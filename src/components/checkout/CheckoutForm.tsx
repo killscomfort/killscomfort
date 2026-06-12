@@ -12,6 +12,7 @@ import { useCart } from "@/lib/cart/CartProvider";
 import { cartHasServices, cartRequiresShipping } from "@/lib/catalog";
 import { isServiceOnlyOrder } from "@/lib/orders/validation";
 import { formatPrice } from "@/lib/merch";
+import { trackPurchase } from "@/lib/analytics";
 
 export function CheckoutForm({
   applePayEnabled = false,
@@ -118,6 +119,11 @@ export function CheckoutForm({
     }
 
     clearCart();
+    trackPurchase({
+      transaction_id: result.orderNumber,
+      value: subtotalCents / 100,
+      currency: "USD",
+    });
     const successType = serviceOnly ? "&type=service" : "";
     router.push(`/checkout/success?order=${result.orderNumber}${successType}`);
   }
