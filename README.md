@@ -35,6 +35,14 @@ cp .env.example .env.local
 
 Fill in Supabase keys, Resend API key, and analytics IDs.
 
+For merch dropship automation, also set:
+
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `PRINTFUL_API_KEY`
+
+Then configure Printful variant IDs in `src/lib/merch-printful.ts` (hoodie S/M/L/XL placeholders are included).
+
 ### 4. Set admin role
 
 After registering your account, promote yourself to admin in Supabase:
@@ -50,6 +58,31 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Stripe -> Printful webhook testing (local)
+
+1. Start your app:
+
+```bash
+npm run dev
+```
+
+2. Forward Stripe events to local webhook:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+Copy the returned webhook signing secret into `.env.local` as `STRIPE_WEBHOOK_SECRET`.
+
+3. Trigger a merch checkout in the app using a Stripe test card (for example `4242 4242 4242 4242`).
+
+4. Verify flow:
+
+- Stripe CLI shows `checkout.session.completed`
+- Server logs include `[stripe-webhook] fulfilled merch order`
+- Supabase `stripe_fulfillments` table has a `fulfilled` record
+- Printful dashboard/API shows a created order for external id `stripe-session-<session_id>`
 
 ## Pages
 

@@ -61,6 +61,18 @@ create table public.order_items (
   created_at timestamptz not null default now()
 );
 
+-- Stripe merch fulfillment records (idempotency + provider tracking)
+create table public.stripe_fulfillments (
+  id uuid primary key default gen_random_uuid(),
+  stripe_session_id text not null unique,
+  stripe_event_id text not null,
+  status text not null default 'processing' check (status in ('processing', 'fulfilled', 'failed', 'skipped')),
+  printful_order_id text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- Blog posts
 create table public.blog_posts (
   id uuid primary key default gen_random_uuid(),
@@ -135,6 +147,7 @@ alter table public.profiles enable row level security;
 alter table public.inquiries enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.stripe_fulfillments enable row level security;
 alter table public.blog_posts enable row level security;
 alter table public.events enable row level security;
 alter table public.music_entries enable row level security;
@@ -187,6 +200,8 @@ create policy "Admins full access inquiries" on public.inquiries
 create policy "Admins full access orders" on public.orders
   for all using (public.is_admin());
 create policy "Admins full access order items" on public.order_items
+  for all using (public.is_admin());
+create policy "Admins full access stripe fulfillments" on public.stripe_fulfillments
   for all using (public.is_admin());
 create policy "Admins full access blog" on public.blog_posts
   for all using (public.is_admin());
