@@ -41,7 +41,15 @@ For merch dropship automation, also set:
 - `STRIPE_WEBHOOK_SECRET`
 - `PRINTFUL_API_KEY`
 
-Then configure Printful variant IDs in `src/lib/merch-printful.ts` (hoodie S/M/L/XL placeholders are included).
+Then configure Printful variant IDs in `src/lib/merch-printful.ts`.
+
+Printful ID fail-fast TODO map is intentionally prefilled with `0` placeholders for all current merch variants:
+
+- `kills-shorts`: `32`, `34`, `36`, `38`
+- `diamond-hoodie`: `S`, `M`, `L`, `XL`
+- `die-cut-stickers`: `DEFAULT`
+
+The Stripe webhook throws and marks fulfillment `failed` if any `variantId` is missing/`<= 0`, so no order is silently sent with bad mappings.
 
 ### 4. Set admin role
 
@@ -83,6 +91,15 @@ Copy the returned webhook signing secret into `.env.local` as `STRIPE_WEBHOOK_SE
 - Server logs include `[stripe-webhook] fulfilled merch order`
 - Supabase `stripe_fulfillments` table has a `fulfilled` record
 - Printful dashboard/API shows a created order for external id `stripe-session-<session_id>`
+
+### Stripe webhook setup (dashboard)
+
+If webhook endpoint creation is not done via API tooling, create it in Stripe Dashboard:
+
+1. Go to Developers -> Webhooks -> Add endpoint.
+2. Endpoint URL: `https://<your-domain>/api/stripe/webhook`
+3. Events to send: `checkout.session.completed`
+4. Save endpoint, then copy its signing secret (`whsec_...`) into `STRIPE_WEBHOOK_SECRET`.
 
 ## Pages
 
