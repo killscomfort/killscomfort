@@ -46,7 +46,9 @@ async function lookupIpWhoIs(ip: string): Promise<IpGeoResult | null> {
   };
 }
 
-async function lookupIpApiDistrict(ip: string): Promise<Pick<IpGeoResult, "neighborhood" | "city" | "region" | "country" | "latitude" | "longitude">> {
+async function lookupIpApiDistrict(
+  ip: string
+): Promise<Partial<Pick<IpGeoResult, "neighborhood" | "city" | "region" | "country" | "latitude" | "longitude">>> {
   const res = await fetch(
     `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,city,district,regionName,countryCode,lat,lon`,
     { next: { revalidate: 86400 } }
