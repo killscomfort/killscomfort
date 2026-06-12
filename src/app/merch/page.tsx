@@ -1,6 +1,5 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { MerchCard } from "@/components/merch/MerchCard";
-import { MERCH_ITEMS } from "@/lib/merch";
+import { MerchShop } from "@/components/merch/MerchShop";
 import { createMetadata } from "@/lib/seo";
 import { SITE } from "@/lib/constants";
 
@@ -22,10 +21,12 @@ export default function MerchPage() {
             className="mx-auto"
           />
 
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-10 lg:gap-x-12">
-            {MERCH_ITEMS.map((item) => (
-              <MerchCard key={item.slug} item={item} />
-            ))}
+          <p className="mx-auto mt-4 max-w-lg text-center text-sm text-bone/50">
+            Secure checkout via Stripe · Apple Pay · Google Pay · Cards
+          </p>
+
+          <div className="mt-12">
+            <MerchShop />
           </div>
         </div>
       </section>

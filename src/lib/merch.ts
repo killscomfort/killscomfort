@@ -1,5 +1,3 @@
-import { LOGO_SRC } from "@/lib/constants";
-
 export type MerchItem = {
   slug: string;
   name: string;
@@ -15,7 +13,7 @@ export const MERCH_ITEMS: MerchItem[] = [
     name: "KILLS SHORTS",
     priceCents: 6000,
     description: "Street-ready. Logo across the front. Built for movement.",
-    image: "/about/FINALS-14.png",
+    image: "/about/FINALS-2.png",
     sizes: ["32", "34", "36", "38"],
   },
   {
@@ -23,7 +21,7 @@ export const MERCH_ITEMS: MerchItem[] = [
     name: "KillsComfort Diamond Hoodie",
     priceCents: 7000,
     description: "Diamond logo hoodie — heavyweight comfort, movement energy.",
-    image: "/merch/killscomfort-hoodie.jpg",
+    image: "/merch/hoodie.png",
     sizes: ["S", "M", "L", "XL"],
   },
   {
@@ -31,7 +29,7 @@ export const MERCH_ITEMS: MerchItem[] = [
     name: '"KillsComfort" Die Cut Stickers',
     priceCents: 100,
     description: "Represent with your very own sticky sticker :)",
-    image: LOGO_SRC,
+    image: "/merch/sticker.png",
   },
 ];
 
