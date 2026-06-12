@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
-    let saved = false;
 
     if (isSupabaseConfigured()) {
       const supabase = await createAnonClient();
@@ -50,14 +49,11 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-
-      saved = true;
     } else if (process.env.NODE_ENV === "development") {
       console.log("[dev] Inquiry received (Supabase not configured):", {
         ...data,
         visitor_ip: visitorIp,
       });
-      saved = true;
     } else {
       return NextResponse.json(
         {

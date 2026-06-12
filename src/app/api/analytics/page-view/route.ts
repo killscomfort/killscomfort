@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     const visitorIp = getClientIp(request);
-    const supabase = createServiceClient();
+    const supabase = await createServiceClient();
 
     if (visitorIp) {
       const { data: excluded } = await supabase
