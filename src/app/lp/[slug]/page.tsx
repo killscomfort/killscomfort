@@ -20,7 +20,7 @@ const landingPages: Record<
     headline: "Bring Real Energy to Your Next Event",
     subheadline: "Miami-rooted. Street-tested. Built to move crowds.",
     bullets: [
-      "150+ events across clubs, festivals, and private venues",
+      "Clubs, festivals, and private venues",
       "Versatile sets — house, techno, hip-hop, and everything between",
       "Professional from inquiry to encore",
     ],
