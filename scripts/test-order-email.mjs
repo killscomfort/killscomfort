@@ -52,6 +52,7 @@ const adminHtml = renderEmailLayout(
 async function main() {
   const admin = await resend.emails.send({
     from,
+    replyTo: process.env.EMAIL_REPLY_TO || process.env.ORDERS_NOTIFICATION_EMAIL || to,
     to: process.env.ORDERS_NOTIFICATION_EMAIL || to,
     subject: "Test — New Merch Order KC-TEST123",
     html: adminHtml,
@@ -59,6 +60,7 @@ async function main() {
 
   const customer = await resend.emails.send({
     from,
+    replyTo: process.env.EMAIL_REPLY_TO || process.env.ORDERS_NOTIFICATION_EMAIL || to,
     to,
     subject: "Test — Order confirmed KC-TEST123",
     html: customerHtml,

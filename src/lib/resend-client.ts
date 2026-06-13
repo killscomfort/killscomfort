@@ -16,6 +16,15 @@ export function getEmailFrom() {
   );
 }
 
+/** Replies to site emails go here — orders@ is send-only (no inbox). */
+export function getEmailReplyTo() {
+  return (
+    process.env.EMAIL_REPLY_TO?.trim() ||
+    process.env.INQUIRY_NOTIFICATION_EMAIL?.trim() ||
+    SITE.email
+  ).toLowerCase();
+}
+
 export function getOrdersNotificationEmail() {
   return (
     process.env.ORDERS_NOTIFICATION_EMAIL ||
@@ -37,6 +46,7 @@ export async function sendEmail(params: {
 
   const { data, error } = await resend.emails.send({
     from: getEmailFrom(),
+    replyTo: getEmailReplyTo(),
     to: params.to,
     subject: params.subject,
     html: params.html,
