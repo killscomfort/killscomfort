@@ -4,7 +4,6 @@ import type { InquiryStatus } from "@/types/database";
 export const INQUIRY_PIPELINE_STATUSES: InquiryStatus[] = [
   "new",
   "contacted",
-  "negotiation",
   "deposit_made",
   "collect_full_amount",
   "prep_for_event",
@@ -32,7 +31,8 @@ export const ARCHIVE_OLD_INQUIRIES_DAYS = 90;
 export function normalizeInquiryStatus(status: string): InquiryStatus {
   const legacy: Record<string, InquiryStatus> = {
     read: "contacted",
-    responded: "negotiation",
+    responded: "contacted",
+    negotiation: "contacted",
   };
   if (legacy[status]) return legacy[status];
   if (INQUIRY_STATUSES.includes(status as InquiryStatus)) {
