@@ -11,6 +11,7 @@ import {
 import {
   INQUIRY_STATUSES,
   INQUIRY_STATUS_LABELS,
+  getInquiryStatusLabel,
   normalizeInquiryStatus,
 } from "@/lib/inquiry-status";
 import { BUDGET_RANGES, EVENT_TYPES, CONTACT_METHODS } from "@/lib/constants";
@@ -122,7 +123,7 @@ export function InquiryDetailPanel({
         <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-clay/20 bg-warm-charcoal px-5 py-4">
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-gold">
-              {INQUIRY_STATUS_LABELS[normalizedStatus]}
+              {getInquiryStatusLabel(inquiry.status)}
             </p>
             <h2 id="inquiry-detail-title" className="mt-1 text-xl text-bone">
               {inquiry.name}

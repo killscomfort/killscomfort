@@ -185,7 +185,7 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
     if (status === "archived") return;
 
     const inquiry = inquiries.find((i) => i.id === inquiryId);
-    if (!inquiry || inquiry.status === status) {
+    if (!inquiry || normalizeInquiryStatus(inquiry.status) === status) {
       setDraggingId(null);
       setDropTarget(null);
       return;

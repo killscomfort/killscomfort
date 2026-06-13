@@ -2,7 +2,6 @@ export type UserRole = "user" | "premium" | "admin";
 export type InquiryStatus =
   | "new"
   | "contacted"
-  | "negotiation"
   | "deposit_made"
   | "collect_full_amount"
   | "prep_for_event"

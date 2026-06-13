@@ -4,6 +4,8 @@ import { InquiriesKanban } from "@/components/admin/InquiriesKanban";
 import { normalizeInquiryStatus } from "@/lib/inquiry-status";
 import type { Inquiry } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminInquiriesPage() {
   const supabase = await createClient();
 

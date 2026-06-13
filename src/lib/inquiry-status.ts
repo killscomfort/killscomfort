@@ -9,7 +9,7 @@ export const INQUIRY_PIPELINE_STATUSES: InquiryStatus[] = [
   "prep_for_event",
 ];
 
-/** All statuses including archived */
+/** All statuses selectable in admin UI */
 export const INQUIRY_STATUSES: InquiryStatus[] = [
   ...INQUIRY_PIPELINE_STATUSES,
   "archived",
@@ -18,7 +18,6 @@ export const INQUIRY_STATUSES: InquiryStatus[] = [
 export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
   new: "New",
   contacted: "Contacted",
-  negotiation: "Negotiation",
   deposit_made: "Deposit Made",
   collect_full_amount: "Collect Full Amount",
   prep_for_event: "Prep for Event",
@@ -28,17 +27,24 @@ export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
 /** Inquiries older than this (by created_at) are eligible for bulk archive */
 export const ARCHIVE_OLD_INQUIRIES_DAYS = 90;
 
+const LEGACY_INQUIRY_STATUSES: Record<string, InquiryStatus> = {
+  read: "contacted",
+  responded: "contacted",
+  negotiation: "contacted",
+};
+
 export function normalizeInquiryStatus(status: string): InquiryStatus {
-  const legacy: Record<string, InquiryStatus> = {
-    read: "contacted",
-    responded: "contacted",
-    negotiation: "contacted",
-  };
-  if (legacy[status]) return legacy[status];
+  if (LEGACY_INQUIRY_STATUSES[status]) {
+    return LEGACY_INQUIRY_STATUSES[status];
+  }
   if (INQUIRY_STATUSES.includes(status as InquiryStatus)) {
     return status as InquiryStatus;
   }
   return "new";
+}
+
+export function getInquiryStatusLabel(status: string): string {
+  return INQUIRY_STATUS_LABELS[normalizeInquiryStatus(status)];
 }
 
 export function isPipelineStatus(status: InquiryStatus): boolean {
