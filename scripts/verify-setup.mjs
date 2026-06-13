@@ -57,6 +57,36 @@ async function verifySupabase() {
   }
   report("Supabase service role", true, "page_views reachable");
 
+  const { data: sampleInquiry } = await service
+    .from("inquiries")
+    .select("id, status")
+    .limit(1)
+    .maybeSingle();
+
+  if (sampleInquiry?.id) {
+    const originalStatus = sampleInquiry.status;
+    const { error: pipelineError } = await service
+      .from("inquiries")
+      .update({ status: "contacted" })
+      .eq("id", sampleInquiry.id);
+
+    if (pipelineError) {
+      report(
+        "Inquiry Kanban statuses",
+        false,
+        `${pipelineError.message} — run supabase/migrations/20260612_inquiry_kanban_statuses.sql in Supabase SQL editor`
+      );
+    } else {
+      await service
+        .from("inquiries")
+        .update({ status: originalStatus })
+        .eq("id", sampleInquiry.id);
+      report("Inquiry Kanban statuses", true, "contacted and other pipeline values allowed");
+    }
+  } else {
+    report("Inquiry Kanban statuses", true, "no inquiries yet — skipped write test");
+  }
+
   return true;
 }
 

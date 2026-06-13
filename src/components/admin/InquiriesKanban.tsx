@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition, type MutableRefObject } from "react";
+import { useMemo, useRef, useState, useTransition, type DragEvent, type MutableRefObject } from "react";
 import { Archive, Calendar, GripVertical, MapPin, RotateCcw, Trash2 } from "lucide-react";
 import {
   archiveOldInquiries,
@@ -35,18 +35,22 @@ function formatShortDate(date: string | null) {
 
 function InquiryCard({
   inquiry,
+  columnStatus,
   draggingId,
   onSelect,
   didDragRef,
   setDraggingId,
   setDropTarget,
+  onDropInColumn,
 }: {
   inquiry: Inquiry;
+  columnStatus: InquiryStatus;
   draggingId: string | null;
   onSelect: (inquiry: Inquiry) => void;
   didDragRef: MutableRefObject<boolean>;
   setDraggingId: (id: string | null) => void;
   setDropTarget: (status: InquiryStatus | null) => void;
+  onDropInColumn: (status: InquiryStatus, e: DragEvent) => void;
 }) {
   return (
     <article
@@ -54,6 +58,7 @@ function InquiryCard({
       onDragStart={(e) => {
         didDragRef.current = true;
         e.dataTransfer.setData("text/inquiry-id", inquiry.id);
+        e.dataTransfer.setData("text/plain", inquiry.id);
         e.dataTransfer.effectAllowed = "move";
         setDraggingId(inquiry.id);
       }}
@@ -64,6 +69,12 @@ function InquiryCard({
           didDragRef.current = false;
         }, 0);
       }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        setDropTarget(columnStatus);
+      }}
+      onDrop={(e) => onDropInColumn(columnStatus, e)}
       onClick={() => {
         if (didDragRef.current) return;
         onSelect(inquiry);
@@ -141,6 +152,35 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
     return map;
   }, [activeInquiries]);
 
+  function readDraggedInquiryId(e: DragEvent) {
+    return (
+      e.dataTransfer.getData("text/inquiry-id") ||
+      e.dataTransfer.getData("text/plain")
+    );
+  }
+
+  function handleColumnDragOver(status: InquiryStatus, e: DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDropTarget(status);
+  }
+
+  function handleColumnDragLeave(
+    status: InquiryStatus,
+    e: DragEvent<HTMLElement>
+  ) {
+    const next = e.relatedTarget as Node | null;
+    if (next && e.currentTarget.contains(next)) return;
+    setDropTarget((current) => (current === status ? null : current));
+  }
+
+  function handleColumnDrop(status: InquiryStatus, e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = readDraggedInquiryId(e);
+    if (id) handleDrop(status, id);
+  }
+
   function handleDrop(status: InquiryStatus, inquiryId: string) {
     if (status === "archived") return;
 
@@ -163,9 +203,15 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
         setSelected((current) =>
           current?.id === inquiryId ? { ...current, status } : current
         );
-      } catch {
+        setBulkMessage("");
+      } catch (err) {
         setInquiries((prev) =>
           prev.map((i) => (i.id === inquiryId ? inquiry : i))
+        );
+        setBulkMessage(
+          err instanceof Error
+            ? `Could not save move: ${err.message}`
+            : "Could not save move. Check that inquiry status migrations are applied in Supabase."
         );
       }
     });
@@ -266,7 +312,16 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
           </button>
         )}
         {bulkMessage && (
-          <p className="text-xs text-bone/60">{bulkMessage}</p>
+          <p
+            className={cn(
+              "text-xs",
+              bulkMessage.startsWith("Could not")
+                ? "text-red-400"
+                : "text-bone/60"
+            )}
+          >
+            {bulkMessage}
+          </p>
         )}
       </div>
 
@@ -285,20 +340,11 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
               key={status}
               className={cn(
                 "flex h-full min-w-[260px] max-w-[320px] flex-1 flex-col rounded-lg border bg-warm-charcoal/40",
-                isTarget ? "border-muted-gold/60" : "border-clay/20"
+                isTarget ? "border-muted-gold/60 ring-1 ring-muted-gold/30" : "border-clay/20"
               )}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDropTarget(status);
-              }}
-              onDragLeave={() => {
-                setDropTarget((current) => (current === status ? null : current));
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData("text/inquiry-id");
-                if (id) handleDrop(status, id);
-              }}
+              onDragOver={(e) => handleColumnDragOver(status, e)}
+              onDragLeave={(e) => handleColumnDragLeave(status, e)}
+              onDrop={(e) => handleColumnDrop(status, e)}
             >
               <div className="shrink-0 border-b border-clay/15 px-3 py-3">
                 <div className="flex items-center justify-between gap-2">
@@ -311,9 +357,13 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
                 </div>
               </div>
 
-              <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
+              <div
+                className="flex min-h-[120px] flex-1 flex-col gap-2 overflow-y-auto p-2"
+                onDragOver={(e) => handleColumnDragOver(status, e)}
+                onDrop={(e) => handleColumnDrop(status, e)}
+              >
                 {columnItems.length === 0 ? (
-                  <p className="px-2 py-6 text-center text-xs text-bone/30">
+                  <p className="pointer-events-none px-2 py-6 text-center text-xs text-bone/30">
                     Drop leads here
                   </p>
                 ) : (
@@ -321,11 +371,13 @@ export function InquiriesKanban({ inquiries: initialInquiries }: Props) {
                     <InquiryCard
                       key={inquiry.id}
                       inquiry={inquiry}
+                      columnStatus={status}
                       draggingId={draggingId}
                       onSelect={setSelected}
                       didDragRef={didDragRef}
                       setDraggingId={setDraggingId}
                       setDropTarget={setDropTarget}
+                      onDropInColumn={handleColumnDrop}
                     />
                   ))
                 )}

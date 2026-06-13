@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
-import { requireAdmin } from "./auth";
+import { requireAdmin, getAdminServiceClient } from "./auth";
 import type {
   InquiryStatus,
   LandingTemplate,
@@ -22,16 +22,19 @@ function revalidateAdmin() {
 }
 
 export async function updateInquiryStatus(formData: FormData) {
-  const supabase = await requireAdmin();
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
   const id = String(formData.get("id"));
   const status = String(formData.get("status")) as InquiryStatus;
 
-  await supabase.from("inquiries").update({ status }).eq("id", id);
+  const { error } = await supabase.from("inquiries").update({ status }).eq("id", id);
+  if (error) throw new Error(error.message);
   revalidateAdmin();
 }
 
 export async function updateInquiryStatusById(id: string, status: InquiryStatus) {
-  const supabase = await requireAdmin();
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
   const { error } = await supabase.from("inquiries").update({ status }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidateAdmin();
