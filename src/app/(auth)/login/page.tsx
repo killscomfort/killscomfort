@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { SITE } from "@/lib/constants";
@@ -58,7 +59,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <Input name="email" type="email" label="Email" required />
           <div>
-            <Input name="password" type="password" label="Password" required />
+            <PasswordInput name="password" label="Password" required />
             <p className="mt-2 text-right text-sm">
               <Link
                 href="/forgot-password"

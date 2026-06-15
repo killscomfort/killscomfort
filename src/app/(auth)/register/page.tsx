@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { SITE } from "@/lib/constants";
@@ -73,9 +74,8 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <Input name="full_name" label="Full Name" required />
           <Input name="email" type="email" label="Email" required />
-          <Input
+          <PasswordInput
             name="password"
-            type="password"
             label="Password"
             required
             minLength={6}

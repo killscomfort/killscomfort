@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -134,17 +134,15 @@ function ResetPasswordForm() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <Input
+          <PasswordInput
             name="password"
-            type="password"
             label="New password"
             required
             minLength={6}
             autoComplete="new-password"
           />
-          <Input
+          <PasswordInput
             name="confirm_password"
-            type="password"
             label="Confirm password"
             required
             minLength={6}
