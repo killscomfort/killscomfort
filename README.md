@@ -59,6 +59,17 @@ After registering your account, promote yourself to admin in Supabase:
 UPDATE profiles SET role = 'admin' WHERE email = 'your@email.com';
 ```
 
+### 4b. Password reset (Supabase Auth URLs)
+
+In **Supabase → Authentication → URL Configuration**, add these **Redirect URLs**:
+
+- `http://localhost:3000/auth/callback`
+- `https://killscomfort.com/auth/callback` (production)
+
+Set **Site URL** to your production domain (or `http://localhost:3000` for local-only testing).
+
+Users reset passwords at `/forgot-password`; the email link lands on `/auth/callback` then `/reset-password`.
+
 ### 5. Run locally
 
 ```bash

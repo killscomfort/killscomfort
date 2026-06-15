@@ -24,6 +24,24 @@ export const INQUIRY_STATUS_LABELS: Record<InquiryStatus, string> = {
   archived: "Archived",
 };
 
+/** Compact labels for Kanban column headers */
+export const INQUIRY_STATUS_SHORT_LABELS = {
+  new: "New",
+  contacted: "Contacted",
+  deposit_made: "Deposit",
+  collect_full_amount: "Collect Full",
+  prep_for_event: "Prep Event",
+} as const satisfies Partial<Record<InquiryStatus, string>>;
+
+export function getInquiryStatusShortLabel(status: InquiryStatus): string {
+  if (status in INQUIRY_STATUS_SHORT_LABELS) {
+    return INQUIRY_STATUS_SHORT_LABELS[
+      status as keyof typeof INQUIRY_STATUS_SHORT_LABELS
+    ];
+  }
+  return INQUIRY_STATUS_LABELS[status];
+}
+
 /** Inquiries older than this (by created_at) are eligible for bulk archive */
 export const ARCHIVE_OLD_INQUIRIES_DAYS = 90;
 

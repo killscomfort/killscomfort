@@ -12,8 +12,11 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
+  const authError = searchParams.get("error");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    authError ? decodeURIComponent(authError) : ""
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -54,7 +57,17 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <Input name="email" type="email" label="Email" required />
-          <Input name="password" type="password" label="Password" required />
+          <div>
+            <Input name="password" type="password" label="Password" required />
+            <p className="mt-2 text-right text-sm">
+              <Link
+                href="/forgot-password"
+                className="text-bone/55 hover:text-bone"
+              >
+                Forgot password?
+              </Link>
+            </p>
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </Button>

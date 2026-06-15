@@ -23,7 +23,7 @@ export default async function AdminInquiriesPage() {
     <>
       <AdminPageHeader
         title="Inquiries"
-        description="Drag leads across the pipeline. Click a card for full details and edits."
+        description="Drag leads through the pipeline. Click a card for details."
       />
 
       {items.length === 0 ? (

@@ -109,28 +109,31 @@ export function InquiryDetailPanel({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-near-black/80 p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-near-black/85 p-4 backdrop-blur-sm sm:items-center"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-clay/30 bg-warm-charcoal shadow-xl"
+        className="grain-overlay max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-white/12 bg-warm-charcoal shadow-[0_24px_80px_rgba(0,0,0,0.65)]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="inquiry-detail-title"
       >
-        <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-clay/20 bg-warm-charcoal px-5 py-4">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-warm-charcoal/95 px-5 py-5 backdrop-blur-md">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-gold">
+            <span className="inline-block border border-white/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-bone/70">
               {getInquiryStatusLabel(inquiry.status)}
-            </p>
-            <h2 id="inquiry-detail-title" className="mt-1 text-xl text-bone">
+            </span>
+            <h2
+              id="inquiry-detail-title"
+              className="text-display mt-3 text-2xl uppercase tracking-wide text-bone"
+            >
               {inquiry.name}
             </h2>
             <a
               href={`mailto:${inquiry.email}`}
-              className="text-sm text-bone/70 hover:text-muted-gold"
+              className="mt-1 inline-block text-sm text-bone/60 transition-colors hover:text-bone"
             >
               {inquiry.email}
             </a>
@@ -138,7 +141,7 @@ export function InquiryDetailPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-bone/50 hover:bg-clay/20 hover:text-bone"
+            className="rounded border border-transparent p-1.5 text-bone/45 transition-colors hover:border-white/10 hover:bg-white/5 hover:text-bone"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -252,8 +255,9 @@ export function InquiryDetailPanel({
             </div>
           </form>
         ) : (
-          <div className="space-y-4 p-5">
-            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <>
+            <div className="space-y-4 p-5">
+              <dl className="grid gap-3 text-sm sm:grid-cols-2">
               {inquiry.phone && (
                 <div>
                   <dt className="text-xs uppercase tracking-widest text-bone/40">Phone</dt>
@@ -303,9 +307,9 @@ export function InquiryDetailPanel({
             </dl>
 
             {inquiry.message && (
-              <div>
-                <p className="text-xs uppercase tracking-widest text-bone/40">Message</p>
-                <p className="mt-1 text-sm leading-relaxed text-bone/70">{inquiry.message}</p>
+              <div className="border border-white/10 bg-black/25 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.18em] text-bone/40">Message</p>
+                <p className="mt-2 text-sm leading-relaxed text-bone/75">{inquiry.message}</p>
               </div>
             )}
 
@@ -321,8 +325,9 @@ export function InquiryDetailPanel({
             </p>
 
             {error && <p className="text-sm text-dried-blood">{error}</p>}
+            </div>
 
-            <div className="flex flex-wrap gap-2 border-t border-clay/15 pt-4">
+            <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-white/10 bg-warm-charcoal/95 px-5 py-4 backdrop-blur-md">
               <Button type="button" size="sm" onClick={() => setEditing(true)}>
                 Edit inquiry
               </Button>
@@ -366,7 +371,7 @@ export function InquiryDetailPanel({
                 Delete
               </Button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
