@@ -60,9 +60,9 @@ export function Header() {
             <Image
               src={LOGO_SRC}
               alt={SITE.name}
-              width={180}
-              height={40}
-              className="h-8 w-auto sm:h-10"
+              width={360}
+              height={80}
+              className="h-16 w-auto sm:h-20"
               priority
             />
           </Link>

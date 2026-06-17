@@ -103,8 +103,6 @@ export const MUSIC_RELEASES: MusicRelease[] = [
     title: "THISDICKAINTFREE (getmadmix)",
     releaseDate: "2025-01-24",
     category: "remix",
-    spotlight: true,
-    spotlightLabel: "Proud Project",
     coverUrl:
       "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/3e/16/553e161d-ef48-1ce6-c524-cf54856b862a/artwork.jpg/1000x1000bb.jpg",
     previewUrl:
