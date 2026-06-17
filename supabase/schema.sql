@@ -185,8 +185,13 @@ create table public.newsletter_subscribers (
   utm_source text,
   utm_medium text,
   utm_campaign text,
+  unsubscribe_token uuid not null default gen_random_uuid(),
+  unsubscribed_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+create unique index newsletter_subscribers_unsubscribe_token_idx
+  on public.newsletter_subscribers (unsubscribe_token);
 
 -- RLS policies
 alter table public.profiles enable row level security;

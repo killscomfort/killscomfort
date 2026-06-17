@@ -57,6 +57,12 @@ export function emailDetailBlock(rows: { label: string; value: string }[]) {
   `;
 }
 
+export function emailUnsubscribeLink(unsubscribeUrl: string) {
+  return emailParagraph(
+    `<span style="font-size:13px;opacity:0.55;">Changed your mind? <a href="${escapeHtml(unsubscribeUrl)}" style="color:#ffffff;text-decoration:underline;">Unsubscribe</a> from these emails.</span>`
+  );
+}
+
 export function emailList(items: string[]) {
   return `
     <ul style="margin:0 0 20px;padding-left:18px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6;color:${COLORS.text};opacity:0.88;">

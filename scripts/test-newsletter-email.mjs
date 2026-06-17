@@ -110,6 +110,9 @@ const content = [
   emailParagraph(
     `Follow along on <a href="${instagram}" style="color:#ffffff;text-decoration:underline;">Instagram</a> for day-to-day drops and behind-the-scenes moments.`
   ),
+  emailParagraph(
+    `<span style="font-size:13px;opacity:0.55;">Changed your mind? <a href="${siteUrl}/newsletter/unsubscribe?token=00000000-0000-0000-0000-000000000000" style="color:#ffffff;text-decoration:underline;">Unsubscribe</a> from these emails.</span>`
+  ),
 ].join("");
 
 const html = renderEmailLayout(

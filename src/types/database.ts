@@ -162,5 +162,7 @@ export interface NewsletterSubscriber {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  unsubscribe_token: string;
+  unsubscribed_at: string | null;
   created_at: string;
 }

@@ -19,6 +19,7 @@ function revalidateAdmin() {
   revalidatePath("/admin/music");
   revalidatePath("/admin/landing-pages");
   revalidatePath("/admin/traffic");
+  revalidatePath("/admin/newsletter");
 }
 
 export async function updateInquiryStatus(formData: FormData) {
@@ -106,6 +107,20 @@ export async function archiveOldInquiries(): Promise<{ archived: number }> {
   if (error) throw new Error(error.message);
   revalidateAdmin();
   return { archived: data?.length ?? 0 };
+}
+
+export async function unsubscribeNewsletterSubscriber(formData: FormData) {
+  const supabase = await getAdminServiceClient();
+  const id = String(formData.get("id"));
+
+  const { error } = await supabase
+    .from("newsletter_subscribers")
+    .update({ unsubscribed_at: new Date().toISOString() })
+    .eq("id", id)
+    .is("unsubscribed_at", null);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
 }
 
 export async function updateUserRole(formData: FormData) {

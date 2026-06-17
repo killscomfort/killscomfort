@@ -6,6 +6,7 @@ import {
   emailDetailBlock,
   emailList,
   emailParagraph,
+  emailUnsubscribeLink,
   escapeHtml,
   renderEmailLayout,
 } from "@/lib/email-template";
@@ -73,7 +74,11 @@ export async function sendNewsletterNotification(
   });
 }
 
-export async function sendNewsletterConfirmation(email: string) {
+export async function sendNewsletterConfirmation(
+  email: string,
+  unsubscribeToken: string
+) {
+  const unsubscribeUrl = `${SITE.url}/newsletter/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
   const content = [
     emailParagraph(
       "You just joined the <strong>KillsComfort</strong> community — a movement for people who choose growth over comfort, creative expression over autopilot, and the work of becoming over staying the same."
@@ -95,6 +100,7 @@ export async function sendNewsletterConfirmation(email: string) {
     emailParagraph(
       `Follow along on <a href="${SOCIAL_LINKS.instagram}" style="color:#ffffff;text-decoration:underline;">Instagram</a> for day-to-day drops and behind-the-scenes moments.`
     ),
+    emailUnsubscribeLink(unsubscribeUrl),
   ].join("");
 
   return sendEmail({

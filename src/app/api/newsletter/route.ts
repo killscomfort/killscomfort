@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnonClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { newsletterSchema } from "@/lib/validations";
+import { subscribeNewsletter } from "@/lib/newsletter";
 import {
   sendNewsletterConfirmation,
   sendNewsletterNotification,
@@ -21,49 +21,43 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
-    const normalizedEmail = data.email.toLowerCase();
+    const result = await subscribeNewsletter(data);
 
-    if (isSupabaseConfigured()) {
-      const supabase = await createAnonClient();
-      const { error: dbError } = await supabase
-        .from("newsletter_subscribers")
-        .insert({
-          email: normalizedEmail,
-          source: data.source || "website",
-          utm_source: data.utm_source || null,
-          utm_medium: data.utm_medium || null,
-          utm_campaign: data.utm_campaign || null,
-        });
-
-      if (dbError) {
-        if (dbError.code === "23505") {
-          return NextResponse.json({ success: true, alreadySubscribed: true });
+    if (!result.ok) {
+      if (result.code === "not_configured") {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[dev] Newsletter signup (Supabase not configured):", data);
+          return NextResponse.json({ success: true });
         }
 
-        console.error("Newsletter DB error:", dbError);
         return NextResponse.json(
-          { message: "Failed to subscribe. Please try again." },
-          { status: 500 }
+          { message: "Newsletter signup is temporarily unavailable." },
+          { status: 503 }
         );
       }
-    } else if (process.env.NODE_ENV === "development") {
-      console.log("[dev] Newsletter signup (Supabase not configured):", {
-        ...data,
-        email: normalizedEmail,
-      });
-    } else {
+
+      if (result.code === "duplicate") {
+        return NextResponse.json({ success: true, alreadySubscribed: true });
+      }
+
       return NextResponse.json(
-        { message: "Newsletter signup is temporarily unavailable." },
-        { status: 503 }
+        { message: "Failed to subscribe. Please try again." },
+        { status: 500 }
       );
     }
 
     await Promise.allSettled([
-      sendNewsletterNotification(normalizedEmail, data.source),
-      sendNewsletterConfirmation(normalizedEmail),
+      sendNewsletterNotification(result.subscriber.email, data.source),
+      sendNewsletterConfirmation(
+        result.subscriber.email,
+        result.subscriber.unsubscribe_token
+      ),
     ]);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      reactivated: result.reactivated,
+    });
   } catch (err) {
     console.error("Newsletter error:", err);
     return NextResponse.json(

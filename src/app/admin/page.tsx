@@ -32,7 +32,8 @@ export default async function AdminPage() {
       .eq("status", "new"),
     supabase
       .from("newsletter_subscribers")
-      .select("*", { count: "exact", head: true }),
+      .select("*", { count: "exact", head: true })
+      .is("unsubscribed_at", null),
     adminDb.from("orders").select("*", { count: "exact", head: true }),
     adminDb
       .from("orders")
