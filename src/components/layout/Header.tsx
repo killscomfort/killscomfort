@@ -44,6 +44,19 @@ export function Header() {
     return () => observer.disconnect();
   }, [pathname]);
 
+  const mobileBarVisible =
+    showMobileAvailabilityBar && scrolled && !hideAvailabilityCta;
+
+  useEffect(() => {
+    if (mobileBarVisible) {
+      document.body.classList.add("mobile-availability-active");
+    } else {
+      document.body.classList.remove("mobile-availability-active");
+    }
+
+    return () => document.body.classList.remove("mobile-availability-active");
+  }, [mobileBarVisible]);
+
   if (isLandingPage || isAdmin) return null;
 
   return (

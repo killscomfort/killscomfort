@@ -478,6 +478,16 @@
     padding-bottom: 4.75rem;
   }
 
+  @media (max-width: 767px) {
+    body.mobile-availability-active footer.site-footer .site-footer-inner {
+      padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    body.mobile-availability-active.sticky-player-active footer.site-footer .site-footer-inner {
+      padding-bottom: calc(10.25rem + env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+
   @media (min-width: 768px) {
     body.sticky-player-active main {
       padding-bottom: 4.25rem;

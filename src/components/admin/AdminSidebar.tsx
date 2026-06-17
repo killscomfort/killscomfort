@@ -14,6 +14,7 @@ import {
   BarChart3,
   ExternalLink,
   LogOut,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
@@ -21,6 +22,7 @@ import { SITE } from "@/lib/constants";
 const NAV = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/admin/inquiries", label: "Inquiries", icon: Mail },
+  { href: "/admin/newsletter", label: "Newsletter", icon: Newspaper },
   { href: "/admin/traffic", label: "Traffic", icon: BarChart3 },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/users", label: "Users", icon: Users },

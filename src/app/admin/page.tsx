@@ -15,6 +15,7 @@ export default async function AdminPage() {
   const [
     { count: inquiryCount },
     { count: newInquiryCount },
+    { count: subscriberCount },
     { count: orderCount },
     { count: paidOrderCount },
     { count: userCount },
@@ -29,6 +30,9 @@ export default async function AdminPage() {
       .from("inquiries")
       .select("*", { count: "exact", head: true })
       .eq("status", "new"),
+    supabase
+      .from("newsletter_subscribers")
+      .select("*", { count: "exact", head: true }),
     adminDb.from("orders").select("*", { count: "exact", head: true }),
     adminDb
       .from("orders")
@@ -53,6 +57,7 @@ export default async function AdminPage() {
   const stats = [
     { label: "Total Inquiries", value: inquiryCount ?? 0, href: "/admin/inquiries" },
     { label: "New Inquiries", value: newInquiryCount ?? 0, href: "/admin/inquiries?status=new" },
+    { label: "Newsletter Subscribers", value: subscriberCount ?? 0, href: "/admin/newsletter" },
     { label: "Total Orders", value: orderCount ?? 0, href: "/admin/orders" },
     { label: "Paid Orders", value: paidOrderCount ?? 0, href: "/admin/orders?status=paid" },
     { label: "Users", value: userCount ?? 0, href: "/admin/users" },

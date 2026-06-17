@@ -62,8 +62,8 @@ const iconLinkClass =
 
 export function Footer() {
   return (
-    <footer className="border-t border-clay/20 bg-warm-charcoal grain-overlay">
-      <div className="relative mx-auto max-w-7xl section-padding !pb-10 !pt-14">
+    <footer className="site-footer border-t border-clay/20 bg-warm-charcoal grain-overlay">
+      <div className="site-footer-inner relative mx-auto max-w-7xl section-padding !pb-10 !pt-14">
         <div className="grid gap-10 border-b border-clay/10 pb-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)] lg:gap-12">
           <div className="max-w-sm">
             <p className="text-2xl font-normal normal-case tracking-normal text-bone sm:text-3xl">

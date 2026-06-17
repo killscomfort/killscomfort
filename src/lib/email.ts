@@ -1,9 +1,10 @@
-import { SITE } from "@/lib/constants";
+import { SITE, SOCIAL_LINKS } from "@/lib/constants";
 import type { InquiryInput, SimpleInquiryInput } from "@/lib/validations";
 import { sendEmail } from "@/lib/resend-client";
 import {
   emailButton,
   emailDetailBlock,
+  emailList,
   emailParagraph,
   escapeHtml,
   renderEmailLayout,
@@ -58,6 +59,7 @@ export async function sendNewsletterNotification(
       },
       ...(source ? [{ label: "Source", value: escapeHtml(source) }] : []),
     ]),
+    emailButton(`${SITE.url}/admin/newsletter`, "View subscribers"),
   ].join("");
 
   return sendEmail({
@@ -73,19 +75,35 @@ export async function sendNewsletterNotification(
 
 export async function sendNewsletterConfirmation(email: string) {
   const content = [
-    emailParagraph("You're in."),
     emailParagraph(
-      "We'll send you new music, shows, and ideas for finding fresh ways to kill your comforts. No spam — only when there's something worth saying."
+      "You just joined the <strong>KillsComfort</strong> community — a movement for people who choose growth over comfort, creative expression over autopilot, and the work of becoming over staying the same."
     ),
-    emailButton(`${SITE.url}/music`, "Listen now"),
+    emailParagraph("Here&apos;s what you can expect from us:"),
+    emailList([
+      "New music, mixes, and releases before they hit the feed",
+      "Shows, events, and booking updates in Miami and beyond",
+      "Ideas and reminders to keep finding new ways to kill your comforts",
+    ]),
+    emailParagraph(
+      "We won&apos;t flood your inbox. You&apos;ll only hear from us when there&apos;s something worth saying."
+    ),
+    emailParagraph(
+      `Glad you&apos;re here.<br/><br/>— <strong>${escapeHtml(SITE.founder)}</strong><br/><span style="opacity:0.65;">${escapeHtml(SITE.founderRoles)}</span>`
+    ),
+    emailButton(`${SITE.url}/music`, "Listen to music"),
+    emailButton(`${SITE.url}/book`, "Book a show"),
+    emailParagraph(
+      `Follow along on <a href="${SOCIAL_LINKS.instagram}" style="color:#ffffff;text-decoration:underline;">Instagram</a> for day-to-day drops and behind-the-scenes moments.`
+    ),
   ].join("");
 
   return sendEmail({
     to: email,
-    subject: `Welcome to the list — ${SITE.name}`,
+    subject: `Welcome to the ${SITE.name} community`,
     html: renderEmailLayout({
-      title: "Welcome to the list",
-      preheader: "You're subscribed. Growth lives on the other side.",
+      title: "Welcome to the community",
+      preheader:
+        "You're in. New music, shows, and ways to kill your comforts — straight to your inbox.",
       content,
     }),
   });
