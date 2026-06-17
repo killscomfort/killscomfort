@@ -178,6 +178,16 @@ create table public.excluded_ips (
   created_at timestamptz not null default now()
 );
 
+create table public.newsletter_subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  source text default 'website',
+  utm_source text,
+  utm_medium text,
+  utm_campaign text,
+  created_at timestamptz not null default now()
+);
+
 -- RLS policies
 alter table public.profiles enable row level security;
 alter table public.inquiries enable row level security;
@@ -191,6 +201,7 @@ alter table public.landing_pages enable row level security;
 alter table public.site_content enable row level security;
 alter table public.page_views enable row level security;
 alter table public.excluded_ips enable row level security;
+alter table public.newsletter_subscribers enable row level security;
 
 -- Profiles: users read/update own, admins read all
 create policy "Users can view own profile" on public.profiles
@@ -232,6 +243,10 @@ create policy "Public can read site content" on public.site_content
 create policy "Anyone can create inquiries" on public.inquiries
   for insert with check (true);
 
+-- Anyone can subscribe to newsletter
+create policy "Anyone can subscribe" on public.newsletter_subscribers
+  for insert with check (true);
+
 -- Admin policies (full access)
 create policy "Admins full access inquiries" on public.inquiries
   for all using (public.is_admin());
@@ -254,6 +269,8 @@ create policy "Admins full access site content" on public.site_content
 create policy "Admins full access page views" on public.page_views
   for all using (public.is_admin());
 create policy "Admins full access excluded ips" on public.excluded_ips
+  for all using (public.is_admin());
+create policy "Admins full access newsletter" on public.newsletter_subscribers
   for all using (public.is_admin());
 
 -- Auto-create profile on signup

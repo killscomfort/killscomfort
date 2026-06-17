@@ -154,3 +154,13 @@ export interface ExcludedIp {
   created_by: string | null;
   created_at: string;
 }
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  source: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  created_at: string;
+}

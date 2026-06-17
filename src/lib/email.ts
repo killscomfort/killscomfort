@@ -45,6 +45,52 @@ export async function sendInquiryNotification(
   });
 }
 
+export async function sendNewsletterNotification(
+  email: string,
+  source?: string | null
+) {
+  const content = [
+    emailParagraph("Someone just joined the newsletter."),
+    emailDetailBlock([
+      {
+        label: "Email",
+        value: `<a href="mailto:${escapeHtml(email)}" style="color:#ffffff;">${escapeHtml(email)}</a>`,
+      },
+      ...(source ? [{ label: "Source", value: escapeHtml(source) }] : []),
+    ]),
+  ].join("");
+
+  return sendEmail({
+    to: process.env.INQUIRY_NOTIFICATION_EMAIL || SITE.email,
+    subject: `New newsletter signup — ${SITE.name}`,
+    html: renderEmailLayout({
+      title: "New newsletter signup",
+      preheader: `${email} subscribed to the newsletter.`,
+      content,
+    }),
+  });
+}
+
+export async function sendNewsletterConfirmation(email: string) {
+  const content = [
+    emailParagraph("You're in."),
+    emailParagraph(
+      "We'll send you new music, shows, and ideas for finding fresh ways to kill your comforts. No spam — only when there's something worth saying."
+    ),
+    emailButton(`${SITE.url}/music`, "Listen now"),
+  ].join("");
+
+  return sendEmail({
+    to: email,
+    subject: `Welcome to the list — ${SITE.name}`,
+    html: renderEmailLayout({
+      title: "Welcome to the list",
+      preheader: "You're subscribed. Growth lives on the other side.",
+      content,
+    }),
+  });
+}
+
 export async function sendInquiryConfirmation(name: string, email: string) {
   const content = [
     emailParagraph(`Thanks, <strong>${escapeHtml(name)}</strong>.`),

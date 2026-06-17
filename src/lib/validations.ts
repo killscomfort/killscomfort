@@ -46,5 +46,14 @@ export const profileSchema = z.object({
   bio: z.string().max(500).optional(),
 });
 
+export const newsletterSchema = z.object({
+  email: z.string().trim().email("Valid email required"),
+  source: z.string().optional(),
+  utm_source: z.string().optional(),
+  utm_medium: z.string().optional(),
+  utm_campaign: z.string().optional(),
+});
+
 export type InquiryInput = z.infer<typeof inquirySchema>;
 export type SimpleInquiryInput = z.infer<typeof simpleInquirySchema>;
+export type NewsletterInput = z.infer<typeof newsletterSchema>;

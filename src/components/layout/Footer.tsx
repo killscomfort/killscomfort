@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Mail, MapPin } from "lucide-react";
+import { NewsletterSignup } from "@/components/forms/NewsletterSignup";
 import { NAV_LINKS, SITE, SOCIAL_LINKS } from "@/lib/constants";
 
 type SocialIconProps = {
@@ -118,6 +120,12 @@ export function Footer() {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="mt-10">
+          <Suspense fallback={null}>
+            <NewsletterSignup />
+          </Suspense>
         </div>
 
         <p className="mt-8 text-center text-xs text-bone/40">
