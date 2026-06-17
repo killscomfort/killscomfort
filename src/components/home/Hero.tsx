@@ -29,9 +29,9 @@ const itemVariants = {
 export function Hero() {
   return (
     <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
-      <div className="absolute inset-0 w-full overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
         <video
-          className="h-full w-full object-cover object-center grayscale contrast-125 brightness-75 saturate-0"
+          className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
           autoPlay
           loop
           muted
@@ -44,9 +44,9 @@ export function Hero() {
         </video>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-near-black/60 via-near-black/10 to-near-black/85" />
-      <div className="absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-near-black/40" />
-      <div className="hero-vignette absolute inset-0 opacity-70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/5 to-near-black/85" />
+      <div className="absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-near-black/15" />
+      <div className="hero-vignette absolute inset-0 opacity-50" />
       <div className="hero-glow-pulse absolute inset-0 bg-gradient-to-r from-muted-gold/10 via-transparent to-burnt-sienna/10 mix-blend-soft-light" />
       <div className="grain-overlay absolute inset-0" />
 

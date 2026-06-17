@@ -18,6 +18,7 @@ export function Header() {
   const [bookingFormInView, setBookingFormInView] = useState(false);
   const isLandingPage = pathname.startsWith("/lp");
   const isAdmin = pathname.startsWith("/admin");
+  const isHome = pathname === "/";
   const showMobileAvailabilityBar = !pathname.startsWith("/book");
   const hideAvailabilityCta = bookingFormInView;
 
@@ -51,7 +52,9 @@ export function Header() {
         className={cn(
           "fixed top-0 z-50 w-full transition-all duration-300",
           scrolled
-            ? "bg-near-black/95 backdrop-blur-md border-b border-clay/20"
+            ? isHome
+              ? "border-b border-clay/15 bg-near-black/70 backdrop-blur-sm"
+              : "border-b border-clay/20 bg-near-black/95 backdrop-blur-md"
             : "bg-transparent"
         )}
       >
