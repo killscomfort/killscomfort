@@ -298,6 +298,12 @@ export function getSpotlightRelease(): MusicRelease | undefined {
   return MUSIC_RELEASES.find((r) => r.spotlight);
 }
 
+export function getLaunchTrack(): MusicRelease | undefined {
+  return MUSIC_RELEASES.find((r) =>
+    r.title.toLowerCase().includes("thisdickaintfree")
+  );
+}
+
 export function releasesByCategory(category: MusicCategory) {
   return MUSIC_RELEASES.filter((r) => r.category === category);
 }

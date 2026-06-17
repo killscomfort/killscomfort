@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PT_Serif } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { FooterWrapper } from "@/components/layout/FooterWrapper";
+import { StickyMediaPlayer } from "@/components/layout/StickyMediaPlayer";
 import { Analytics } from "@/components/layout/Analytics";
 import { Providers } from "@/components/providers/Providers";
 import { createMetadata, artistJsonLd } from "@/lib/seo";
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Header />
           <main>{children}</main>
           <FooterWrapper />
+          <StickyMediaPlayer />
         </Providers>
       </body>
     </html>

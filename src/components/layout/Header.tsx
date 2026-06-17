@@ -129,7 +129,7 @@ export function Header() {
       </header>
 
       {showMobileAvailabilityBar && scrolled && !hideAvailabilityCta && (
-        <div className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 border-t border-clay/30 bg-near-black/95 p-3 backdrop-blur-md md:hidden">
+        <div className="mobile-availability-bar fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 border-t border-clay/30 bg-near-black/95 p-3 backdrop-blur-md md:hidden">
           <SparkleWrap className="w-full">
             <Button href="/book" className="w-full" size="md">
               Check Availability

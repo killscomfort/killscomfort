@@ -154,6 +154,10 @@ export function MusicCarousel({ releases }: MusicCarouselProps) {
   useEffect(() => {
     if (!activeRelease?.previewUrl) return;
 
+    document.querySelectorAll("audio[data-sticky-player]").forEach((element) => {
+      (element as HTMLAudioElement).pause();
+    });
+
     setPlaying(true);
     const timer = window.setTimeout(() => {
       audioRef.current?.play().catch(() => setPlaying(false));
