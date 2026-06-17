@@ -213,35 +213,6 @@
     );
   }
 
-  @keyframes music-marquee {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  .music-marquee-track {
-    animation: music-marquee 45s linear infinite;
-    will-change: transform;
-  }
-
-  .music-marquee-track:hover {
-    animation-play-state: paused;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .music-carousel-mask {
-      overflow-x: auto;
-      mask-image: none;
-    }
-
-    .music-marquee-track {
-      animation: none;
-    }
-  }
-
   .music-carousel-mask {
     mask-image: linear-gradient(
       to right,
@@ -250,6 +221,28 @@
       black 94%,
       transparent
     );
+  }
+
+  .music-carousel-scroll {
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .music-carousel-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .music-carousel-scroll.is-dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    cursor: grabbing;
+  }
+
+  .music-carousel-item {
+    scroll-snap-align: center;
   }
 
   .sparkle-item {
