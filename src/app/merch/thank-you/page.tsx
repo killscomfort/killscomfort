@@ -41,7 +41,7 @@ export default async function MerchThankYouPage({
 
         <p className="mx-auto mt-5 max-w-sm text-base leading-relaxed text-bone/60">
           Thanks for repping KillsComfort. You&apos;ll get a receipt from Stripe
-          shortly — we&apos;ll ship your order as soon as it&apos;s packed.
+          shortly, plus a confirmation email from us — we&apos;ll ship your order as soon as it&apos;s packed.
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">

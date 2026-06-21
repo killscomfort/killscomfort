@@ -53,6 +53,7 @@ export interface Order {
   status: OrderStatus;
   paypal_order_id: string | null;
   paypal_capture_id: string | null;
+  stripe_session_id: string | null;
   created_at: string;
   updated_at: string;
 }

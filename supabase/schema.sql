@@ -49,6 +49,7 @@ create table public.orders (
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
   paypal_order_id text,
   paypal_capture_id text,
+  stripe_session_id text unique,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

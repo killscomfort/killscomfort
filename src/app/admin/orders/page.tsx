@@ -47,7 +47,7 @@ export default async function AdminOrdersPage({
     <>
       <AdminPageHeader
         title="Orders"
-        description="Merch checkout and booking payments from PayPal."
+        description="Merch and booking payments from Stripe and PayPal."
       />
 
       <div className="mb-6 flex flex-wrap gap-2">

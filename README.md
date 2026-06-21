@@ -53,8 +53,9 @@ Then configure Printful variant IDs in `src/lib/merch-printful.ts`.
 
 Printful ID fail-fast TODO map is intentionally prefilled with `0` placeholders for all current merch variants:
 
-- `kills-shorts`: `32`, `34`, `36`, `38`
-- `diamond-hoodie`: `S`, `M`, `L`, `XL`, `2X`
+- `diamond-hoodie`: `S`, `M`, `L`, `XL`, `2X` (Printful)
+
+`kills-shorts` ships manually — Stripe webhook saves the order, emails customer/admin, and skips Printful.
 
 The Stripe webhook throws and marks fulfillment `failed` if any `variantId` is missing/`<= 0`, so no order is silently sent with bad mappings.
 

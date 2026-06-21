@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getMerchItem } from "@/lib/merch";
-import { resolvePrintfulVariantId } from "@/lib/merch-printful";
+import { hasPrintfulVariant, resolvePrintfulVariantId } from "@/lib/merch-printful";
 import { createPrintfulOrder } from "@/lib/printful";
 import {
   lockFulfillmentRecord,
   updateFulfillmentRecord,
 } from "@/lib/stripe-fulfillment";
+import {
+  persistStripeMerchOrder,
+  type MerchCartLine,
+} from "@/lib/orders/stripe-merch";
 
 export const runtime = "nodejs";
 
@@ -33,12 +37,6 @@ function parseQuantity(value: string | number | undefined, fallback = 1) {
   }
   return parsed;
 }
-
-type MerchCartLine = {
-  slug: string;
-  size?: string;
-  quantity: number;
-};
 
 function parseMerchCart(metadata: Stripe.Metadata): MerchCartLine[] {
   if (metadata.cart) {
@@ -122,6 +120,39 @@ export async function POST(request: NextRequest) {
     }
 
     const cartLines = parseMerchCart(metadata);
+    const printfulLines = cartLines.filter((line) =>
+      hasPrintfulVariant(line.slug, line.size)
+    );
+    const manualLines = cartLines.filter(
+      (line) => !hasPrintfulVariant(line.slug, line.size)
+    );
+
+    const orderResult = await persistStripeMerchOrder({
+      session,
+      cartLines,
+      stripeSessionId,
+    });
+
+    if (printfulLines.length === 0) {
+      await updateFulfillmentRecord({
+        recordId,
+        status: "fulfilled",
+        notes: `manual_ship;order=${orderResult.order.order_number};items=${cartLines.length}`,
+      });
+
+      console.log("[stripe-webhook] manual merch order recorded", {
+        stripeSessionId,
+        orderNumber: orderResult.order.order_number,
+        items: cartLines,
+      });
+
+      return NextResponse.json({
+        received: true,
+        fulfilled: true,
+        manual: true,
+        orderNumber: orderResult.order.order_number,
+      });
+    }
 
     const shippingDetails =
       session.collected_information?.shipping_details || session.customer_details;
@@ -140,7 +171,7 @@ export async function POST(request: NextRequest) {
       throw new Error("Missing shipping address in Stripe session");
     }
 
-    const printfulItems = cartLines.map((line) => {
+    const printfulItems = printfulLines.map((line) => {
       const merchItem = getMerchItem(line.slug);
       if (!merchItem) {
         throw new Error(`Unknown merch slug from Stripe metadata: "${line.slug}"`);
@@ -171,20 +202,36 @@ export async function POST(request: NextRequest) {
       items: printfulItems,
     });
 
+    const notes = [
+      `order=${orderResult.order.order_number}`,
+      `printful_items=${printfulLines.length}`,
+      manualLines.length ? `manual_items=${manualLines.length}` : null,
+      `external_id=${printfulResult.externalId}`,
+    ]
+      .filter(Boolean)
+      .join(";");
+
     await updateFulfillmentRecord({
       recordId,
       status: "fulfilled",
       printfulOrderId: printfulResult.printfulOrderId,
-      notes: `external_id=${printfulResult.externalId};items=${cartLines.length}`,
+      notes,
     });
 
     console.log("[stripe-webhook] fulfilled merch order", {
       stripeSessionId,
+      orderNumber: orderResult.order.order_number,
       printfulOrderId: printfulResult.printfulOrderId,
-      items: cartLines,
+      printfulItems: printfulLines,
+      manualItems: manualLines,
     });
 
-    return NextResponse.json({ received: true, fulfilled: true });
+    return NextResponse.json({
+      received: true,
+      fulfilled: true,
+      orderNumber: orderResult.order.order_number,
+      printful: true,
+    });
   } catch (error) {
     console.error("[stripe-webhook] fulfillment failed", {
       stripeSessionId: stripeSessionIdForLog,

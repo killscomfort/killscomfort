@@ -16,14 +16,6 @@ export const MERCH_PRINTFUL_VARIANTS: Record<
   string,
   Record<string, MerchVariantMapping>
 > = {
-  // TODO(Printful IDs): replace 0 with real variant IDs from Printful product catalog.
-  // Shorts sizes from `src/lib/merch.ts`
-  "kills-shorts": {
-    "32": { variantId: 0 },
-    "34": { variantId: 0 },
-    "36": { variantId: 0 },
-    "38": { variantId: 0 },
-  },
   "diamond-hoodie": {
     S: { variantId: 28136021668 },
     M: { variantId: 27768406917 },
@@ -32,6 +24,12 @@ export const MERCH_PRINTFUL_VARIANTS: Record<
     "2X": { variantId: 27768406931 },
   },
 };
+
+export function hasPrintfulVariant(slug: string, size?: string | null) {
+  const sizeKey = (size || "DEFAULT").toUpperCase();
+  const variant = MERCH_PRINTFUL_VARIANTS[slug]?.[sizeKey];
+  return Boolean(variant?.variantId && variant.variantId > 0);
+}
 
 export function resolvePrintfulVariantId(slug: string, size?: string | null) {
   const item = getMerchItem(slug);
