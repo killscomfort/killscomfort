@@ -19,13 +19,13 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "mb-12 max-w-2xl",
+        "terminal-section-heading mb-12 max-w-2xl",
         align === "center" && "mx-auto text-center",
         className
       )}
     >
       {label && (
-        <p className="mb-3 text-2xl text-muted-gold sm:text-3xl">
+        <p className="terminal-section-label mb-3 text-2xl text-muted-gold sm:text-3xl">
           <BrandText variant="label">{label}</BrandText>
         </p>
       )}

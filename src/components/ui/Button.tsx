@@ -34,7 +34,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center text-lg tracking-wide transition-all duration-300",
+    "terminal-ui inline-flex items-center justify-center text-lg tracking-wide transition-all duration-300",
     variants[variant],
     sizes[size],
     className

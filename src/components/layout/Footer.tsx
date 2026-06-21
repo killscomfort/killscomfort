@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Mail, MapPin } from "lucide-react";
 import { NewsletterSignup } from "@/components/forms/NewsletterSignup";
 import { NAV_LINKS, SITE, SOCIAL_LINKS } from "@/lib/constants";
+import { TERMINAL_MIAMI_STATUS } from "@/lib/terminal-theme";
 
 type SocialIconProps = {
   className?: string;
@@ -62,24 +63,25 @@ const iconLinkClass =
 
 export function Footer() {
   return (
-    <footer className="site-footer border-t border-clay/20 bg-warm-charcoal grain-overlay">
+    <footer className="terminal-footer site-footer border-t border-clay/20 bg-warm-charcoal grain-overlay">
       <div className="site-footer-inner relative mx-auto max-w-7xl section-padding !pb-10 !pt-14">
         <div className="grid gap-10 border-b border-clay/10 pb-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)] lg:gap-12">
-          <div className="max-w-sm">
+          <div className="terminal-pane max-w-sm" data-pane-title="BRAND">
             <p className="text-2xl font-normal normal-case tracking-normal text-bone sm:text-3xl">
               {SITE.name}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-bone/70 sm:text-base">
               {SITE.tagline}
             </p>
-            <p className="mt-3 flex items-center gap-1.5 text-sm text-bone/45">
+            <p className="terminal-miami-status mt-3 hidden">{TERMINAL_MIAMI_STATUS}</p>
+            <p className="terminal-miami-fallback mt-3 flex items-center gap-1.5 text-sm text-bone/45">
               <MapPin className="h-3.5 w-3.5 text-muted-gold" aria-hidden />
               Miami Area
             </p>
           </div>
 
-          <div>
-            <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-gold">
+          <div className="terminal-pane" data-pane-title="NAVIGATE">
+            <p className="terminal-section-label mb-4 text-xs uppercase tracking-[0.3em] text-muted-gold">
               Navigate
             </p>
             <nav className="grid grid-cols-2 gap-x-6 gap-y-2.5">
@@ -95,8 +97,8 @@ export function Footer() {
             </nav>
           </div>
 
-          <div>
-            <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-gold">
+          <div className="terminal-pane" data-pane-title="CONNECT">
+            <p className="terminal-section-label mb-4 text-xs uppercase tracking-[0.3em] text-muted-gold">
               Connect
             </p>
             <div className="flex flex-wrap items-center gap-2.5">

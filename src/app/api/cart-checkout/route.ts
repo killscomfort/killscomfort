@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE } from "@/lib/constants";
 import { getMerchItem, isCartMerchItem } from "@/lib/merch";
-import { getStripeClient } from "@/lib/stripe";
+import { getStripeClient, isStripeConfigured } from "@/lib/stripe";
 
 type CartLineInput = {
   slug: string;
@@ -52,6 +52,13 @@ function validateMerchCart(items: unknown): CartLineInput[] {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isStripeConfigured()) {
+    return NextResponse.json(
+      { error: "Checkout is temporarily unavailable. Please try again later." },
+      { status: 503 }
+    );
+  }
+
   const stripe = getStripeClient();
   if (!stripe) {
     return NextResponse.json(

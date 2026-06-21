@@ -2,6 +2,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { createMetadata } from "@/lib/seo";
 import { getApplePayDomainName, isApplePayEnabled } from "@/lib/apple-pay";
+import { isStripeConfigured } from "@/lib/stripe";
 
 export const metadata = createMetadata({
   title: "Checkout",
@@ -12,6 +13,7 @@ export const metadata = createMetadata({
 export default function CheckoutPage() {
   const applePayEnabled = isApplePayEnabled();
   const applePayDomainName = getApplePayDomainName();
+  const stripeConfigured = isStripeConfigured();
 
   return (
     <div className="pt-24">
@@ -27,6 +29,7 @@ export default function CheckoutPage() {
             <CheckoutForm
               applePayEnabled={applePayEnabled}
               applePayDomainName={applePayDomainName}
+              stripeConfigured={stripeConfigured}
             />
           </div>
         </div>

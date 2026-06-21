@@ -17,9 +17,11 @@ import { trackPurchase } from "@/lib/analytics";
 export function CheckoutForm({
   applePayEnabled = false,
   applePayDomainName,
+  stripeConfigured = true,
 }: {
   applePayEnabled?: boolean;
   applePayDomainName?: string;
+  stripeConfigured?: boolean;
 }) {
   const router = useRouter();
   const { items, subtotalCents, updateQuantity, removeItem, clearCart, ready } = useCart();
@@ -41,6 +43,7 @@ export function CheckoutForm({
   const hasServices = useMemo(() => cartHasServices(cartLines), [cartLines]);
   const serviceOnly = useMemo(() => isServiceOnlyOrder(cartLines), [cartLines]);
   const merchOnly = useMemo(() => isMerchOnlyOrder(cartLines), [cartLines]);
+  const useStripeMerchCheckout = merchOnly && stripeConfigured;
 
   async function handleStripeCheckout() {
     setLoading(true);
@@ -55,7 +58,11 @@ export function CheckoutForm({
       const result = await res.json();
 
       if (!res.ok) {
-        setError(result.error || "Could not start checkout.");
+        setError(
+          res.status === 503
+            ? "Card checkout is temporarily unavailable. Use PayPal below or try again later."
+            : result.error || "Could not start checkout."
+        );
         return;
       }
 
@@ -272,13 +279,19 @@ export function CheckoutForm({
             Subtotal: <span className="text-muted-gold">{formatPrice(subtotalCents)}</span>
           </p>
           <p className="mt-1 text-xs text-bone/40">
-            {merchOnly
+            {useStripeMerchCheckout
               ? "Secure checkout via Stripe · Apple Pay · Google Pay · Cards"
               : "Secure checkout — PayPal, Venmo, cards, and mobile wallets."}
           </p>
-          {!merchOnly && <AcceptedPaymentMethods compact />}
+          {!useStripeMerchCheckout && <AcceptedPaymentMethods compact />}
+          {merchOnly && !stripeConfigured && (
+            <p className="mt-3 rounded border border-clay/20 bg-near-black/40 px-3 py-2 text-xs text-bone/55">
+              Card checkout via Stripe is being configured. Merch orders can still
+              checkout with PayPal below.
+            </p>
+          )}
 
-          {merchOnly ? (
+          {useStripeMerchCheckout ? (
             <div className="mt-6 space-y-4">
               {error && <p className="text-sm text-dried-blood">{error}</p>}
               <Button

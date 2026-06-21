@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { LOGO_SRC, NAV_LINKS, SITE } from "@/lib/constants";
+import { TERMINAL_ASCII_LOGO } from "@/lib/terminal-theme";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { SparkleWrap } from "@/components/ui/SparkleWrap";
@@ -63,7 +64,7 @@ export function Header() {
     <>
       <header
         className={cn(
-          "fixed top-0 z-50 w-full transition-all duration-300",
+          "terminal-header fixed top-0 z-50 w-full transition-all duration-300",
           scrolled
             ? isHome
               ? "border-b border-clay/15 bg-near-black/70 backdrop-blur-sm"
@@ -73,12 +74,18 @@ export function Header() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="block shrink-0">
+            <pre
+              className="terminal-brand-ascii"
+              aria-label={SITE.name}
+            >
+              {TERMINAL_ASCII_LOGO}
+            </pre>
             <Image
               src={LOGO_SRC}
               alt={SITE.name}
               width={360}
               height={80}
-              className="h-16 w-auto sm:h-20"
+              className="terminal-brand-image h-16 w-auto sm:h-20"
               priority
             />
           </Link>

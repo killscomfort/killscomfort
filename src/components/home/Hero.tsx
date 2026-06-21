@@ -8,6 +8,7 @@ import { SparkleWrap } from "@/components/ui/SparkleWrap";
 import { HeroMusic } from "@/components/home/HeroMusic";
 import { HOME_HERO_IMAGE } from "@/lib/about";
 import { LOGO_SRC, SITE } from "@/lib/constants";
+import { TERMINAL_ASCII_LOGO, TERMINAL_MIAMI_STATUS } from "@/lib/terminal-theme";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,8 +29,8 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
+    <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
+      <div className="terminal-hero-media absolute inset-0 overflow-hidden">
         <video
           className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
           autoPlay
@@ -44,11 +45,11 @@ export function Hero() {
         </video>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/5 to-near-black/85" />
-      <div className="absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-near-black/15" />
-      <div className="hero-vignette absolute inset-0 opacity-50" />
-      <div className="hero-glow-pulse absolute inset-0 bg-gradient-to-r from-muted-gold/10 via-transparent to-burnt-sienna/10 mix-blend-soft-light" />
-      <div className="grain-overlay absolute inset-0" />
+      <div className="terminal-hero-media absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/5 to-near-black/85" />
+      <div className="terminal-hero-media absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-near-black/15" />
+      <div className="terminal-hero-media hero-vignette absolute inset-0 opacity-50" />
+      <div className="terminal-hero-media hero-glow-pulse absolute inset-0 bg-gradient-to-r from-muted-gold/10 via-transparent to-burnt-sienna/10 mix-blend-soft-light" />
+      <div className="terminal-hero-media grain-overlay absolute inset-0" />
 
       <motion.div
         className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-28 pt-8 text-center sm:px-6 sm:pb-36 lg:px-8 lg:pb-40"
@@ -57,21 +58,34 @@ export function Hero() {
         animate="visible"
       >
         <motion.div variants={itemVariants}>
+          <pre className="terminal-brand-ascii" aria-label={SITE.name}>
+            {TERMINAL_ASCII_LOGO}
+          </pre>
           <Image
             src={LOGO_SRC}
             alt={SITE.name}
             width={720}
             height={160}
-            className="mx-auto h-auto w-full max-w-[400px] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:max-w-[480px] lg:max-w-2xl"
+            className="terminal-brand-image mx-auto h-auto w-full max-w-[400px] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] sm:max-w-[480px] lg:max-w-2xl"
             priority
           />
         </motion.div>
 
         <motion.p
           variants={itemVariants}
-          className="mx-auto mt-4 max-w-xl text-xl leading-relaxed text-bone/90 drop-shadow-lg sm:text-2xl"
+          className="terminal-prompt mx-auto mt-4 max-w-xl text-xl leading-relaxed text-bone/90 drop-shadow-lg sm:text-2xl"
         >
-          <BrandText variant="inline">{SITE.tagline}</BrandText>
+          <span className="text-muted-gold/80">{"> "}</span>
+          <span className="terminal-tagline-text">
+            <BrandText variant="inline">{SITE.tagline}</BrandText>
+          </span>
+        </motion.p>
+
+        <motion.p
+          variants={itemVariants}
+          className="terminal-miami-status mx-auto mt-3 hidden max-w-xl"
+        >
+          {TERMINAL_MIAMI_STATUS}
         </motion.p>
 
         <motion.div variants={itemVariants} className="mt-6 flex flex-col items-center">
@@ -84,7 +98,7 @@ export function Hero() {
           >
             <motion.span
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-2 rounded bg-muted-gold/25 blur-xl"
+              className="terminal-hero-glow pointer-events-none absolute -inset-2 rounded bg-muted-gold/25 blur-xl"
               animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.92, 1.06, 0.92] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             />

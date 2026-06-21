@@ -1,7 +1,11 @@
 import Stripe from "stripe";
 
+export function isStripeConfigured() {
+  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  return Boolean(key && !key.includes("placeholder"));
+}
+
 export function getStripeClient() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return null;
-  return new Stripe(key);
+  if (!isStripeConfigured()) return null;
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }

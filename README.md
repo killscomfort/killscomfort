@@ -41,6 +41,14 @@ For merch dropship automation, also set:
 - `STRIPE_WEBHOOK_SECRET`
 - `PRINTFUL_API_KEY`
 
+On **Vercel** (Production), add the same keys under Project → Settings → Environment Variables, then redeploy. Without `STRIPE_SECRET_KEY`, merch card checkout and `/donate` return unavailable; PayPal service checkout still works, and merch can fall back to PayPal until Stripe is configured.
+
+Run a quick checkout health check:
+
+```bash
+npm run checkout:check:prod
+```
+
 Then configure Printful variant IDs in `src/lib/merch-printful.ts`.
 
 Printful ID fail-fast TODO map is intentionally prefilled with `0` placeholders for all current merch variants:
