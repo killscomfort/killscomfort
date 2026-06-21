@@ -24,10 +24,12 @@ export const MERCH_PRINTFUL_VARIANTS: Record<
     "36": { variantId: 0 },
     "38": { variantId: 0 },
   },
-  // Hoodie is sold on Etsy — not fulfilled via Printful on this site.
-  // Sticker has no size selector; use DEFAULT
-  "die-cut-stickers": {
-    DEFAULT: { variantId: 0 },
+  "diamond-hoodie": {
+    S: { variantId: 28136021668 },
+    M: { variantId: 27768406917 },
+    L: { variantId: 28136021670 },
+    XL: { variantId: 28136021672 },
+    "2X": { variantId: 27768406931 },
   },
 };
 

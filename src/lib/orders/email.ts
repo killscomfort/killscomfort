@@ -176,15 +176,15 @@ export async function sendOrderEmailTest(to: string) {
     },
     items: [
       {
-        product_slug: "die-cut-stickers",
-        product_name: "Die-Cut Stickers",
-        price_cents: 100,
-        quantity: 2,
-        size: null,
-        line_total_cents: 200,
+        product_slug: "diamond-hoodie",
+        product_name: "KillsComfort Diamond Hoodie",
+        price_cents: 7000,
+        quantity: 1,
+        size: "M",
+        line_total_cents: 7000,
       },
     ],
-    totalCents: 200,
+    totalCents: 7000,
   };
 
   const [admin, customer] = await Promise.all([

@@ -5,7 +5,7 @@ import { SITE } from "@/lib/constants";
 
 export const metadata = createMetadata({
   title: "Merch",
-  description: `Official ${SITE.name} apparel and stickers.`,
+  description: `Official ${SITE.name} apparel.`,
   path: "/merch",
 });
 
@@ -16,7 +16,7 @@ export default function MerchPage() {
         <div className="mx-auto max-w-5xl">
           <SectionHeading
             title="Merch"
-            description="Wear the movement. Stick it everywhere."
+            description="Wear the movement."
             align="center"
             className="mx-auto"
           />

@@ -31,11 +31,7 @@ export function MerchCard({ item }: { item: MerchItem }) {
           src={item.image}
           alt={item.name}
           fill
-          className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
-            item.image.endsWith(".png") && item.name.includes("Sticker")
-              ? "object-contain p-12"
-              : ""
-          }`}
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           sizes="(max-width: 640px) 100vw, 50vw"
         />
       </div>

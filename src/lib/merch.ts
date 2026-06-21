@@ -24,15 +24,7 @@ export const MERCH_ITEMS: MerchItem[] = [
     priceCents: 7000,
     description: "Diamond logo hoodie — heavyweight comfort, movement energy.",
     image: "/merch/hoodie.png",
-    buyUrl:
-      "https://www.etsy.com/listing/4401287030/killscomfort-diamond-hoodie",
-  },
-  {
-    slug: "die-cut-stickers",
-    name: '"KillsComfort" Die Cut Stickers',
-    priceCents: 100,
-    description: "Represent with your very own sticky sticker :)",
-    image: "/merch/sticker.png",
+    sizes: ["S", "M", "L", "XL", "2X"],
   },
 ];
 

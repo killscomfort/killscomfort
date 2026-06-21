@@ -31,8 +31,6 @@ function MerchProductCard({ item }: { item: MerchItem }) {
     setTimeout(() => setAdded(false), 2000);
   }
 
-  const isSticker = item.slug === "die-cut-stickers";
-
   return (
     <article className="group">
       <div className="relative aspect-square overflow-hidden rounded-xl border border-white/[0.06] bg-warm-charcoal">
@@ -40,9 +38,7 @@ function MerchProductCard({ item }: { item: MerchItem }) {
           src={item.image}
           alt={item.name}
           fill
-          className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
-            isSticker ? "object-contain p-10" : ""
-          }`}
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           sizes="(max-width: 640px) 100vw, 33vw"
         />
       </div>
@@ -109,7 +105,7 @@ export function MerchShop() {
 
       {hasCartItems && (
         <p className="mt-10 text-center text-sm text-bone/50">
-          Shorts and stickers go to your cart.{" "}
+          Hoodies and shorts go to your cart.{" "}
           <Link href="/checkout" className="text-muted-gold hover:text-bone">
             Checkout with Stripe
           </Link>

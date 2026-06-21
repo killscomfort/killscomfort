@@ -65,7 +65,9 @@ async function main() {
       const { res, data } = await fetchJson("/api/cart-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: [{ slug: "die-cut-stickers", quantity: 1 }] }),
+        body: JSON.stringify({
+          items: [{ slug: "diamond-hoodie", quantity: 1, size: "M" }],
+        }),
       });
 
       if (res.status === 503) {
