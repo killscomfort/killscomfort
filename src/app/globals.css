@@ -493,4 +493,80 @@
       padding-bottom: 4.25rem;
     }
   }
+
+  .ride-portal-door {
+    position: relative;
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    background: linear-gradient(180deg, #131316 0%, #0a0a0c 100%);
+    padding: 2px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .ride-portal-door::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.35),
+      rgba(255, 255, 255, 0.04) 40%,
+      rgba(255, 255, 255, 0.2)
+    );
+    opacity: 0.45;
+    z-index: 0;
+    animation: ride-portal-shimmer 4s ease-in-out infinite;
+  }
+
+  .ride-portal-door:hover {
+    border-color: rgba(255, 255, 255, 0.32);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+  }
+
+  .ride-portal-door-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(120% 90% at 50% 0%, #1a1a1e 0%, #0c0c0e 55%, #060607 100%);
+    padding: 2rem 1.5rem;
+  }
+
+  .ride-portal-glyph {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.75);
+    animation: ride-portal-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes ride-portal-shimmer {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.65;
+    }
+  }
+
+  @keyframes ride-portal-pulse {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ride-portal-door::before,
+    .ride-portal-glyph {
+      animation: none;
+    }
+  }
 }

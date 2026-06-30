@@ -20,6 +20,7 @@ export function Header() {
   const isLandingPage = pathname.startsWith("/lp");
   const isAdmin = pathname.startsWith("/admin");
   const isHome = pathname === "/";
+  const isRide = pathname === "/ride";
   const showMobileAvailabilityBar = !pathname.startsWith("/book");
   const hideAvailabilityCta = bookingFormInView;
 
@@ -58,7 +59,7 @@ export function Header() {
     return () => document.body.classList.remove("mobile-availability-active");
   }, [mobileBarVisible]);
 
-  if (isLandingPage || isAdmin) return null;
+  if (isLandingPage || isAdmin || isRide) return null;
 
   return (
     <>
