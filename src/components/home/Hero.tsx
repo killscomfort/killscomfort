@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
@@ -88,7 +89,7 @@ export function Hero() {
           {TERMINAL_MIAMI_STATUS}
         </motion.p>
 
-        <motion.div variants={itemVariants} className="mt-6 flex flex-col items-center">
+        <motion.div variants={itemVariants} className="mt-6 flex flex-col items-center gap-4">
           <motion.div
             className="relative"
             animate={{ y: [0, -6, 0] }}
@@ -108,6 +109,12 @@ export function Hero() {
               </Button>
             </SparkleWrap>
           </motion.div>
+          <Link
+            href="/ride"
+            className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
+          >
+            Ride your bike →
+          </Link>
         </motion.div>
 
         <motion.div variants={itemVariants} className="mt-6 w-full">
