@@ -113,7 +113,7 @@ export function Hero() {
             href="#ride-portal"
             className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
           >
-            Warehouse portal ↓
+            Fire portal ↓
           </Link>
         </motion.div>
 

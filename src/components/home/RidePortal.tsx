@@ -1,74 +1,117 @@
 "use client";
 
-import Link from "next/link";
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
-export function RidePortal() {
+function PortalVortex({
+  className = "",
+  intense = false,
+}: {
+  className?: string;
+  intense?: boolean;
+}) {
   return (
-    <section
-      id="ride-portal"
-      className="ride-portal section-padding relative overflow-hidden border-y border-white/[0.06] bg-near-black"
-      aria-labelledby="ride-portal-heading"
+    <div
+      className={`portal-vortex ${intense ? "portal-vortex--intense" : ""} ${className}`.trim()}
+      aria-hidden
     >
+      <div className="portal-vortex__glow" />
+      <div className="portal-vortex__ring portal-vortex__ring--a" />
+      <div className="portal-vortex__ring portal-vortex__ring--b" />
+      <div className="portal-vortex__ring portal-vortex__ring--c" />
+      <div className="portal-vortex__swirl" />
+      <div className="portal-vortex__core" />
+      <div className="portal-vortex__sparks" />
+    </div>
+  );
+}
+
+export function RidePortal() {
+  const router = useRouter();
+  const [engulfing, setEngulfing] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const enterPortal = useCallback(() => {
+    if (engulfing) return;
+    setEngulfing(true);
+    window.setTimeout(() => router.push("/ride"), 1150);
+  }, [engulfing, router]);
+
+  return (
+    <>
+      <section
+        id="ride-portal"
+        className={`ride-portal section-padding relative overflow-hidden border-y border-white/[0.06] bg-near-black ${
+          engulfing ? "ride-portal--engulfing" : ""
+        }`}
+        aria-labelledby="ride-portal-heading"
+      >
+        <div className="portal-void-glow pointer-events-none absolute inset-0" aria-hidden />
+
+        <div className="relative mx-auto max-w-3xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#5cff8a]/70">
+              Dimensional breach detected
+            </p>
+
+            <h2
+              id="ride-portal-heading"
+              className="mt-4 font-display text-3xl uppercase leading-none text-bone sm:text-4xl"
+            >
+              Enter the ride
+            </h2>
+          </motion.div>
+
+          <motion.div
+            className="portal-trigger-wrap mx-auto mt-10"
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <button
+              type="button"
+              className="portal-trigger group"
+              onClick={enterPortal}
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              disabled={engulfing}
+              aria-label="Open portal and enter the ride"
+            >
+              <PortalVortex intense={hovered || engulfing} />
+              <span className="portal-trigger__label">
+                <span className="portal-trigger__glyph">◎</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
+                  {engulfing ? "Jumping..." : "Fire portal"}
+                </span>
+              </span>
+            </button>
+          </motion.div>
+
+          <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-bone/55 sm:text-base">
+            KillsComfort is a ride, not a homepage. Step through the cyclone — build a beat, dig the
+            crates, find what&apos;s stashed inside.
+          </p>
+
+          <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-bone/35">
+            {"> "}mode: <span className="text-[#5cff8a]/80">INTERACTIVE</span>
+            {" // "}input: <span className="text-bone/55">CLICK PORTAL</span>
+          </p>
+        </div>
+      </section>
+
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(90deg, transparent 0 38px, rgba(0,0,0,0.35) 38px 40px)",
-        }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[min(520px,80vw)] w-[min(520px,80vw)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.04] blur-3xl"
-        aria-hidden
-      />
-
-      <div className="relative mx-auto max-w-3xl text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-bone/45">
-          570 NW 22ND ST · <span className="text-bone/80">Bay 07</span>
-        </p>
-
-        <motion.div
-          className="ride-portal-frame mx-auto mt-8 max-w-md"
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Link href="/ride" className="ride-portal-door group block">
-            <div className="ride-portal-door-inner">
-              <span className="ride-portal-glyph" aria-hidden>
-                ✦
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-bone/50">
-                Warehouse access
-              </span>
-              <span
-                id="ride-portal-heading"
-                className="mt-3 font-display text-3xl uppercase leading-none text-bone sm:text-4xl"
-              >
-                Enter the
-                <br />
-                ride
-              </span>
-              <span className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-bone/55 transition-colors group-hover:text-bone">
-                Roll in →
-              </span>
-            </div>
-          </Link>
-        </motion.div>
-
-        <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-bone/55 sm:text-base">
-          KillsComfort is a ride, not a homepage. Cut through the alley, build a beat in the
-          warehouse, dig the crates, and find what&apos;s stashed inside.
-        </p>
-
-        <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-bone/35">
-          {"> "}geo.lock: <span className="text-bone/55">MIAMI_AREA</span>
-          {" // "}mode: <span className="text-bone/55">INTERACTIVE</span>
-          {" // "}sound: <span className="text-bone/55">ON</span>
-        </p>
+        className={`portal-takeover ${engulfing ? "portal-takeover--active" : ""}`}
+        aria-hidden={!engulfing}
+      >
+        <PortalVortex className="portal-takeover__vortex" intense />
       </div>
-    </section>
+    </>
   );
 }
