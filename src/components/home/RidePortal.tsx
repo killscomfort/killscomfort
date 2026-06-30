@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import styles from "./portal-cyclone.module.css";
 
 function PortalVortex({
   className = "",
@@ -13,16 +14,16 @@ function PortalVortex({
 }) {
   return (
     <div
-      className={`portal-vortex ${intense ? "portal-vortex--intense" : ""} ${className}`.trim()}
+      className={`${styles.vortex} ${intense ? styles.vortexIntense : ""} ${className}`.trim()}
       aria-hidden
     >
-      <div className="portal-vortex__glow" />
-      <div className="portal-vortex__ring portal-vortex__ring--a" />
-      <div className="portal-vortex__ring portal-vortex__ring--b" />
-      <div className="portal-vortex__ring portal-vortex__ring--c" />
-      <div className="portal-vortex__swirl" />
-      <div className="portal-vortex__core" />
-      <div className="portal-vortex__sparks" />
+      <div className={styles.glow} />
+      <div className={`${styles.ring} ${styles.ringA}`} />
+      <div className={`${styles.ring} ${styles.ringB}`} />
+      <div className={`${styles.ring} ${styles.ringC}`} />
+      <div className={styles.swirl} />
+      <div className={styles.core} />
+      <div className={styles.sparks} />
     </div>
   );
 }
@@ -42,42 +43,34 @@ export function RidePortal() {
     <>
       <section
         id="ride-portal"
-        className={`ride-portal section-padding relative overflow-hidden border-y border-white/[0.06] bg-near-black ${
-          engulfing ? "ride-portal--engulfing" : ""
-        }`}
+        className={`${styles.portalSection} ${engulfing ? styles.portalSectionEngulfing : ""}`}
         aria-labelledby="ride-portal-heading"
       >
-        <div className="portal-void-glow pointer-events-none absolute inset-0" aria-hidden />
+        <div className={styles.voidGlow} aria-hidden />
 
-        <div className="relative mx-auto max-w-3xl text-center">
+        <div className={styles.inner}>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#5cff8a]/70">
-              Dimensional breach detected
-            </p>
-
-            <h2
-              id="ride-portal-heading"
-              className="mt-4 font-display text-3xl uppercase leading-none text-bone sm:text-4xl"
-            >
+            <p className={styles.eyebrow}>Dimensional breach detected</p>
+            <h2 id="ride-portal-heading" className={styles.title}>
               Enter the ride
             </h2>
           </motion.div>
 
           <motion.div
-            className="portal-trigger-wrap mx-auto mt-10"
-            initial={{ opacity: 0, scale: 0.92 }}
+            className={styles.triggerWrap}
+            initial={{ opacity: 0, scale: 0.88 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
             <button
               type="button"
-              className="portal-trigger group"
+              className={styles.trigger}
               onClick={enterPortal}
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
@@ -85,32 +78,30 @@ export function RidePortal() {
               aria-label="Open portal and enter the ride"
             >
               <PortalVortex intense={hovered || engulfing} />
-              <span className="portal-trigger__label">
-                <span className="portal-trigger__glyph">◎</span>
-                <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
-                  {engulfing ? "Jumping..." : "Fire portal"}
-                </span>
+              <span className={styles.triggerLabel}>
+                <span className={styles.triggerGlyph}>◎</span>
+                {engulfing ? "Jumping..." : "Fire portal"}
               </span>
             </button>
           </motion.div>
 
-          <p className="mx-auto mt-8 max-w-lg text-sm leading-relaxed text-bone/55 sm:text-base">
-            KillsComfort is a ride, not a homepage. Step through the cyclone — build a beat, dig the
-            crates, find what&apos;s stashed inside.
+          <p className={styles.copy}>
+            Step through the cyclone. Build a beat, dig the crates, find what&apos;s stashed
+            inside.
           </p>
 
-          <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.14em] text-bone/35">
-            {"> "}mode: <span className="text-[#5cff8a]/80">INTERACTIVE</span>
-            {" // "}input: <span className="text-bone/55">CLICK PORTAL</span>
+          <p className={styles.status}>
+            {"> "}mode: <span className={styles.statusAccent}>INTERACTIVE</span>
+            {" // "}input: <span className={styles.statusAccent}>CLICK PORTAL</span>
           </p>
         </div>
       </section>
 
       <div
-        className={`portal-takeover ${engulfing ? "portal-takeover--active" : ""}`}
+        className={`${styles.takeover} ${engulfing ? styles.takeoverActive : ""}`}
         aria-hidden={!engulfing}
       >
-        <PortalVortex className="portal-takeover__vortex" intense />
+        <PortalVortex className={styles.takeoverVortex} intense />
       </div>
     </>
   );
