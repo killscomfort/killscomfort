@@ -10,7 +10,7 @@ const rideDisplay = Archivo_Narrow({
 
 const rideMono = Space_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400"],
   variable: "--font-ride-mono",
   display: "swap",
 });

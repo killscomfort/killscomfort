@@ -172,7 +172,7 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
             </button>
           </div>
           <div className={styles.statusline}>
-            {"> "}geo.lock: <b>MIAMI_AREA</b> // sound: <b>ON</b> // input: <b>TAP / SPACE</b>
+            {"> "}geo.lock: <b>MIAMI_AREA</b>{" // "}sound: <b>ON</b>{" // "}input: <b>TAP / SPACE</b>
           </div>
         </div>
       </section>
