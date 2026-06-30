@@ -161,7 +161,7 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
           </h1>
           <p className={styles.lede}>
             KillsComfort is a ride, not a homepage. Cut through the alley, roll into the warehouse, build a beat, dig the
-            crates, and find what's stashed inside.
+            crates, and find what&apos;s stashed inside.
           </p>
           <div className={styles.row} style={{ marginTop: 22 }}>
             <button className={`${styles.btn} ${styles.solid}`} onClick={startRide}>
@@ -254,7 +254,7 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
                 }}
               >
                 <div className={styles.s} style={{ color: "var(--chrome-hi)" }}>
-                  ✦ SOMETHING'S STASHED HERE
+                  ✦ SOMETHING&apos;S STASHED HERE
                 </div>
               </button>
             )}
@@ -275,7 +275,7 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
             uncomfortable.
           </h2>
           <p className={styles.lede}>
-            That's KillsComfort: keep moving, keep digging, keep showing up. Here's where the rest of it lives.
+            That&apos;s KillsComfort: keep moving, keep digging, keep showing up. Here&apos;s where the rest of it lives.
           </p>
           <div className={styles.collected}>
             {[
