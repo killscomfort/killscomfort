@@ -1,0 +1,277 @@
+.shell {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #87ceeb;
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+.canvasWrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: min(100%, calc((100dvh - 140px) * 0.625));
+  height: auto;
+  max-height: calc(100dvh - 140px);
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  touch-action: none;
+}
+
+.touchBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent);
+}
+
+.touchBarHidden {
+  display: none;
+}
+
+.laneBtn {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.22);
+  color: #1a1a1a;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(6px);
+}
+
+.laneBtn:active {
+  background: rgba(255, 255, 255, 0.45);
+  transform: scale(0.96);
+}
+
+.swipeHint {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  min-width: 88px;
+}
+
+.topHud {
+  position: absolute;
+  top: calc(0.5rem + env(safe-area-inset-top, 0px));
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 4;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #1a2a1a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.arcadeBtn {
+  position: absolute;
+  top: calc(0.5rem + env(safe-area-inset-top, 0px));
+  right: 0.75rem;
+  z-index: 5;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a2a1a;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+}
+
+.gameOver {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(10, 20, 30, 0.72);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.gameOverBox {
+  width: min(400px, 100%);
+  background: #f8f6f0;
+  border: 2px solid #2a2a2a;
+  padding: 1.25rem 1.35rem 1.5rem;
+  color: #1a1a1a;
+  font-family: ui-monospace, monospace;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+.gameOverBox h2 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  color: #c43a3a;
+}
+
+.scoreRow {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.scoreBlock {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+.scoreLabel {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.scoreValue {
+  font-size: 22px;
+  margin-top: 0.25rem;
+  font-weight: 700;
+}
+
+.form {
+  margin-top: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.form input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #aaa;
+  background: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.form input:focus {
+  outline: 2px solid #4a9c4a;
+  border-color: #4a9c4a;
+}
+
+.formMsg {
+  font-size: 10px;
+  color: #2a6b2a;
+}
+
+.formErr {
+  font-size: 10px;
+  color: #c43a3a;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  border: 1px solid #444;
+  background: #fff;
+  cursor: pointer;
+}
+
+.actions button.primary {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.leaderboard {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.leaderboard h3 {
+  margin: 0 0 0.65rem;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.lbRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 11px;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.lbRow span:last-child {
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .canvas {
+    width: min(520px, 90vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .laneBtn:active {
+    transform: none;
+  }
+}

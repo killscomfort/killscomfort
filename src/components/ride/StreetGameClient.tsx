@@ -5,14 +5,17 @@ import { useRouter } from "next/navigation";
 import { CHARACTER_STORAGE_KEY } from "@/lib/ride-games";
 import type { CharacterType } from "./comfortRoomPalette";
 import { CharacterSelect } from "./CharacterSelect";
-import RoomBikeRide from "./RoomBikeRide";
+import StreetRunGame from "./StreetRunGame";
+import { StreetGameOver } from "./StreetGameOver";
 import { RideGameShell } from "./RideGameShell";
-import styles from "./comfortRoom.module.css";
+import styles from "./street-run.module.css";
+import roomStyles from "./comfortRoom.module.css";
 
 export function StreetGameClient() {
   const router = useRouter();
   const [character, setCharacter] = useState<CharacterType | null>(null);
-  const [finished, setFinished] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
+  const [lastScore, setLastScore] = useState<number | null>(null);
 
   useEffect(() => {
     try {
@@ -27,7 +30,8 @@ export function StreetGameClient() {
 
   const pick = (type: CharacterType) => {
     setCharacter(type);
-    setFinished(false);
+    setLastScore(null);
+    setGameKey((k) => k + 1);
     try {
       sessionStorage.setItem(CHARACTER_STORAGE_KEY, type);
     } catch {
@@ -38,7 +42,7 @@ export function StreetGameClient() {
   if (!character) {
     return (
       <RideGameShell>
-        <div className={styles.wrap}>
+        <div className={roomStyles.wrap}>
           <CharacterSelect onPick={pick} onSkip={() => router.push("/ride")} skipLabel="back to arcade" />
         </div>
       </RideGameShell>
@@ -47,30 +51,25 @@ export function StreetGameClient() {
 
   return (
     <RideGameShell>
-      <div className={styles.wrap}>
-        <RoomBikeRide
-          character={character}
-          onComplete={() => setFinished(true)}
-        />
-        {finished && (
-          <div className={`${styles.overlay} ${styles.overlayOn}`}>
-            <div className={styles.overlayBox}>
-              <h2>run complete</h2>
-              <p>You cleared the street. Run it again or head back to the arcade.</p>
-              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
-                <button type="button" onClick={() => setFinished(false)}>
-                  run again
-                </button>
-                <button type="button" onClick={() => router.push("/ride")}>
-                  arcade
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        <button type="button" className={styles.skipLink} onClick={() => router.push("/ride")}>
+      <div style={{ position: "absolute", inset: 0 }}>
+        <button type="button" className={styles.arcadeBtn} onClick={() => router.push("/ride")}>
           arcade
         </button>
+        <StreetRunGame
+          key={gameKey}
+          character={character}
+          onGameOver={(score) => setLastScore(score)}
+        />
+        {lastScore !== null && (
+          <StreetGameOver
+            score={lastScore}
+            character={character}
+            onRetry={() => {
+              setLastScore(null);
+              setGameKey((k) => k + 1);
+            }}
+          />
+        )}
       </div>
     </RideGameShell>
   );

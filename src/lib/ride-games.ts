@@ -25,8 +25,8 @@ export const RIDE_GAMES: RideGame[] = [
   {
     id: "street",
     title: "Street Run",
-    tagline: "bike dodge",
-    description: "Three lanes, oncoming chaos, score chase — wipe out and run it back.",
+    tagline: "infinite runner",
+    description: "Five-lane infinite bike dodge — steer, survive, post your high score.",
     href: "/ride/street",
     portalLabel: "Hit the street",
     glyph: "➤",
