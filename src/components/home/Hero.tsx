@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { BrandText } from "@/components/ui/BrandText";
 import { SparkleWrap } from "@/components/ui/SparkleWrap";
-import { HeroMusic } from "@/components/home/HeroMusic";
 import { HOME_HERO_IMAGE } from "@/lib/about";
 import { LOGO_SRC, SITE } from "@/lib/constants";
 import { TERMINAL_ASCII_LOGO, TERMINAL_MIAMI_STATUS } from "@/lib/terminal-theme";
@@ -116,11 +115,6 @@ export function Hero() {
             Pick a card ↓
           </Link>
         </motion.div>
-
-        <motion.div variants={itemVariants} className="mt-6 w-full">
-          <HeroMusic />
-        </motion.div>
-
       </motion.div>
     </section>
   );

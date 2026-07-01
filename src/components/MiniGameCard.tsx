@@ -10,6 +10,7 @@ const ACCENT_GRADIENT: Record<MinigameCardAccent, string> = {
   amber: "from-amber-200/30 via-amber-500/10 to-transparent",
   blood: "from-red-400/25 via-red-900/10 to-transparent",
   bone: "from-zinc-200/20 via-zinc-500/5 to-transparent",
+  green: "from-emerald-300/25 via-emerald-900/10 to-transparent",
 };
 
 const ACCENT_RING: Record<MinigameCardAccent, string> = {
@@ -17,6 +18,7 @@ const ACCENT_RING: Record<MinigameCardAccent, string> = {
   amber: "ring-amber-300/25 group-hover:ring-amber-200/45",
   blood: "ring-red-400/20 group-hover:ring-red-300/35",
   bone: "ring-zinc-300/20 group-hover:ring-zinc-200/35",
+  green: "ring-emerald-400/25 group-hover:ring-emerald-300/40",
 };
 
 const RARITY_LABEL: Record<MinigameCardRarity, string> = {

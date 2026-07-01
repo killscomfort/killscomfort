@@ -1,6 +1,6 @@
 export type MinigameCardRarity = "common" | "uncommon" | "rare" | "legendary";
 
-export type MinigameCardAccent = "chrome" | "amber" | "blood" | "bone";
+export type MinigameCardAccent = "chrome" | "amber" | "blood" | "bone" | "green";
 
 export type MinigameCard = {
   id: string;
@@ -26,7 +26,7 @@ export const MINIGAME_CARDS: MinigameCard[] = [
     title: "Roll In",
     subtitle: "Alley run to the doors",
     tag: "RIDE",
-    image: "/cards/roll-in.jpg",
+    image: "/cards/roll-in.svg",
     href: "/ride/warehouse?game=roll-in",
     rarity: "legendary",
     accent: "chrome",
@@ -37,7 +37,7 @@ export const MINIGAME_CARDS: MinigameCard[] = [
     title: "Open Cassette",
     subtitle: "Build a beat on the floor",
     tag: "BEAT LAB",
-    image: "/cards/cassette.jpg",
+    image: "/cards/cassette.svg",
     href: "/ride/warehouse?game=cassette",
     rarity: "uncommon",
     accent: "amber",
@@ -48,7 +48,7 @@ export const MINIGAME_CARDS: MinigameCard[] = [
     title: "Dig The Crates",
     subtitle: "Flip sleeves, pull the gem",
     tag: "CRATE DIG",
-    image: "/cards/crates.jpg",
+    image: "/cards/crates.svg",
     href: "/ride/warehouse?game=crates",
     rarity: "rare",
     accent: "chrome",
@@ -59,7 +59,7 @@ export const MINIGAME_CARDS: MinigameCard[] = [
     title: "Secret Mixes",
     subtitle: "Unlock what you earned",
     tag: "VAULT",
-    image: "/cards/mixes.jpg",
+    image: "/cards/mixes.svg",
     href: "/ride/warehouse?game=mixes",
     rarity: "rare",
     accent: "bone",
@@ -70,11 +70,47 @@ export const MINIGAME_CARDS: MinigameCard[] = [
     title: "Community Wall",
     subtitle: "Leave a mark inside",
     tag: "WALL TAG",
-    image: "/cards/wall.jpg",
+    image: "/cards/wall.svg",
     href: "/ride/warehouse?game=wall",
     rarity: "common",
     accent: "blood",
     index: "04",
+  },
+];
+
+export const ARCADE_CARDS: MinigameCard[] = [
+  {
+    id: "room",
+    title: "The Room",
+    subtitle: "Pixel life sim — spin records, dance",
+    tag: "LIFE SIM",
+    image: "/cards/room.svg",
+    href: "/ride/room",
+    rarity: "rare",
+    accent: "green",
+    index: "01",
+  },
+  {
+    id: "street",
+    title: "Street Run",
+    subtitle: "Five-lane infinite bike dodge",
+    tag: "RUNNER",
+    image: "/cards/street.svg",
+    href: "/ride/street",
+    rarity: "uncommon",
+    accent: "amber",
+    index: "02",
+  },
+  {
+    id: "warehouse",
+    title: "Warehouse",
+    subtitle: "Full deck — roll in and dig crates",
+    tag: "MIAMI RIDE",
+    image: "/cards/warehouse.svg",
+    href: "/ride/warehouse",
+    rarity: "legendary",
+    accent: "chrome",
+    index: "03",
   },
 ];
 
