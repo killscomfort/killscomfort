@@ -3,12 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CharacterType } from "./comfortRoomPalette";
 import { H, OBJECTS, ROOM, TILE, W } from "./comfortRoomPalette";
-import { drawRoom, drawSprite } from "./comfortRoomDraw";
+import { drawRoom } from "./comfortRoomDraw";
+import { CharacterSelect } from "./CharacterSelect";
 import styles from "./comfortRoom.module.css";
 
+type OverlayState = {
+  title: string;
+  text: string;
+  action?: { label: string; onClick: () => void };
+};
+
 type Props = {
-  onLeave: (character: CharacterType) => void;
+  onLeave?: (character: CharacterType) => void;
+  onDoorExit?: (character: CharacterType) => void;
   onSkip?: () => void;
+  skipLabel?: string;
   audioSrc?: string;
 };
 
@@ -53,28 +62,14 @@ function blocked(nx: number, ny: number) {
   return false;
 }
 
-function CharPickIcon({ type }: { type: CharacterType }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const cvs = ref.current;
-    if (!cvs) return;
-    const c = cvs.getContext("2d");
-    if (!c) return;
-    c.imageSmoothingEnabled = false;
-    c.clearRect(0, 0, 32, 48);
-    drawSprite(c, type, 4, 2, "down", 0, 1.6);
-  }, [type]);
-  return <canvas ref={ref} width={32} height={48} />;
-}
-
-export default function ComfortRoom({ onLeave, onSkip, audioSrc }: Props) {
+export default function ComfortRoom({ onLeave, onDoorExit, onSkip, skipLabel, audioSrc }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const onLeaveRef = useRef(onLeave);
   onLeaveRef.current = onLeave;
 
   const [chosen, setChosen] = useState<CharacterType | null>(null);
-  const [overlay, setOverlay] = useState<{ title: string; text: string } | null>(null);
+  const [overlay, setOverlay] = useState<OverlayState | null>(null);
   const [engulfing, setEngulfing] = useState(false);
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
@@ -116,23 +111,37 @@ export default function ComfortRoom({ onLeave, onSkip, audioSrc }: Props) {
   }, []);
 
   const beginLeave = useCallback(() => {
-    if (gameRef.current.engulfing || !chosen) return;
+    if (gameRef.current.engulfing || !chosen || !onLeaveRef.current) return;
     gameRef.current.engulfing = true;
     gameRef.current.frozen = true;
     setEngulfing(true);
-    window.setTimeout(() => onLeaveRef.current(chosen), 950);
+    window.setTimeout(() => onLeaveRef.current?.(chosen), 950);
   }, [chosen]);
 
   const tryInteract = useCallback(() => {
     const g = gameRef.current;
     if (g.frozen || !g.nearObj || !chosen) return;
     if (g.nearObj.id === "door") {
-      beginLeave();
-      return;
+      if (onLeaveRef.current) {
+        beginLeave();
+        return;
+      }
+      if (onDoorExit) {
+        g.frozen = true;
+        setOverlay({
+          title: g.nearObj.title,
+          text: g.nearObj.text,
+          action: {
+            label: "Street Run →",
+            onClick: () => onDoorExit(chosen),
+          },
+        });
+        return;
+      }
     }
     g.frozen = true;
     setOverlay({ title: g.nearObj.title, text: g.nearObj.text });
-  }, [beginLeave, chosen]);
+  }, [beginLeave, chosen, onDoorExit]);
 
   const toggleDance = useCallback(() => {
     const g = gameRef.current;
@@ -296,25 +305,7 @@ export default function ComfortRoom({ onLeave, onSkip, audioSrc }: Props) {
   return (
     <div className={styles.wrap}>
       {!chosen && (
-        <div className={styles.charSelect}>
-          <h1>killscomfort</h1>
-          <div className={styles.sub}>choose your character</div>
-          <div className={styles.pickRow}>
-            <button type="button" className={styles.pickBtn} onClick={() => setChosen("boy")}>
-              <CharPickIcon type="boy" />
-              <span>boy</span>
-            </button>
-            <button type="button" className={styles.pickBtn} onClick={() => setChosen("girl")}>
-              <CharPickIcon type="girl" />
-              <span>girl</span>
-            </button>
-          </div>
-          {onSkip && (
-            <button type="button" className={styles.skipLink} onClick={onSkip}>
-              skip to warehouse
-            </button>
-          )}
-        </div>
+        <CharacterSelect onPick={setChosen} onSkip={onSkip} skipLabel={skipLabel ?? "back to arcade"} />
       )}
 
       {chosen && (
@@ -389,7 +380,12 @@ export default function ComfortRoom({ onLeave, onSkip, audioSrc }: Props) {
         <div className={styles.overlayBox}>
           <h2>{overlay?.title}</h2>
           <p>{overlay?.text}</p>
-          <button type="button" onClick={closeOverlay}>
+          {overlay?.action ? (
+            <button type="button" onClick={overlay.action.onClick}>
+              {overlay.action.label}
+            </button>
+          ) : null}
+          <button type="button" onClick={closeOverlay} style={{ marginTop: overlay?.action ? 10 : 0 }}>
             close
           </button>
         </div>

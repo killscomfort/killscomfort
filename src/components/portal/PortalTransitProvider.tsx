@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { isRidePath } from "@/lib/ride-games";
 import { PortalVortex } from "./PortalVortex";
 import transit from "./portalTransit.module.css";
 
@@ -23,7 +24,7 @@ type Phase = "idle" | "engulf" | "tunnel" | "release";
 type PortalTransitContextValue = {
   phase: Phase;
   isActive: boolean;
-  startPortalTransit: () => void;
+  startPortalTransit: (href?: string) => void;
 };
 
 const PortalTransitContext = createContext<PortalTransitContextValue | null>(null);
@@ -36,10 +37,15 @@ export function usePortalTransit() {
   return ctx;
 }
 
+function matchesTransitTarget(pathname: string, target: string) {
+  return pathname === target;
+}
+
 export function PortalTransitProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [phase, setPhase] = useState<Phase>("idle");
+  const targetRef = useRef("/ride");
   const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const releaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const releasingRef = useRef(false);
@@ -69,34 +75,42 @@ export function PortalTransitProvider({ children }: { children: ReactNode }) {
     releaseTimer.current = setTimeout(finishTransit, RELEASE_MS);
   }, [finishTransit]);
 
-  const startPortalTransit = useCallback(() => {
-    if (phase !== "idle") return;
-    clearTimers();
-    try {
-      sessionStorage.setItem(STORAGE_KEY, String(Date.now()));
-    } catch {
-      /* ignore */
-    }
-    setPhase("engulf");
-    router.prefetch("/ride");
+  const startPortalTransit = useCallback(
+    (href = "/ride") => {
+      if (phase !== "idle") return;
+      targetRef.current = href;
+      clearTimers();
+      try {
+        sessionStorage.setItem(STORAGE_KEY, href);
+      } catch {
+        /* ignore */
+      }
+      setPhase("engulf");
+      router.prefetch(href);
 
-    navigateTimer.current = setTimeout(() => {
-      setPhase("tunnel");
-      router.push("/ride");
-    }, ENGULF_MS);
-  }, [clearTimers, phase, router]);
+      navigateTimer.current = setTimeout(() => {
+        setPhase("tunnel");
+        router.push(href);
+      }, ENGULF_MS);
+    },
+    [clearTimers, phase, router],
+  );
 
   useEffect(() => {
-    if (pathname !== "/ride" || phase !== "tunnel") return;
+    if (phase !== "tunnel") return;
+    const target = targetRef.current;
+    if (!matchesTransitTarget(pathname, target)) return;
     requestAnimationFrame(() => {
       requestAnimationFrame(beginRelease);
     });
   }, [pathname, phase, beginRelease]);
 
   useEffect(() => {
-    if (pathname !== "/ride" || phase !== "idle") return;
+    if (phase !== "idle" || !isRidePath(pathname)) return;
     try {
-      if (sessionStorage.getItem(STORAGE_KEY)) {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored && matchesTransitTarget(pathname, stored)) {
+        targetRef.current = stored;
         setPhase("tunnel");
       }
     } catch {

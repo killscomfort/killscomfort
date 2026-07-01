@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { LOGO_SRC, NAV_LINKS, SITE } from "@/lib/constants";
+import { isRidePath } from "@/lib/ride-games";
 import { TERMINAL_ASCII_LOGO } from "@/lib/terminal-theme";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -20,7 +21,7 @@ export function Header() {
   const isLandingPage = pathname.startsWith("/lp");
   const isAdmin = pathname.startsWith("/admin");
   const isHome = pathname === "/";
-  const isRide = pathname === "/ride";
+  const isRide = isRidePath(pathname);
   const showMobileAvailabilityBar = !pathname.startsWith("/book");
   const hideAvailabilityCta = bookingFormInView;
 

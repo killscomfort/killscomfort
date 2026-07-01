@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { usePortalTransit } from "@/components/portal/PortalTransitProvider";
-import KillsComfortRide from "./KillsComfortRide";
 import reveal from "./rideReveal.module.css";
 
-export function RidePageClient() {
-  const router = useRouter();
+export function RideGameShell({ children }: { children: React.ReactNode }) {
   const { phase } = usePortalTransit();
-  const inTransit = phase === "tunnel" || phase === "release";
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -28,8 +24,8 @@ export function RidePageClient() {
     .join(" ");
 
   return (
-    <div className={revealClass} aria-hidden={phase === "tunnel" && inTransit}>
-      <KillsComfortRide onSkip={() => router.push("/")} />
+    <div className={revealClass} aria-hidden={phase === "tunnel"}>
+      {children}
     </div>
   );
 }

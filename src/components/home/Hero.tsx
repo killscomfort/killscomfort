@@ -110,7 +110,7 @@ export function Hero() {
             </SparkleWrap>
           </motion.div>
           <Link
-            href="#ride-portal"
+            href="#game-arcade"
             className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
           >
             Fire portal ↓
