@@ -5,6 +5,7 @@ import styles from "./ride.module.css";
 import { getCtx, chime, blip, playMotif } from "./audioEngine";
 import BikeRide from "./BikeRide";
 import BeatBuilder from "./BeatBuilder";
+import { CrateDig } from "./CrateDig";
 
 const LINKS = {
   book: "/book",
@@ -193,7 +194,7 @@ export default function KillsComfortRide({
         <div className={styles.pad}>
           <div className={styles.hubhead}>
             <div className={styles.eyebrow}>
-              570 NW 22ND ST · <b>THE WAREHOUSE</b>
+              <b>THE WAREHOUSE</b>
             </div>
             <h2 className={styles.mid}>
               You rolled
@@ -347,62 +348,16 @@ export default function KillsComfortRide({
 
       {panel === "dig" && (
         <PanelShell title="Dig the crates" onClose={() => setPanel(null)}>
-          <p className={styles.tiny} style={{ marginTop: 0 }}>
-            FLIP THROUGH · MOST ARE FILLER · ONE IS A GEM
-          </p>
-          <div className={styles.crate}>
-            {RECORDS.map((r, i) => {
-              const d = i - digIdx;
-              const style: React.CSSProperties = {
-                transform: `translateX(${d * 26}px) translateY(${Math.abs(d) * 6}px) rotate(${d * 4}deg) scale(${
-                  d === 0 ? 1 : 0.9
-                })`,
-                zIndex: 50 - Math.abs(d),
-                opacity: Math.abs(d) > 2 ? 0 : 1,
-                filter: d === 0 ? "none" : "brightness(.7)",
-              };
-              return (
-                <div
-                  key={r.t}
-                  className={`${styles.sleeve} ${r.gem ? styles.gem : ""}`}
-                  style={style}
-                  onClick={() => {
-                    setDigIdx(i);
-                    setDigMsg("");
-                    const c = getCtx();
-                    blip(c ? c.currentTime : 0, 300 + i * 20);
-                  }}
-                >
-                  <div className={styles.art} style={{ color: r.gem ? "var(--chrome-hi)" : "var(--grey2)" }}>
-                    {r.t.split(" ").map((w, k) => (
-                      <span key={k}>
-                        {w}
-                        <br />
-                      </span>
-                    ))}
-                  </div>
-                  <div className={styles.stamp}>{r.s}</div>
-                </div>
-              );
-            })}
-          </div>
-          <div className={styles.digctl}>
-            <button
-              className={`${styles.btn} ${styles.ghost}`}
-              onClick={() => setDigIdx((i) => (i - 1 + RECORDS.length) % RECORDS.length)}
-            >
-              ‹ Flip
-            </button>
-            <button className={`${styles.btn} ${styles.solid}`} onClick={pullRecord}>
-              Pull this one
-            </button>
-            <button className={`${styles.btn} ${styles.ghost}`} onClick={() => setDigIdx((i) => (i + 1) % RECORDS.length)}>
-              Flip ›
-            </button>
-          </div>
-          <p className={styles.digMsg}>
-            {digMsg.includes("That's the one") ? <b>{digMsg}</b> : digMsg}
-          </p>
+          <CrateDig
+            records={RECORDS}
+            digIdx={digIdx}
+            onSelect={(i) => {
+              setDigIdx(i);
+              setDigMsg("");
+            }}
+            onPull={pullRecord}
+            digMsg={digMsg}
+          />
         </PanelShell>
       )}
 
