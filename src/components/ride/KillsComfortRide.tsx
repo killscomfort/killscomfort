@@ -5,6 +5,9 @@ import styles from "./ride.module.css";
 import { getCtx, chime, blip, playMotif } from "./audioEngine";
 import BikeRide from "./BikeRide";
 import BeatBuilder from "./BeatBuilder";
+import ComfortRoom from "./ComfortRoom";
+import RoomBikeRide from "./RoomBikeRide";
+import type { CharacterType } from "./comfortRoomPalette";
 
 const LINKS = {
   book: "/book",
@@ -15,7 +18,7 @@ const LINKS = {
   instagram: "https://instagram.com/killscomfort",
 };
 
-type Scene = "enter" | "ride" | "hub" | "exit";
+type Scene = "room" | "roomBike" | "enter" | "ride" | "hub" | "exit";
 type Panel = null | "beat" | "dig" | "mixes" | "merch" | "wall";
 
 type Mix = { id: string; t: string; s: string; src: string; motif: number[]; unlocked: boolean };
@@ -38,7 +41,8 @@ const SEED_WALL: Post[] = [
 ];
 
 export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
-  const [scene, setScene] = useState<Scene>("enter");
+  const [scene, setScene] = useState<Scene>("room");
+  const [character, setCharacter] = useState<CharacterType | null>(null);
   const [panel, setPanel] = useState<Panel>(null);
 
   const [values, setValues] = useState<string[]>([]);
@@ -137,7 +141,7 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
       <div className={styles.grain} />
 
       {/* HUD */}
-      <div className={`${styles.hud} ${scene === "hub" || scene === "ride" ? styles.on : ""}`}>
+      <div className={`${styles.hud} ${scene === "hub" || scene === "ride" || scene === "roomBike" ? styles.on : ""}`}>
         <span>KILLSCOMFORT</span>
         <span className={styles.vals}>
           <span>
@@ -149,7 +153,30 @@ export default function KillsComfortRide({ onSkip }: { onSkip?: () => void }) {
         </span>
       </div>
 
-      {/* ENTER */}
+      {/* ROOM */}
+      {scene === "room" && (
+        <ComfortRoom
+          onLeave={(c) => {
+            getCtx();
+            setCharacter(c);
+            setScene("roomBike");
+          }}
+          onSkip={skip}
+        />
+      )}
+
+      {/* STREET BIKE (lane dodge) */}
+      {scene === "roomBike" && character && (
+        <RoomBikeRide
+          character={character}
+          onComplete={() => {
+            getCtx();
+            setScene("ride");
+          }}
+        />
+      )}
+
+      {/* ENTER (legacy splash — reachable via skip path if needed) */}
       <section className={`${sceneCls("enter")} ${styles.enter}`}>
         <div className={styles.glow} />
         <div className={styles.pad}>
