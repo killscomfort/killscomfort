@@ -113,7 +113,7 @@ export function Hero() {
             href="#game-arcade"
             className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
           >
-            Fire portal ↓
+            Pick a card ↓
           </Link>
         </motion.div>
 

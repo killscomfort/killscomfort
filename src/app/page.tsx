@@ -1,5 +1,5 @@
 import { Hero } from "@/components/home/Hero";
-import { GameArcade } from "@/components/home/GamePicker";
+import { HomeGameDeck } from "@/components/home/HomeGameDeck";
 import { WhoIs } from "@/components/home/WhoIs";
 import { WhatIDo } from "@/components/home/WhatIDo";
 import { BookSection } from "@/components/home/BookSection";
@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <GameArcade />
+      <HomeGameDeck />
       <WhoIs />
       <WhatIDo />
       <BookSection />

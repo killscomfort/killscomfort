@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -35,82 +37,109 @@ type Props = {
   card: MinigameCardData;
   className?: string;
   priority?: boolean;
+  disabled?: boolean;
+  launching?: boolean;
+  onLaunch?: (href: string) => void;
 };
 
-export function MiniGameCard({ card, className, priority = false }: Props) {
-  return (
-    <Link
-      href={card.href}
+export function MiniGameCard({
+  card,
+  className,
+  priority = false,
+  disabled = false,
+  launching = false,
+  onLaunch,
+}: Props) {
+  const shellClass = cn(
+    "group relative block h-full w-full text-left outline-none transition-transform duration-300 ease-out",
+    !disabled && "hover:-translate-y-1.5 focus-visible:-translate-y-1.5",
+    "focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
+    disabled && "pointer-events-none opacity-60",
+    className,
+  );
+
+  const content = (
+    <article
       className={cn(
-        "group relative block h-full outline-none transition-transform duration-300 ease-out",
-        "hover:-translate-y-1.5 focus-visible:-translate-y-1.5",
-        "focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-        className,
+        "relative flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#0a0a0a]",
+        "shadow-[0_18px_40px_rgba(0,0,0,0.55)] transition-shadow duration-300",
+        !disabled && "group-hover:shadow-[0_24px_52px_rgba(0,0,0,0.72)]",
       )}
-      aria-label={`${card.title} — ${card.subtitle}`}
     >
-      <article
+      <div
         className={cn(
-          "relative flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-white/10 bg-[#0a0a0a]",
-          "shadow-[0_18px_40px_rgba(0,0,0,0.55)] transition-shadow duration-300",
-          "group-hover:shadow-[0_24px_52px_rgba(0,0,0,0.72)]",
+          "pointer-events-none absolute inset-0 rounded-[1.1rem] bg-gradient-to-br opacity-80",
+          ACCENT_GRADIENT[card.accent],
         )}
-      >
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-0 rounded-[1.1rem] bg-gradient-to-br opacity-80",
-            ACCENT_GRADIENT[card.accent],
-          )}
-          aria-hidden
+        aria-hidden
+      />
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-[1px] rounded-[1.05rem] ring-1 ring-inset transition-[box-shadow,ring-color] duration-300",
+          ACCENT_RING[card.accent],
+        )}
+        aria-hidden
+      />
+
+      <div className="relative aspect-[5/7] w-full overflow-hidden border-b border-white/8 bg-[#111]">
+        <Image
+          src={card.image}
+          alt=""
+          fill
+          priority={priority}
+          sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 220px"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
         />
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-[1px] rounded-[1.05rem] ring-1 ring-inset transition-[box-shadow,ring-color] duration-300",
-            ACCENT_RING[card.accent],
-          )}
-          aria-hidden
-        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" aria-hidden />
 
-        <div className="relative aspect-[5/7] w-full overflow-hidden border-b border-white/8 bg-[#111]">
-          <Image
-            src={card.image}
-            alt=""
-            fill
-            priority={priority}
-            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 220px"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" aria-hidden />
-
-          <div className="absolute left-3 top-3 flex items-center gap-2">
-            {card.index ? (
-              <span className="font-mono text-[10px] tracking-[0.18em] text-white/55">{card.index}</span>
-            ) : null}
-            <span
-              className={cn(
-                "rounded-full border px-2 py-0.5 font-mono text-[9px] tracking-[0.16em]",
-                RARITY_TONE[card.rarity],
-              )}
-            >
-              {RARITY_LABEL[card.rarity]}
-            </span>
-          </div>
-
-          <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.2em] text-white/70">
-            {card.tag}
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          {card.index ? (
+            <span className="font-mono text-[10px] tracking-[0.18em] text-white/55">{card.index}</span>
+          ) : null}
+          <span
+            className={cn(
+              "rounded-full border px-2 py-0.5 font-mono text-[9px] tracking-[0.16em]",
+              RARITY_TONE[card.rarity],
+            )}
+          >
+            {RARITY_LABEL[card.rarity]}
           </span>
         </div>
 
-        <div className="relative flex flex-1 flex-col gap-1.5 px-4 py-4">
-          <h3 className="font-[family-name:var(--font-pt-serif)] text-lg leading-tight tracking-[0.01em] text-white">
-            {card.title}
-          </h3>
-          <p className="text-sm leading-snug text-zinc-400">{card.subtitle}</p>
-          <p className="mt-auto pt-2 font-mono text-[10px] tracking-[0.14em] text-white/45 uppercase">
-            Tap to enter →
-          </p>
-        </div>
-      </article>
+        <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.2em] text-white/70">
+          {card.tag}
+        </span>
+      </div>
+
+      <div className="relative flex flex-1 flex-col gap-1.5 px-4 py-4">
+        <h3 className="font-[family-name:var(--font-pt-serif)] text-lg leading-tight tracking-[0.01em] text-white">
+          {card.title}
+        </h3>
+        <p className="text-sm leading-snug text-zinc-400">{card.subtitle}</p>
+        <p className="mt-auto pt-2 font-mono text-[10px] tracking-[0.14em] text-white/45 uppercase">
+          {launching ? "Jumping..." : "Tap to enter →"}
+        </p>
+      </div>
+    </article>
+  );
+
+  if (onLaunch) {
+    return (
+      <button
+        type="button"
+        className={shellClass}
+        disabled={disabled}
+        onClick={() => onLaunch(card.href)}
+        aria-label={`${card.title} — ${card.subtitle}`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={card.href} className={shellClass} aria-label={`${card.title} — ${card.subtitle}`}>
+      {content}
     </Link>
   );
 }

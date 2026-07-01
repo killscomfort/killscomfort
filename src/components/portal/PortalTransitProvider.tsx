@@ -38,7 +38,8 @@ export function usePortalTransit() {
 }
 
 function matchesTransitTarget(pathname: string, target: string) {
-  return pathname === target;
+  const targetPath = target.split("?")[0];
+  return pathname === targetPath;
 }
 
 export function PortalTransitProvider({ children }: { children: ReactNode }) {
