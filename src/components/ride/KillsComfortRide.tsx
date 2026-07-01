@@ -41,14 +41,18 @@ const SEED_WALL: Post[] = [
 export default function KillsComfortRide({
   onSkip,
   onArcade,
+  onLobby,
   initialScene = "enter",
+  initialPanel = null,
 }: {
   onSkip?: () => void;
   onArcade?: () => void;
+  onLobby?: () => void;
   initialScene?: "enter" | "hub";
+  initialPanel?: Panel;
 }) {
   const [scene, setScene] = useState<Scene>(initialScene);
-  const [panel, setPanel] = useState<Panel>(null);
+  const [panel, setPanel] = useState<Panel>(initialPanel);
 
   const [values, setValues] = useState<string[]>([]);
   const [beatMade, setBeatMade] = useState(false);
@@ -254,6 +258,11 @@ export default function KillsComfortRide({
           </div>
 
           <div className={styles.hubfoot}>
+            {onLobby && (
+              <button className={`${styles.btn} ${styles.ghost}`} onClick={onLobby}>
+                ← Card deck
+              </button>
+            )}
             {onArcade && (
               <button className={`${styles.btn} ${styles.ghost}`} onClick={onArcade}>
                 ← Arcade
