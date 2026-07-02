@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { dedupeLeaderboardRows, upsertStreetRunScore } from "@/lib/street-run-db";
 import { streetRunScoreSchema } from "@/lib/street-run";
-import { createAnonClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAnonClient, createServiceClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const limit = Math.min(20, Math.max(1, Number(request.nextUrl.searchParams.get("limit") ?? 10)));
@@ -16,10 +17,11 @@ export async function GET(request: NextRequest) {
       .select("username, score, character, created_at")
       .order("score", { ascending: false })
       .order("created_at", { ascending: true })
-      .limit(limit);
+      .limit(Math.max(limit, limit * 3));
 
     if (error) throw error;
-    return NextResponse.json({ scores: data ?? [] });
+    const scores = dedupeLeaderboardRows(data ?? []).slice(0, limit);
+    return NextResponse.json({ scores });
   } catch (err) {
     console.error("[street-run/scores GET]", err);
     return NextResponse.json({ scores: [] });
@@ -54,46 +56,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createAnonClient();
-    const { data, error } = await supabase.rpc("upsert_street_run_score", {
-      p_username: username.trim(),
-      p_email: emailValue,
-      p_score: score,
-      p_character: character ?? null,
+    let supabase;
+    try {
+      supabase = await createServiceClient();
+    } catch {
+      supabase = await createAnonClient();
+    }
+
+    const result = await upsertStreetRunScore(supabase, {
+      username: username.trim(),
+      email: emailValue,
+      score,
+      character: character ?? null,
     });
-
-    if (error) {
-      console.error("[street-run/scores POST] rpc failed:", error);
-      if (error.code === "42883") {
-        return NextResponse.json(
-          { message: "Leaderboard is not fully set up yet. Run the latest SQL migration." },
-          { status: 503 },
-        );
-      }
-      throw error;
-    }
-
-    const result = (data ?? {}) as {
-      ok?: boolean;
-      stored?: boolean;
-      reason?: string;
-      error?: string;
-    };
-
-    if (result.ok === false) {
-      return NextResponse.json(
-        { message: result.error === "invalid_username" ? "Invalid username." : "Could not save score." },
-        { status: 400 },
-      );
-    }
 
     return NextResponse.json({
       success: true,
-      stored: Boolean(result.stored),
+      stored: result.stored,
       reason: result.reason,
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not save score.";
     console.error("[street-run/scores POST]", err);
-    return NextResponse.json({ message: "Could not save score." }, { status: 500 });
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
