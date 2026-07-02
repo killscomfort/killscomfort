@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 type SaveInput = {
   username: string;
@@ -17,11 +17,31 @@ type ExistingRow = {
   id: string;
   score: number;
   username: string;
-  username_key?: string | null;
 };
 
 function usernameKey(username: string) {
   return username.trim().toLowerCase();
+}
+
+function resolveEmail(key: string, email: string | null) {
+  const trimmed = email?.trim().toLowerCase();
+  if (trimmed && trimmed.includes("@")) return trimmed;
+  return `${key}@street-run.players`;
+}
+
+export function formatDbError(err: unknown): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const pg = err as PostgrestError;
+    if (pg.code === "42501") {
+      return "Leaderboard permissions need updating — run the latest SQL migration in Supabase.";
+    }
+    if (pg.code === "42703") {
+      return "Leaderboard schema is out of date — run the username SQL migration in Supabase.";
+    }
+    return pg.message || "Could not save score.";
+  }
+  if (err instanceof Error) return err.message;
+  return "Could not save score.";
 }
 
 async function findExisting(
@@ -30,7 +50,7 @@ async function findExisting(
 ): Promise<ExistingRow | null> {
   const { data: byKey, error: keyError } = await supabase
     .from("street_run_scores")
-    .select("id, score, username, username_key")
+    .select("id, score, username")
     .eq("username_key", key)
     .maybeSingle();
 
@@ -38,14 +58,57 @@ async function findExisting(
 
   const { data: rows, error: listError } = await supabase
     .from("street_run_scores")
-    .select("id, score, username, username_key");
+    .select("id, score, username");
 
   if (listError) throw listError;
 
-  const match = (rows as ExistingRow[] | null)?.find(
-    (row) => row.username?.trim().toLowerCase() === key,
+  return (
+    (rows as ExistingRow[] | null)?.find((row) => row.username?.trim().toLowerCase() === key) ?? null
   );
-  return match ?? null;
+}
+
+async function writeRow(
+  supabase: SupabaseClient,
+  existing: ExistingRow | null,
+  input: SaveInput,
+  key: string,
+  email: string,
+): Promise<SaveResult> {
+  const base = {
+    username: input.username.trim(),
+    score: input.score,
+    character: input.character,
+    email,
+  };
+
+  if (existing) {
+    let { error } = await supabase
+      .from("street_run_scores")
+      .update({ ...base, username_key: key, created_at: new Date().toISOString() })
+      .eq("id", existing.id);
+
+    if (error?.code === "42703") {
+      ({ error } = await supabase
+        .from("street_run_scores")
+        .update({ ...base, created_at: new Date().toISOString() })
+        .eq("id", existing.id));
+    }
+
+    if (error) throw error;
+    return { stored: true, updated: true };
+  }
+
+  let { error } = await supabase.from("street_run_scores").insert({
+    ...base,
+    username_key: key,
+  });
+
+  if (error?.code === "42703") {
+    ({ error } = await supabase.from("street_run_scores").insert(base));
+  }
+
+  if (error) throw error;
+  return { stored: true, updated: false };
 }
 
 export async function upsertStreetRunScore(
@@ -54,64 +117,14 @@ export async function upsertStreetRunScore(
 ): Promise<SaveResult> {
   const name = input.username.trim();
   const key = usernameKey(name);
+  const email = resolveEmail(key, input.email);
 
   const existing = await findExisting(supabase, key);
   if (existing && input.score <= existing.score) {
     return { stored: false, reason: "not_personal_best" };
   }
 
-  const payload: Record<string, unknown> = {
-    username: name,
-    score: input.score,
-    character: input.character,
-    username_key: key,
-  };
-
-  if (input.email) {
-    payload.email = input.email;
-  }
-
-  if (existing) {
-    const updatePayload: Record<string, unknown> = {
-      username: name,
-      score: input.score,
-      character: input.character,
-      created_at: new Date().toISOString(),
-      username_key: key,
-    };
-    if (input.email) updatePayload.email = input.email;
-
-    let { error } = await supabase
-      .from("street_run_scores")
-      .update(updatePayload)
-      .eq("id", existing.id);
-
-    if (error?.code === "42703") {
-      delete updatePayload.username_key;
-      ({ error } = await supabase
-        .from("street_run_scores")
-        .update(updatePayload)
-        .eq("id", existing.id));
-    }
-
-    if (error) throw error;
-    return { stored: true, updated: true };
-  }
-
-  let { error } = await supabase.from("street_run_scores").insert(payload);
-
-  if (error?.code === "42703") {
-    delete payload.username_key;
-    ({ error } = await supabase.from("street_run_scores").insert(payload));
-  }
-
-  if (error?.code === "23502" && !payload.email) {
-    payload.email = `${key}@street-run.players`;
-    ({ error } = await supabase.from("street_run_scores").insert(payload));
-  }
-
-  if (error) throw error;
-  return { stored: true, updated: false };
+  return writeRow(supabase, existing, input, key, email);
 }
 
 export function dedupeLeaderboardRows<

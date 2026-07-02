@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { dedupeLeaderboardRows, upsertStreetRunScore } from "@/lib/street-run-db";
+import { dedupeLeaderboardRows, formatDbError, upsertStreetRunScore } from "@/lib/street-run-db";
 import { streetRunScoreSchema } from "@/lib/street-run";
 import { createAnonClient, createServiceClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
@@ -56,28 +56,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let supabase;
-    try {
-      supabase = await createServiceClient();
-    } catch {
-      supabase = await createAnonClient();
-    }
-
-    const result = await upsertStreetRunScore(supabase, {
+    const payload = {
       username: username.trim(),
       email: emailValue,
-      score,
+      score: Math.floor(score),
       character: character ?? null,
-    });
+    };
 
-    return NextResponse.json({
-      success: true,
-      stored: result.stored,
-      reason: result.reason,
-    });
+    let lastError: unknown = null;
+
+    try {
+      const supabase = await createServiceClient();
+      const result = await upsertStreetRunScore(supabase, payload);
+      return NextResponse.json({ success: true, stored: result.stored, reason: result.reason });
+    } catch (err) {
+      lastError = err;
+      console.error("[street-run/scores POST] service client failed:", err);
+    }
+
+    try {
+      const supabase = await createAnonClient();
+      const result = await upsertStreetRunScore(supabase, payload);
+      return NextResponse.json({ success: true, stored: result.stored, reason: result.reason });
+    } catch (err) {
+      lastError = err;
+      console.error("[street-run/scores POST] anon client failed:", err);
+    }
+
+    return NextResponse.json({ message: formatDbError(lastError) }, { status: 500 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Could not save score.";
     console.error("[street-run/scores POST]", err);
-    return NextResponse.json({ message }, { status: 500 });
+    return NextResponse.json({ message: formatDbError(err) }, { status: 500 });
   }
 }
