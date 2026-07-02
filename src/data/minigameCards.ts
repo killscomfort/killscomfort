@@ -23,10 +23,10 @@ export type MinigameLaunch = {
 export const HOME_ENTRY_CARD: MinigameCard = {
   id: "play",
   title: "Play",
-  subtitle: "Room · Street · Warehouse",
-  tag: "ARCADE",
+  subtitle: "Room → Street → Warehouse",
+  tag: "START",
   image: "/cards/play.svg",
-  href: "/ride",
+  href: "/ride/room",
   rarity: "legendary",
   accent: "chrome",
 };

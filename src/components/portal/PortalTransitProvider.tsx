@@ -46,7 +46,7 @@ export function PortalTransitProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [phase, setPhase] = useState<Phase>("idle");
-  const targetRef = useRef("/ride");
+  const targetRef = useRef("/ride/room");
   const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const releaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const releasingRef = useRef(false);
@@ -77,7 +77,7 @@ export function PortalTransitProvider({ children }: { children: ReactNode }) {
   }, [finishTransit]);
 
   const startPortalTransit = useCallback(
-    (href = "/ride") => {
+    (href = "/ride/room") => {
       if (phase !== "idle") return;
       targetRef.current = href;
       clearTimers();

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   isValidStreetRunProfile,
   isValidStreetRunUsername,
@@ -21,10 +20,10 @@ type Props = {
   score: number;
   character: "boy" | "girl";
   onRetry: () => void;
+  onContinueToWarehouse: () => void;
 };
 
-export function StreetGameOver({ score, character, onRetry }: Props) {
-  const router = useRouter();
+export function StreetGameOver({ score, character, onRetry, onContinueToWarehouse }: Props) {
   const [best, setBest] = useState(0);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -182,22 +181,14 @@ export function StreetGameOver({ score, character, onRetry }: Props) {
         </form>
 
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.primary}
-            disabled={saving || !isValidStreetRunProfile(username, email)}
-            onClick={() => void persistHighScore(username, email, score)}
-          >
-            {saving ? "saving…" : "save best score"}
-          </button>
-          <button type="button" onClick={shareScore}>
-            share score
+          <button type="button" className={styles.primary} onClick={onContinueToWarehouse}>
+            ride to warehouse →
           </button>
           <button type="button" onClick={onRetry}>
             ride again
           </button>
-          <button type="button" onClick={() => router.push("/ride")}>
-            arcade
+          <button type="button" onClick={shareScore}>
+            share score
           </button>
         </div>
         {shareMsg ? <p className={styles.formMsg}>{shareMsg}</p> : null}

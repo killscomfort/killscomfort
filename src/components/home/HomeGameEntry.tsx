@@ -13,7 +13,7 @@ export function HomeGameEntry() {
   const [launching, setLaunching] = useState(false);
 
   useEffect(() => {
-    router.prefetch("/ride");
+    router.prefetch("/ride/room");
   }, [router]);
 
   const handleLaunch = useCallback(() => {
@@ -30,7 +30,7 @@ export function HomeGameEntry() {
     >
       <div className="mx-auto flex max-w-lg flex-col items-center gap-6 text-center">
         <div className="space-y-2">
-          <p className="font-mono text-[11px] tracking-[0.18em] text-zinc-500 uppercase">One card · three worlds</p>
+          <p className="font-mono text-[11px] tracking-[0.18em] text-zinc-500 uppercase">One path · three beats</p>
           <h2
             id="game-arcade-heading"
             className="font-[family-name:var(--font-pt-serif)] text-2xl tracking-[0.01em] text-white sm:text-3xl"
@@ -38,7 +38,7 @@ export function HomeGameEntry() {
             Tap in
           </h2>
           <p className="max-w-sm text-sm leading-relaxed text-zinc-400">
-            Pull the arcade card to breach room, street, and warehouse — all behind one door.
+            Wake up in the room, hit the street, then ride the alley into the warehouse — no menu hopping.
           </p>
         </div>
 
@@ -53,8 +53,8 @@ export function HomeGameEntry() {
         </div>
 
         <p className="font-mono text-[11px] tracking-[0.12em] text-zinc-600">
-          {"> "}entry: <span className="text-zinc-400">ARCADE</span>
-          {" // "}games: <span className="text-zinc-400">3 INSIDE</span>
+          {"> "}entry: <span className="text-zinc-400">THE ROOM</span>
+          {" // "}flow: <span className="text-zinc-400">ROOM → STREET → WAREHOUSE</span>
         </p>
       </div>
     </section>

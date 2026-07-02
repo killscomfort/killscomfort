@@ -1,44 +1,60 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MiniGameCardGrid } from "@/components/MiniGameCardGrid";
-import { getMinigameLaunch } from "@/data/minigameCards";
+import {
+  canAccessWarehouseHub,
+  canEnterWarehouseRide,
+} from "@/lib/ride-games";
 import KillsComfortRide from "./KillsComfortRide";
 import { RideGameShell } from "./RideGameShell";
+
+type HubPanel = "beat" | "dig" | "mixes" | "wall" | null;
+
+const PANEL_ALIASES: Record<string, HubPanel> = {
+  beat: "beat",
+  cassette: "beat",
+  dig: "dig",
+  crates: "dig",
+  mixes: "mixes",
+  wall: "wall",
+};
 
 function WarehouseGameInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const game = searchParams.get("game");
-  const launch = game ? getMinigameLaunch(game) : undefined;
+  const autoride = searchParams.get("autoride") === "1";
+  const panelParam = searchParams.get("panel") ?? searchParams.get("game");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (game && !launch) {
-      router.replace("/ride/warehouse");
+    if (!canEnterWarehouseRide()) {
+      router.replace("/ride/room");
+      return;
     }
-  }, [game, launch, router]);
 
-  if (!game) {
-    return (
-      <RideGameShell>
-        <MiniGameCardGrid />
-      </RideGameShell>
-    );
-  }
+    const panel = panelParam ? PANEL_ALIASES[panelParam] : null;
+    if (panel && !canAccessWarehouseHub()) {
+      router.replace("/ride/warehouse?autoride=1");
+      return;
+    }
 
-  if (!launch) {
+    setReady(true);
+  }, [panelParam, router]);
+
+  if (!ready) {
     return null;
   }
+
+  const initialPanel = panelParam ? PANEL_ALIASES[panelParam] ?? null : null;
+  const initialScene = canAccessWarehouseHub() ? "hub" : autoride ? "ride" : "enter";
 
   return (
     <RideGameShell>
       <KillsComfortRide
-        initialScene={launch.initialScene}
-        initialPanel={launch.initialPanel}
+        initialScene={initialScene}
+        initialPanel={initialPanel}
         onSkip={() => router.push("/")}
-        onArcade={() => router.push("/ride")}
-        onLobby={() => router.push("/ride/warehouse")}
       />
     </RideGameShell>
   );

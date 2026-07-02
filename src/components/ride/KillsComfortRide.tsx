@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./ride.module.css";
 import { getCtx, chime, blip, playMotif } from "./audioEngine";
+import { unlockWarehouseHub } from "@/lib/ride-games";
 import BikeRide from "./BikeRide";
 import BeatBuilder from "./BeatBuilder";
 import { CrateDig } from "./CrateDig";
@@ -48,10 +49,12 @@ export default function KillsComfortRide({
   onSkip?: () => void;
   onArcade?: () => void;
   onLobby?: () => void;
-  initialScene?: "enter" | "hub";
+  initialScene?: "enter" | "ride" | "hub";
   initialPanel?: Panel;
 }) {
-  const [scene, setScene] = useState<Scene>(initialScene);
+  const [scene, setScene] = useState<Scene>(
+    initialScene === "hub" ? "hub" : initialScene === "ride" ? "ride" : "enter",
+  );
   const [panel, setPanel] = useState<Panel>(initialPanel);
 
   const [values, setValues] = useState<string[]>([]);
@@ -101,11 +104,8 @@ export default function KillsComfortRide({
     getCtx();
     setScene("ride");
   };
-  const skip = () => {
-    getCtx();
-    arrive();
-  };
   const arrive = () => {
+    unlockWarehouseHub();
     setScene("hub");
     chime();
   };
@@ -179,9 +179,6 @@ export default function KillsComfortRide({
           <div className={styles.row} style={{ marginTop: 22 }}>
             <button className={`${styles.btn} ${styles.solid}`} onClick={startRide}>
               Ride your bike →
-            </button>
-            <button className={`${styles.btn} ${styles.ghost}`} onClick={skip}>
-              Skip to warehouse
             </button>
           </div>
           <div className={styles.statusline}>
@@ -258,16 +255,6 @@ export default function KillsComfortRide({
           </div>
 
           <div className={styles.hubfoot}>
-            {onLobby && (
-              <button className={`${styles.btn} ${styles.ghost}`} onClick={onLobby}>
-                ← Card deck
-              </button>
-            )}
-            {onArcade && (
-              <button className={`${styles.btn} ${styles.ghost}`} onClick={onArcade}>
-                ← Arcade
-              </button>
-            )}
             {showMerchSpot && (
               <button
                 className={styles.spot + " " + styles.secret}
