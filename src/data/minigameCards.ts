@@ -20,6 +20,17 @@ export type MinigameLaunch = {
   initialPanel: "beat" | "dig" | "mixes" | "wall" | null;
 };
 
+export const HOME_ENTRY_CARD: MinigameCard = {
+  id: "play",
+  title: "Play",
+  subtitle: "Room · Street · Warehouse",
+  tag: "ARCADE",
+  image: "/cards/play.svg",
+  href: "/ride",
+  rarity: "legendary",
+  accent: "chrome",
+};
+
 export const MINIGAME_CARDS: MinigameCard[] = [
   {
     id: "roll-in",

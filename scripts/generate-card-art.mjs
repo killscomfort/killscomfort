@@ -5,6 +5,14 @@ const outDir = join(process.cwd(), "public", "cards");
 
 const cards = [
   {
+    slug: "play",
+    label: "PLAY",
+    tag: "ARCADE",
+    glyph: "✦",
+    bg: ["#101014", "#050508"],
+    accent: "#e7e7ec",
+  },
+  {
     slug: "roll-in",
     label: "ROLL IN",
     tag: "RIDE",
