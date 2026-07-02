@@ -13,7 +13,13 @@ import { formatDate } from "@/lib/utils";
 import type { StreetRunScore } from "@/types/database";
 
 function uniqueEmails(scores: StreetRunScore[]) {
-  return [...new Set(scores.map((row) => row.email))].sort();
+  return [
+    ...new Set(
+      scores
+        .map((row) => row.email)
+        .filter((email): email is string => Boolean(email)),
+    ),
+  ].sort();
 }
 
 export default async function AdminGamesPage({
@@ -132,9 +138,13 @@ export default async function AdminGamesPage({
                   return (
                     <tr key={email} className="border-b border-clay/10">
                       <td className="px-4 py-3">
-                        <a href={`mailto:${email}`} className="text-bone hover:text-muted-gold">
-                          {email}
-                        </a>
+                        {email ? (
+                          <a href={`mailto:${email}`} className="text-bone hover:text-muted-gold">
+                            {email}
+                          </a>
+                        ) : (
+                          <span className="text-bone/40">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-bone/80">{displayName}</td>
                       <td className="px-4 py-3 text-bone">{best}</td>
@@ -192,9 +202,13 @@ export default async function AdminGamesPage({
                     <td className="px-4 py-3 text-bone/50">{index + 1}</td>
                     <td className="px-4 py-3 text-bone">{row.username}</td>
                     <td className="px-4 py-3">
-                      <a href={`mailto:${row.email}`} className="text-bone/70 hover:text-muted-gold">
-                        {row.email}
-                      </a>
+                      {row.email ? (
+                        <a href={`mailto:${row.email}`} className="text-bone/70 hover:text-muted-gold">
+                          {row.email}
+                        </a>
+                      ) : (
+                        <span className="text-bone/40">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 font-medium text-bone">{row.score}</td>
                     <td className="px-4 py-3 text-bone/70">{row.character ?? "—"}</td>

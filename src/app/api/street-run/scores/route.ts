@@ -41,10 +41,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { username, email, score, character } = parsed.data;
+    const emailValue = email?.trim() ? email.trim().toLowerCase() : null;
 
     if (!isSupabaseConfigured()) {
       if (process.env.NODE_ENV === "development") {
-        console.log("[dev] Street run score:", { username, email, score, character });
+        console.log("[dev] Street run score:", { username, email: emailValue, score, character });
         return NextResponse.json({ success: true, stored: false });
       }
       return NextResponse.json(
@@ -54,25 +55,43 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createAnonClient();
-    const { error } = await supabase.from("street_run_scores").insert({
-      username: username.trim(),
-      email: email.toLowerCase().trim(),
-      score,
-      character: character ?? null,
+    const { data, error } = await supabase.rpc("upsert_street_run_score", {
+      p_username: username.trim(),
+      p_email: emailValue,
+      p_score: score,
+      p_character: character ?? null,
     });
 
     if (error) {
-      console.error("[street-run/scores POST] insert failed:", error);
-      if (error.code === "42P01") {
+      console.error("[street-run/scores POST] rpc failed:", error);
+      if (error.code === "42883") {
         return NextResponse.json(
-          { message: "Leaderboard is not set up yet. Try again soon." },
+          { message: "Leaderboard is not fully set up yet. Run the latest SQL migration." },
           { status: 503 },
         );
       }
       throw error;
     }
 
-    return NextResponse.json({ success: true, stored: true });
+    const result = (data ?? {}) as {
+      ok?: boolean;
+      stored?: boolean;
+      reason?: string;
+      error?: string;
+    };
+
+    if (result.ok === false) {
+      return NextResponse.json(
+        { message: result.error === "invalid_username" ? "Invalid username." : "Could not save score." },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      stored: Boolean(result.stored),
+      reason: result.reason,
+    });
   } catch (err) {
     console.error("[street-run/scores POST]", err);
     return NextResponse.json({ message: "Could not save score." }, { status: 500 });

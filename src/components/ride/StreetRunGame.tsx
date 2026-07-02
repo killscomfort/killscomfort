@@ -3,6 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { CharacterType } from "./comfortRoomPalette";
 import { PAL } from "./comfortRoomPalette";
+import { blip, getCtx } from "./audioEngine";
+import {
+  hasSeenStreetTutorial,
+  markStreetTutorialSeen,
+  readStreetMuted,
+  writeStreetMuted,
+} from "@/lib/street-run";
+import {
+  primeStreetRunAudio,
+  setStreetRunMusicMuted,
+  startStreetRunMusic,
+  stopStreetRunMusic,
+} from "./streetRunAudio";
 import styles from "./street-run.module.css";
 
 const W = 400;
@@ -36,13 +49,32 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
   const rightBtnRef = useRef<HTMLButtonElement>(null);
   const onGameOverRef = useRef(onGameOver);
   onGameOverRef.current = onGameOver;
+  const gameFlagsRef = useRef({ paused: false });
   const [isTouch, setIsTouch] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    setMuted(readStreetMuted());
+    setShowTutorial(!hasSeenStreetTutorial());
   }, []);
 
   useEffect(() => {
+    setStreetRunMusicMuted(muted);
+    writeStreetMuted(muted);
+  }, [muted]);
+
+  useEffect(() => {
+    primeStreetRunAudio();
+    if (!muted) startStreetRunMusic();
+    return () => stopStreetRunMusic();
+  }, [muted]);
+
+  useEffect(() => {
+    gameFlagsRef.current.paused = false;
+    setPaused(false);
     const sc = canvasRef.current;
     if (!sc) return;
     const rawCtx = sc.getContext("2d");
@@ -66,6 +98,7 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
       obstacles: [] as Obstacle[],
       spawnTimer: 58,
       running: true,
+      paused: false,
       score: 0,
       frame: 0,
       reported: false,
@@ -98,11 +131,32 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
     function setLane(n: number) {
       sg.targetLane = Math.max(LANE_MIN, Math.min(LANE_MAX, n));
     }
-    const laneLeft = () => setLane(sg.targetLane - 1);
-    const laneRight = () => setLane(sg.targetLane + 1);
+    const laneLeft = () => {
+      if (gameFlagsRef.current.paused) return;
+      setLane(sg.targetLane - 1);
+      if (!readStreetMuted()) {
+        const ctx = getCtx();
+        if (ctx) blip(ctx.currentTime, 320);
+      }
+    };
+    const laneRight = () => {
+      if (gameFlagsRef.current.paused) return;
+      setLane(sg.targetLane + 1);
+      if (!readStreetMuted()) {
+        const ctx = getCtx();
+        if (ctx) blip(ctx.currentTime, 380);
+      }
+    };
 
     const keyHandler = (e: KeyboardEvent) => {
-      if (!sg.running) return;
+      if (e.key === "p" || e.key === "P" || e.key === "Escape") {
+        if (sg.running) {
+          gameFlagsRef.current.paused = !gameFlagsRef.current.paused;
+          setPaused(gameFlagsRef.current.paused);
+        }
+        return;
+      }
+      if (!sg.running || gameFlagsRef.current.paused) return;
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") laneLeft();
       if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") laneRight();
     };
@@ -387,14 +441,20 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
       if (sg.reported) return;
       sg.reported = true;
       sg.running = false;
+      stopStreetRunMusic();
+      if (!readStreetMuted()) {
+        const ctx = getCtx();
+        if (ctx) blip(ctx.currentTime, 120);
+      }
       const finalScore = Math.floor(sg.score);
       window.setTimeout(() => onGameOverRef.current(finalScore), 400);
     }
 
     function step() {
       sg.frame++;
+      sg.paused = gameFlagsRef.current.paused;
 
-      if (sg.running) {
+      if (sg.running && !sg.paused) {
         sg.laneX += (sg.targetLane - sg.laneX) * 0.2;
         sg.dist += sg.speed;
         sg.score += sg.speed * 48;
@@ -444,6 +504,18 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
       c.fillStyle = "#2a4a2a";
       c.fillText("SCORE", 10, 12);
 
+      if (sg.paused && sg.running) {
+        c.fillStyle = "rgba(0,0,0,0.45)";
+        c.fillRect(0, 0, W, H);
+        c.fillStyle = "#fff";
+        c.font = "bold 14px monospace";
+        c.textAlign = "center";
+        c.fillText("PAUSED", W / 2, H / 2);
+        c.font = "10px monospace";
+        c.fillText("tap pause or press P", W / 2, H / 2 + 18);
+        c.textAlign = "left";
+      }
+
       if (!sg.running && !sg.reported) {
         requestAnimationFrame(step);
         return;
@@ -454,6 +526,7 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
     step();
 
     return () => {
+      stopStreetRunMusic();
       window.removeEventListener("keydown", keyHandler);
       leftBtn?.removeEventListener("touchstart", fireLeft);
       leftBtn?.removeEventListener("mousedown", fireLeft);
@@ -464,11 +537,55 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
     };
   }, [character]);
 
+  const dismissTutorial = () => {
+    markStreetTutorialSeen();
+    setShowTutorial(false);
+    primeStreetRunAudio();
+    if (!muted) startStreetRunMusic();
+  };
+
   return (
     <div className={styles.shell}>
+      <div className={styles.gameHud}>
+        <button
+          type="button"
+          className={styles.hudBtn}
+          aria-label={paused ? "Resume" : "Pause"}
+          onClick={() => {
+            gameFlagsRef.current.paused = !gameFlagsRef.current.paused;
+            setPaused(gameFlagsRef.current.paused);
+          }}
+        >
+          {paused ? "▶" : "❚❚"}
+        </button>
+        <button
+          type="button"
+          className={styles.hudBtn}
+          aria-label={muted ? "Unmute music" : "Mute music"}
+          onClick={() => setMuted((m) => !m)}
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
+      </div>
       <div className={styles.canvasWrap}>
         <canvas ref={canvasRef} className={styles.canvas} />
       </div>
+      {showTutorial ? (
+        <div className={styles.tutorial}>
+          <div className={styles.tutorialBox}>
+            <h3>Street Run</h3>
+            <p>
+              {isTouch
+                ? "Swipe left/right or use the lane buttons. Dodge obstacles in your lane!"
+                : "Arrow keys or A/D to change lanes. Dodge obstacles in your lane!"}
+            </p>
+            <p className={styles.tutorialSmall}>Press P to pause · Music can be muted anytime</p>
+            <button type="button" className={styles.tutorialBtn} onClick={dismissTutorial}>
+              Let&apos;s ride
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className={`${styles.touchBar} ${isTouch ? "" : styles.touchBarHidden}`}>
         <button ref={leftBtnRef} type="button" className={styles.laneBtn} aria-label="Move left">
           ◀
