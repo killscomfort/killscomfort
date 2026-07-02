@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createAnonClient();
     const { data, error } = await supabase
       .from("street_run_scores")
-      .select("email, score, character, created_at")
+      .select("username, score, character, created_at")
       .order("score", { ascending: false })
       .order("created_at", { ascending: true })
       .limit(limit);
@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    const { email, score, character } = parsed.data;
+    const { username, email, score, character } = parsed.data;
 
     if (!isSupabaseConfigured()) {
       if (process.env.NODE_ENV === "development") {
-        console.log("[dev] Street run score:", { email, score, character });
+        console.log("[dev] Street run score:", { username, email, score, character });
         return NextResponse.json({ success: true, stored: false });
       }
       return NextResponse.json(
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createAnonClient();
     const { error } = await supabase.from("street_run_scores").insert({
+      username: username.trim(),
       email: email.toLowerCase().trim(),
       score,
       character: character ?? null,

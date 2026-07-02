@@ -57,7 +57,7 @@ export function MiniGameCardGrid({
       className={cn(
         "relative overflow-x-hidden text-white",
         embedded
-          ? "border-y border-white/10 bg-near-black py-16 sm:py-20"
+          ? "min-h-[100dvh] overflow-y-auto bg-near-black py-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
           : "min-h-[100dvh] overflow-y-auto bg-black py-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
         "px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]",
         className,

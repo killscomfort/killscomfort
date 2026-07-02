@@ -6,15 +6,16 @@ import { PAL } from "./comfortRoomPalette";
 import styles from "./street-run.module.css";
 
 const W = 400;
-const H = 280;
-const HORIZON = 88;
+const H = 360;
+const HORIZON = 46;
 const LANE_MIN = -2;
 const LANE_MAX = 2;
-const TOP_HW = 18;
-const BOT_HW = 248;
-const BASE_SPEED = 0.0055;
-const MAX_SPEED = 0.03;
-const SPEED_BUMP = 0.0035;
+const TOP_HW = 14;
+const BOT_HW = 252;
+const BASE_SPEED = 0.0025;
+const MAX_SPEED = 0.012;
+/** +0.002 every 30s — gentle ramp on internal speed units (kid-friendly). */
+const SPEED_BUMP = 0.002;
 const SPEED_RAMP_MS = 30_000;
 
 type Obstacle = {
@@ -63,7 +64,7 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
       startMs: performance.now(),
       dist: 0,
       obstacles: [] as Obstacle[],
-      spawnTimer: 36,
+      spawnTimer: 58,
       running: true,
       score: 0,
       frame: 0,
@@ -71,10 +72,10 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
     };
 
     function roadHalfWidthAt(t: number) {
-      return TOP_HW + (BOT_HW - TOP_HW) * Math.pow(t, 1.65);
+      return TOP_HW + (BOT_HW - TOP_HW) * Math.pow(t, 1.38);
     }
     function yAt(t: number) {
-      return HORIZON + (H - HORIZON) * Math.pow(t, 1.12);
+      return HORIZON + (H - HORIZON) * Math.pow(t, 0.98);
     }
     function laneSpacingAt(t: number) {
       return roadHalfWidthAt(t) * 0.19;
@@ -88,7 +89,7 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
       const kinds: Obstacle["kind"][] = ["cone", "barrier", "hydrant", "trash", "pothole"];
       sg.obstacles.push({
         lane,
-        t: 0.02,
+        t: 0.004,
         kind: kinds[Math.floor(Math.random() * kinds.length)],
         passed: false,
       });
@@ -202,7 +203,7 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
 
       for (let lane = LANE_MIN; lane < LANE_MAX; lane++) {
         const boundary = lane + 0.5;
-        for (let i = -1; i < 12; i++) {
+        for (let i = -1; i < 22; i++) {
           const t0 = (i + offset) * 0.12;
           const t1c = t0 + 0.055;
           if (t0 < 0 || t0 > 1) continue;
@@ -408,19 +409,19 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
         sg.spawnTimer -= 1;
         if (sg.spawnTimer <= 0) {
           spawnObstacle();
-          const difficulty = Math.min(20, Math.floor(sg.score / 150));
-          sg.spawnTimer = Math.max(22, 48 - difficulty);
+          const difficulty = Math.min(14, Math.floor(sg.score / 220));
+          sg.spawnTimer = Math.max(30, 58 - difficulty);
         }
 
         sg.obstacles.forEach((o) => {
-          o.t += sg.speed * 1.55;
+          o.t += sg.speed * 1.22;
         });
         sg.obstacles = sg.obstacles.filter((o) => o.t < 1.08);
 
         for (const o of sg.obstacles) {
-          if (!o.passed && o.t > 0.91) {
+          if (!o.passed && o.t > 0.93) {
             o.passed = true;
-            if (Math.abs(o.lane - sg.laneX) < 0.42) {
+            if (Math.abs(o.lane - sg.laneX) < 0.5) {
               crash();
             }
           }

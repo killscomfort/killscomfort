@@ -103,6 +103,7 @@ export default async function AdminGamesPage({
             <thead>
               <tr className="border-b border-clay/20 bg-warm-charcoal/80 text-left text-bone/50">
                 <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Username</th>
                 <th className="px-4 py-3">Best score</th>
                 <th className="px-4 py-3">Runs</th>
                 <th className="px-4 py-3">Last played</th>
@@ -112,7 +113,7 @@ export default async function AdminGamesPage({
             <tbody>
               {emails.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-bone/50">
+                  <td colSpan={6} className="px-4 py-8 text-bone/50">
                     No player emails collected yet.
                   </td>
                 </tr>
@@ -123,6 +124,10 @@ export default async function AdminGamesPage({
                   const lastPlayed = runs.reduce((latest, row) =>
                     row.created_at > latest ? row.created_at : latest,
                   runs[0].created_at);
+                  const displayName =
+                    runs.find((row) => row.username)?.username ??
+                    runs[0].username ??
+                    "—";
 
                   return (
                     <tr key={email} className="border-b border-clay/10">
@@ -131,6 +136,7 @@ export default async function AdminGamesPage({
                           {email}
                         </a>
                       </td>
+                      <td className="px-4 py-3 text-bone/80">{displayName}</td>
                       <td className="px-4 py-3 text-bone">{best}</td>
                       <td className="px-4 py-3 text-bone/70">{runs.length}</td>
                       <td className="px-4 py-3 text-bone/50">{formatDate(lastPlayed)}</td>
@@ -161,6 +167,7 @@ export default async function AdminGamesPage({
             <thead>
               <tr className="border-b border-clay/20 bg-warm-charcoal/80 text-left text-bone/50">
                 <th className="px-4 py-3">Rank</th>
+                <th className="px-4 py-3">Username</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Score</th>
                 <th className="px-4 py-3">Character</th>
@@ -171,7 +178,7 @@ export default async function AdminGamesPage({
             <tbody>
               {scores.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-bone/50">
+                  <td colSpan={7} className="px-4 py-8 text-bone/50">
                     No scores yet. Play Street Run at{" "}
                     <Link href="/ride/street" className="text-muted-gold hover:text-bone">
                       /ride/street
@@ -183,8 +190,9 @@ export default async function AdminGamesPage({
                 scores.map((row, index) => (
                   <tr key={row.id} className="border-b border-clay/10">
                     <td className="px-4 py-3 text-bone/50">{index + 1}</td>
+                    <td className="px-4 py-3 text-bone">{row.username}</td>
                     <td className="px-4 py-3">
-                      <a href={`mailto:${row.email}`} className="text-bone hover:text-muted-gold">
+                      <a href={`mailto:${row.email}`} className="text-bone/70 hover:text-muted-gold">
                         {row.email}
                       </a>
                     </td>
@@ -196,7 +204,7 @@ export default async function AdminGamesPage({
                         action={deleteStreetRunScore}
                         id={row.id}
                         label="Remove"
-                        confirmMessage={`Remove this score (${row.score}) for ${row.email}?`}
+                        confirmMessage={`Remove this score (${row.score}) for ${row.username}?`}
                       />
                     </td>
                   </tr>

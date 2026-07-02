@@ -3,8 +3,11 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
   background: #87ceeb;
   touch-action: none;
   overscroll-behavior: none;
@@ -18,8 +21,8 @@
   position: relative;
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
   width: 100%;
   min-height: 0;
 }
@@ -27,11 +30,13 @@
 .canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  width: min(100%, calc((100dvh - 140px) * 0.625));
-  height: auto;
-  max-height: calc(100dvh - 140px);
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: none;
+  box-shadow: none;
   touch-action: none;
 }
 
@@ -186,6 +191,13 @@
   color: #555;
 }
 
+.formHint {
+  margin: 0 0 0.35rem;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #666;
+}
+
 .form input {
   width: 100%;
   padding: 0.65rem 0.75rem;
@@ -262,12 +274,6 @@
 
 .lbRow span:last-child {
   font-weight: 700;
-}
-
-@media (min-width: 768px) {
-  .canvas {
-    width: min(520px, 90vw);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

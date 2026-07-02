@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  maskEmail,
+  isValidStreetRunProfile,
+  readLastSubmittedScore,
   readLocalHighScore,
   readLocalHighScoreEmail,
+  readLocalHighScoreUsername,
+  saveStreetRunScore,
+  writeLastSubmittedScore,
   writeLocalHighScore,
   writeLocalHighScoreEmail,
+  writeLocalHighScoreUsername,
   type StreetRunLeaderboardEntry,
 } from "@/lib/street-run";
 import styles from "./street-run.module.css";
@@ -21,52 +26,114 @@ type Props = {
 export function StreetGameOver({ score, character, onRetry }: Props) {
   const router = useRouter();
   const [best, setBest] = useState(0);
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [leaderboard, setLeaderboard] = useState<StreetRunLeaderboardEntry[]>([]);
-  const [submitting, setSubmitting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const saveAttemptedRef = useRef(false);
+
+  const refreshLeaderboard = useCallback(async () => {
+    try {
+      const lb = await fetch("/api/street-run/scores?limit=10").then((r) => r.json());
+      setLeaderboard(lb.scores ?? []);
+    } catch {
+      setLeaderboard([]);
+    }
+  }, []);
+
+  const persistHighScore = useCallback(
+    async (u: string, e: string, runScore: number) => {
+      if (saveAttemptedRef.current) return;
+      if (!isValidStreetRunProfile(u, e)) return;
+      if (runScore <= readLastSubmittedScore()) {
+        setMsg("Your saved high score is still higher — ride again to beat it.");
+        return;
+      }
+
+      saveAttemptedRef.current = true;
+      setSaving(true);
+      setErr("");
+
+      try {
+        const result = await saveStreetRunScore({
+          username: u.trim(),
+          email: e.trim(),
+          score: runScore,
+          character,
+        });
+
+        if (!result.ok) {
+          saveAttemptedRef.current = false;
+          setErr(result.errors?.username ?? result.errors?.email ?? result.message ?? "Could not save score");
+          return;
+        }
+
+        const trimmedName = u.trim();
+        writeLocalHighScoreUsername(trimmedName);
+        writeLocalHighScoreEmail(e.trim());
+        writeLastSubmittedScore(runScore);
+        setMsg(
+          result.stored
+            ? `High score saved as ${trimmedName}!`
+            : "Score recorded locally.",
+        );
+        await refreshLeaderboard();
+      } catch {
+        saveAttemptedRef.current = false;
+        setErr("Network error — try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [character, refreshLeaderboard],
+  );
 
   useEffect(() => {
+    saveAttemptedRef.current = false;
+    setMsg("");
+    setErr("");
+
     const local = readLocalHighScore();
     const nextBest = Math.max(local, score);
     if (score > local) writeLocalHighScore(score);
     setBest(nextBest);
-    setEmail(readLocalHighScoreEmail());
-  }, [score]);
+
+    const storedUsername = readLocalHighScoreUsername();
+    const storedEmail = readLocalHighScoreEmail();
+    setUsername(storedUsername);
+    setEmail(storedEmail);
+
+    refreshLeaderboard();
+
+    if (isValidStreetRunProfile(storedUsername, storedEmail)) {
+      void persistHighScore(storedUsername, storedEmail, score);
+    }
+  }, [score, persistHighScore, refreshLeaderboard]);
 
   useEffect(() => {
-    fetch("/api/street-run/scores?limit=10")
-      .then((r) => r.json())
-      .then((data) => setLeaderboard(data.scores ?? []))
-      .catch(() => setLeaderboard([]));
-  }, [score]);
+    if (!isValidStreetRunProfile(username, email)) return;
+    if (score <= readLastSubmittedScore()) return;
 
-  const submitScore = useCallback(async () => {
-    setErr("");
-    setMsg("");
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/street-run/scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, score, character }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErr(data.errors?.email ?? data.message ?? "Could not save score");
-        return;
-      }
-      writeLocalHighScoreEmail(email);
-      setMsg(data.stored ? "Score saved to leaderboard." : "Score recorded locally.");
-      const lb = await fetch("/api/street-run/scores?limit=10").then((r) => r.json());
-      setLeaderboard(lb.scores ?? []);
-    } catch {
-      setErr("Network error — try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  }, [character, email, score]);
+    const storedUsername = readLocalHighScoreUsername();
+    const storedEmail = readLocalHighScoreEmail();
+    const profileReady =
+      !isValidStreetRunProfile(storedUsername, storedEmail) ||
+      username.trim() !== storedUsername ||
+      email.trim() !== storedEmail;
+
+    if (!profileReady) return;
+
+    const timer = window.setTimeout(() => {
+      void persistHighScore(username, email, score);
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [username, email, score, persistHighScore]);
+
+  const hasProfile = isValidStreetRunProfile(username, email);
+  const alreadySaved = score <= readLastSubmittedScore() && hasProfile;
 
   return (
     <div className={styles.gameOver}>
@@ -87,10 +154,29 @@ export function StreetGameOver({ score, character, onRetry }: Props) {
           className={styles.form}
           onSubmit={(e) => {
             e.preventDefault();
-            submitScore();
+            void persistHighScore(username, email, score);
           }}
         >
-          <label htmlFor="street-email">Save to leaderboard</label>
+          <p className={styles.formHint}>
+            {hasProfile
+              ? "Your high scores save automatically when you beat your best."
+              : "Enter your name and email once — we'll save new high scores for you."}
+          </p>
+          <label htmlFor="street-username">Username (shown on leaderboard)</label>
+          <input
+            id="street-username"
+            type="text"
+            autoComplete="nickname"
+            placeholder="your name"
+            value={username}
+            onChange={(e) => {
+              saveAttemptedRef.current = false;
+              setUsername(e.target.value);
+            }}
+            maxLength={20}
+            required
+          />
+          <label htmlFor="street-email">Email (private — not shown on board)</label>
           <input
             id="street-email"
             type="email"
@@ -98,18 +184,32 @@ export function StreetGameOver({ score, character, onRetry }: Props) {
             autoComplete="email"
             placeholder="you@email.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              saveAttemptedRef.current = false;
+              setEmail(e.target.value);
+            }}
             required
           />
-          {msg ? <p className={styles.formMsg}>{msg}</p> : null}
-          {err ? <p className={styles.formErr}>{err}</p> : null}
+          {saving ? <p className={styles.formMsg}>Saving high score…</p> : null}
+          {!saving && msg ? <p className={styles.formMsg}>{msg}</p> : null}
+          {!saving && err ? <p className={styles.formErr}>{err}</p> : null}
+          {!saving && alreadySaved && !msg ? (
+            <p className={styles.formMsg}>Your best score is already on the board.</p>
+          ) : null}
         </form>
 
         <div className={styles.actions}>
-          <button type="button" className={styles.primary} disabled={submitting} onClick={submitScore}>
-            {submitting ? "saving…" : "submit score"}
-          </button>
-          <button type="button" onClick={onRetry}>
+          {!hasProfile ? (
+            <button
+              type="button"
+              className={styles.primary}
+              disabled={saving || !isValidStreetRunProfile(username, email)}
+              onClick={() => void persistHighScore(username, email, score)}
+            >
+              {saving ? "saving…" : "save profile & score"}
+            </button>
+          ) : null}
+          <button type="button" className={hasProfile ? styles.primary : undefined} onClick={onRetry}>
             ride again
           </button>
           <button type="button" onClick={() => router.push("/ride")}>
@@ -121,9 +221,9 @@ export function StreetGameOver({ score, character, onRetry }: Props) {
           <div className={styles.leaderboard}>
             <h3>Top runs</h3>
             {leaderboard.map((row, i) => (
-              <div key={`${row.email}-${row.created_at}-${i}`} className={styles.lbRow}>
+              <div key={`${row.username}-${row.created_at}-${i}`} className={styles.lbRow}>
                 <span>
-                  {i + 1}. {maskEmail(row.email)}
+                  {i + 1}. {row.username}
                 </span>
                 <span>{row.score}</span>
               </div>

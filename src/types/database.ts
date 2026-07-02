@@ -170,6 +170,7 @@ export interface NewsletterSubscriber {
 
 export interface StreetRunScore {
   id: string;
+  username: string;
   email: string;
   score: number;
   character: "boy" | "girl" | null;
