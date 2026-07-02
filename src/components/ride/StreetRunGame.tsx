@@ -12,6 +12,10 @@ const LANE_MIN = -2;
 const LANE_MAX = 2;
 const TOP_HW = 18;
 const BOT_HW = 248;
+const BASE_SPEED = 0.0055;
+const MAX_SPEED = 0.03;
+const SPEED_BUMP = 0.0035;
+const SPEED_RAMP_MS = 30_000;
 
 type Obstacle = {
   lane: number;
@@ -54,10 +58,12 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
     const sg = {
       laneX: 0,
       targetLane: 0,
-      speed: 0.012,
+      speed: BASE_SPEED,
+      speedTier: 0,
+      startMs: performance.now(),
       dist: 0,
       obstacles: [] as Obstacle[],
-      spawnTimer: 28,
+      spawnTimer: 36,
       running: true,
       score: 0,
       frame: 0,
@@ -391,13 +397,19 @@ export default function StreetRunGame({ character, onGameOver }: Props) {
         sg.laneX += (sg.targetLane - sg.laneX) * 0.2;
         sg.dist += sg.speed;
         sg.score += sg.speed * 48;
-        sg.speed = Math.min(0.028, sg.speed + 0.0000038);
+
+        const elapsed = performance.now() - sg.startMs;
+        const tier = Math.floor(elapsed / SPEED_RAMP_MS);
+        if (tier !== sg.speedTier) {
+          sg.speedTier = tier;
+          sg.speed = Math.min(MAX_SPEED, BASE_SPEED + tier * SPEED_BUMP);
+        }
 
         sg.spawnTimer -= 1;
         if (sg.spawnTimer <= 0) {
           spawnObstacle();
-          const difficulty = Math.min(24, Math.floor(sg.score / 120));
-          sg.spawnTimer = Math.max(18, 42 - difficulty);
+          const difficulty = Math.min(20, Math.floor(sg.score / 150));
+          sg.spawnTimer = Math.max(22, 48 - difficulty);
         }
 
         sg.obstacles.forEach((o) => {

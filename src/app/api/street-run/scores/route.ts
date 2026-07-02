@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { streetRunScoreSchema } from "@/lib/street-run";
-import { createServiceClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAnonClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const limit = Math.min(20, Math.max(1, Number(request.nextUrl.searchParams.get("limit") ?? 10)));
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = await createServiceClient();
+    const supabase = await createAnonClient();
     const { data, error } = await supabase
       .from("street_run_scores")
       .select("email, score, character, created_at")
@@ -53,14 +53,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServiceClient();
+    const supabase = await createAnonClient();
     const { error } = await supabase.from("street_run_scores").insert({
       email: email.toLowerCase().trim(),
       score,
       character: character ?? null,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("[street-run/scores POST] insert failed:", error);
+      if (error.code === "42P01") {
+        return NextResponse.json(
+          { message: "Leaderboard is not set up yet. Try again soon." },
+          { status: 503 },
+        );
+      }
+      throw error;
+    }
+
     return NextResponse.json({ success: true, stored: true });
   } catch (err) {
     console.error("[street-run/scores POST]", err);
