@@ -48,14 +48,6 @@ async function findExisting(
   supabase: SupabaseClient,
   key: string,
 ): Promise<ExistingRow | null> {
-  const { data: byKey, error: keyError } = await supabase
-    .from("street_run_scores")
-    .select("id, score, username")
-    .eq("username_key", key)
-    .maybeSingle();
-
-  if (!keyError && byKey) return byKey as ExistingRow;
-
   const { data: rows, error: listError } = await supabase
     .from("street_run_scores")
     .select("id, score, username");
@@ -71,7 +63,6 @@ async function writeRow(
   supabase: SupabaseClient,
   existing: ExistingRow | null,
   input: SaveInput,
-  key: string,
   email: string,
 ): Promise<SaveResult> {
   const base = {
@@ -82,31 +73,16 @@ async function writeRow(
   };
 
   if (existing) {
-    let { error } = await supabase
+    const { error } = await supabase
       .from("street_run_scores")
-      .update({ ...base, username_key: key, created_at: new Date().toISOString() })
+      .update({ ...base, created_at: new Date().toISOString() })
       .eq("id", existing.id);
-
-    if (error?.code === "42703") {
-      ({ error } = await supabase
-        .from("street_run_scores")
-        .update({ ...base, created_at: new Date().toISOString() })
-        .eq("id", existing.id));
-    }
 
     if (error) throw error;
     return { stored: true, updated: true };
   }
 
-  let { error } = await supabase.from("street_run_scores").insert({
-    ...base,
-    username_key: key,
-  });
-
-  if (error?.code === "42703") {
-    ({ error } = await supabase.from("street_run_scores").insert(base));
-  }
-
+  const { error } = await supabase.from("street_run_scores").insert(base);
   if (error) throw error;
   return { stored: true, updated: false };
 }
@@ -124,7 +100,7 @@ export async function upsertStreetRunScore(
     return { stored: false, reason: "not_personal_best" };
   }
 
-  return writeRow(supabase, existing, input, key, email);
+  return writeRow(supabase, existing, input, email);
 }
 
 export function dedupeLeaderboardRows<
