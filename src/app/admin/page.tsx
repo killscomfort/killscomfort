@@ -16,6 +16,8 @@ export default async function AdminPage() {
     { count: inquiryCount },
     { count: newInquiryCount },
     { count: subscriberCount },
+    { count: streetRunCount },
+    { data: streetRunEmails },
     { count: orderCount },
     { count: paidOrderCount },
     { count: userCount },
@@ -34,6 +36,8 @@ export default async function AdminPage() {
       .from("newsletter_subscribers")
       .select("*", { count: "exact", head: true })
       .is("unsubscribed_at", null),
+    adminDb.from("street_run_scores").select("*", { count: "exact", head: true }),
+    adminDb.from("street_run_scores").select("email"),
     adminDb.from("orders").select("*", { count: "exact", head: true }),
     adminDb
       .from("orders")
@@ -55,10 +59,14 @@ export default async function AdminPage() {
       .limit(5),
   ]);
 
+  const streetRunEmailCount = new Set((streetRunEmails ?? []).map((row) => row.email)).size;
+
   const stats = [
     { label: "Total Inquiries", value: inquiryCount ?? 0, href: "/admin/inquiries" },
     { label: "New Inquiries", value: newInquiryCount ?? 0, href: "/admin/inquiries?status=new" },
     { label: "Newsletter Subscribers", value: subscriberCount ?? 0, href: "/admin/newsletter" },
+    { label: "Street Run Scores", value: streetRunCount ?? 0, href: "/admin/games" },
+    { label: "Game Player Emails", value: streetRunEmailCount, href: "/admin/games?view=emails" },
     { label: "Total Orders", value: orderCount ?? 0, href: "/admin/orders" },
     { label: "Paid Orders", value: paidOrderCount ?? 0, href: "/admin/orders?status=paid" },
     { label: "Users", value: userCount ?? 0, href: "/admin/users" },

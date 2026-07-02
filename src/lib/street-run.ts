@@ -15,6 +15,10 @@ export type StreetRunLeaderboardEntry = {
   created_at: string;
 };
 
+export type StreetRunScoreRow = StreetRunLeaderboardEntry & {
+  id: string;
+};
+
 export const LOCAL_HIGHSCORE_KEY = "kc-street-highscore";
 export const LOCAL_HIGHSCORE_EMAIL_KEY = "kc-street-highscore-email";
 

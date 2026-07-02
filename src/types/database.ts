@@ -167,3 +167,11 @@ export interface NewsletterSubscriber {
   unsubscribed_at: string | null;
   created_at: string;
 }
+
+export interface StreetRunScore {
+  id: string;
+  email: string;
+  score: number;
+  character: "boy" | "girl" | null;
+  created_at: string;
+}
