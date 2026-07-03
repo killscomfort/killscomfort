@@ -119,8 +119,36 @@
     $("hud").classList.toggle("on", scene==="hub"||scene==="ride");
     $("skipBtn").style.display = (scene==="exit") ? "none" : "block";
     if(scene==="hub") refreshHub();
-    if(scene==="exit") renderChips();
+    if(scene==="exit"){ renderChips(); wireExitLinks(); }
   }
+  function wireExitLinks(){
+    var root=$("s-exit"); if(!root||root.dataset.wired) return;
+    root.dataset.wired="1";
+    root.querySelectorAll(".cta a[href^='/']").forEach(function(a){
+      a.addEventListener("click", function(e){
+        e.preventDefault();
+        if(KCTransitions&&KCTransitions.isActive()) return;
+        leaveToSite(a.getAttribute("href")||"/site");
+      });
+    });
+  }
+
+  /**
+   * Assign transition presets to navigation actions.
+   * Override any entry to customize duration, blur, flash, etc.
+   */
+  var KC_TRANSITION_ROUTES={
+    "warehouse:bikePicker": function(){ return KCTransitions.PRESETS.homeToBikePicker; },
+    "bikePicker:ride": function(){ return KCTransitions.PRESETS.bikePickerToRide; },
+    "experience:site": function(){ return KCTransitions.PRESETS.rideToSection; },
+    "experience:section": function(){ return KCTransitions.PRESETS.rideToSection; }
+  };
+  function kcTransition(routeKey, swapFn, onComplete){
+    var cfg=(KC_TRANSITION_ROUTES[routeKey]||function(){ return null; })();
+    if(!cfg||!KCTransitions){ if(swapFn) swapFn(function(){}); if(onComplete) onComplete(); return Promise.resolve(); }
+    return KCTransitions.play(cfg, swapFn, onComplete);
+  }
+  function kcGuard(fn){ return function(){ if(KCTransitions&&KCTransitions.isActive()) return; fn.apply(this, arguments); }; }
 
   /* ---------- hub ---------- */
   function refreshHub(){
@@ -133,9 +161,11 @@
   function onBeatLocked(){ if(!ST.beatMade){ ST.beatMade=true; unlockMix("rooftop","▷ SECRET MIX UNLOCKED — ROOFTOP / DAT THANG"); refreshHub(); } }
 
   /* ---------- panels ---------- */
-  function openPanel(title,bodyHtml,after){
+  function openPanel(title,bodyHtml,after,opts){
+    opts=opts||{};
+    var panelClass=opts.noAnim?"panel":"panel kc-panel-in";
     var pm=$("panelMount");
-    pm.innerHTML='<div class="panel"><div class="panelTop"><div class="t">'+title+'</div><button class="x" id="pClose">Close ✕</button></div><div class="panelBody" id="pBody"></div></div>';
+    pm.innerHTML='<div class="'+panelClass+'"><div class="panelTop"><div class="t">'+title+'</div><button class="x" id="pClose">Close ✕</button></div><div class="panelBody" id="pBody"></div></div>';
     $("pBody").innerHTML=bodyHtml; $("pClose").onclick=closePanel; if(after) after();
   }
   function closePanel(){ $("panelMount").innerHTML=""; }
@@ -662,11 +692,12 @@
         S.rider.vy+=.0026*dt; S.rider.y+=S.rider.vy*dt; if(S.rider.y>0){ S.rider.y=0; S.rider.vy=0; }
         S.score=Math.floor(S.dist/12);
         if(S.dist>=S.nextObs){ var type=Math.random()<.5?"pothole":"truck"; S.obs.push({x:S.dist+W*0.9,type:type,w:type==="truck"?96:48}); S.nextObs=S.dist+(560-300*d)+Math.random()*150; }
-        var rxE=RIDER_SX(), gyE=S.ground;
+        var rxE=RIDER_SX(), gyE=S.ground, bikeS=bikeScaleFromViewportHeight(H);
+        var colE=layoutBike(rideSpec, bikeS, rxE, gyE+S.rider.y).collision;
         for(var oi=S.obs.length-1; oi>=0; oi--){ var o=S.obs[oi], ox=w2s(o.x); if(ox<-160){ S.obs.splice(oi,1); continue; }
           if(Math.abs(ox-rxE)<o.w/2+12){
-            if(o.type==="pothole"){ if(gyE+Math.min(0,S.rider.y)>gyE-34) S.dead=true; }
-            else { if(!S.skid.active && (gyE-56+S.rider.y)<gyE-30) S.dead=true; }
+            if(o.type==="pothole"){ if(colE.y+colE.h>gyE-34) S.dead=true; }
+            else { if(!S.skid.active && colE.y+colE.h*0.55>gyE-30) S.dead=true; }
           }
           if(S.dead) break;
         }
@@ -674,9 +705,10 @@
       } else if(S.phase==="ride"){
         S.dist+=dt*speed; S.scroll+=dt*speed; S.rider.vy+=.0026*dt; S.rider.y+=S.rider.vy*dt;
         if(S.rider.y>0){ S.rider.y=0; S.rider.vy=0; }
-        var rx=RIDER_SX(), ry=S.ground-30+S.rider.y;
+        var rx=RIDER_SX(), groundY=S.ground+S.rider.y, bikeS=bikeScaleFromViewportHeight(H);
+        var lay=layoutBike(rideSpec, bikeS, rx, groundY), col=lay.collision;
         for(var ti=S.tokens.length-1; ti>=0; ti--){ var tk=S.tokens[ti], sx=w2s(tk.x), ty=tokenY(tk)+Math.sin(now/300+tk.x)*6;
-          if(Math.abs(sx-rx)<30&&Math.abs(ty-ry)<34){ S.tokens.splice(ti,1); onCollect(tk.v); var c=getCtx(); blip(c?c.currentTime:0,680); S.pops.push({x:rx,y:ty,text:"+"+tk.v,life:1});
+          if(Math.abs(sx-col.hitX)<col.w*0.42&&Math.abs(ty-col.hitY)<col.h*0.45){ S.tokens.splice(ti,1); onCollect(tk.v); var c=getCtx(); blip(c?c.currentTime:0,680); S.pops.push({x:rx,y:ty,text:"+"+tk.v,life:1});
             if(S.tokens.length===0){ S.unlocked=true; S.runwayStart=S.dist; S.warehouseX=S.dist+RUNWAY; $("ridehint").textContent="WAREHOUSE UNLOCKED → ROLL IN"; }
             continue; }
           if(sx<-60){ var maxX=S.dist; S.tokens.forEach(function(q){ if(q.x>maxX)maxX=q.x; }); tk.x=Math.max(S.dist+760,maxX+520); tk.bandFrac=Math.random(); }
@@ -698,9 +730,11 @@
       var haze=c.createRadialGradient(W*.72,H*.4,8,W*.72,H*.4,H*.62); haze.addColorStop(0,"rgba(120,140,160,0.05)"); haze.addColorStop(1,"transparent"); c.fillStyle=haze; c.fillRect(0,0,W,H);
       buildings(now); fireEscapes(); neon(now); brick(); graffiti(); streetlights(now); road(); dumpsters(); fence(); if(!reduce) rain();
       if(mode==="endless"){ obstacles(now); } else { tokens(now); warehouse(); }
-      var glow=riderGlow(), rx=RIDER_SX(), ry=S.ground+S.rider.y, scale=1, alpha=1;
-      if(S.phase==="arrive"){ var t=ease(Math.min(1,S.arrive)), door=w2s(S.warehouseX); rx=lerp(RIDER_SX(),door,t); scale=lerp(1,.4,t); alpha=Math.max(0,1-Math.max(0,S.arrive-.55)/.45); }
-      bike(rx,ry,now,glow,scale,alpha,(mode==="endless"&&S.skid.active));
+      var baseScale=bikeScaleFromViewportHeight(H), rx=RIDER_SX(), groundY=S.ground+S.rider.y;
+      var alpha=1, scale=baseScale;
+      if(S.phase==="arrive"){ var t=ease(Math.min(1,S.arrive)), door=w2s(S.warehouseX); rx=lerp(RIDER_SX(),door,t); scale=lerp(baseScale,baseScale*0.4,t); alpha=Math.max(0,1-Math.max(0,S.arrive-.55)/.45); }
+      var layout=layoutBike(rideSpec, scale, rx, groundY);
+      drawBikeAssembly(ctx2, layout, { phase:now*0.006, wheelRot:now*0.02, alpha:alpha, skid:(mode==="endless"&&S.skid.active), showRider:true });
       pops(); if(mode==="endless"){ scoreHud(); } else { progress(); } vignette();
     }
     function buildings(now){ var c=ctx2,span=W+320; c.fillStyle="#0e0e12";
@@ -803,13 +837,6 @@
       c.fillStyle="rgba(225,228,232,"+(.7+glow*.3)+")"; c.beginPath(); c.arc(cx,cy,r*.12,0,Math.PI*2); c.fill();
       var sa=rot*.6; c.strokeStyle="rgba(255,255,255,"+(.4+glow*.5)+")"; c.lineWidth=r*.18; c.beginPath(); c.arc(cx,cy,r*.66,sa,sa+.7); c.stroke();
     }
-    function bike(x,gy,now,glow,scale,alpha,skid){ var c=ctx2; c.save(); c.globalAlpha=alpha;
-      var s=scale*0.82; if(skid){ c.save(); c.translate(x,gy); c.rotate(-0.13); c.translate(-x,-gy); }
-      drawCyclist(c,x,gy,s,now*0.006,now*0.02,rideSpec);
-      if(skid){ c.restore(); var Rw=(PRESET[rideSpec.preset]||PRESET.road).Rw*s;
-        c.strokeStyle="rgba(40,42,48,0.8)"; c.lineWidth=3; c.beginPath(); c.moveTo(x-Rw*2.6,gy+0.5); c.lineTo(x-Rw*0.6,gy+0.5); c.stroke();
-        for(var sI=0;sI<5;sI++){ var spx=x-Rw*1.6-Math.random()*24, spy=gy-Math.random()*6; c.strokeStyle="rgba(255,"+(210+Math.random()*40)+","+(150+Math.random()*50)+",0.9)"; c.lineWidth=1.4; c.beginPath(); c.moveTo(spx,spy); c.lineTo(spx-4-Math.random()*6,spy+2+Math.random()*4); c.stroke(); } }
-      c.restore(); }
     function pops(){ var c=ctx2; S.pops.forEach(function(p){ c.save(); c.globalAlpha=Math.max(0,p.life); c.fillStyle="#e9e9ec";
       c.font='700 18px "Archivo Narrow","Arial Narrow",Impact,sans-serif'; c.textAlign="center"; c.fillText(p.text,p.x,p.y-(1-p.life)*44); c.restore(); }); }
     function progress(){ var c=ctx2,pw=W-44,frac,label;
@@ -980,13 +1007,13 @@
     return function(){ cancelAnimationFrame(raf); cleanup(); };
   }
 
-  /* ---------- spec-driven bikes (Gregory's real bikes from reference photos) ---------- */
+  /* ---------- unified bike geometry (menu + gameplay share one layout) ---------- */
+  var BIKE_SCALE={ min:0.28, max:1.5, refHeight:540 };
+  var BIKE_DEBUG=false;
+  try{ BIKE_DEBUG=localStorage.getItem("kc_bike_debug")==="1"||/\bbikeDebug=1\b/.test(location.search); }catch(e){}
   var PRESET={
-    /* Windsor Clockwork — level top tube, tall seat, drop bars, deep silver rims */
     road:{Rw:26, wb:1.38, bbDrop:0.68, bbBack:0.02, cr:0.46, seatBack:0.22, seatUp:2.14, htLen:1.06, htLean:0.11, forkReach:0.10, forkDrop:0.42, tire:0.10, topFlat:true, topDrop:0, shFwd:0.44, shUp:2.36, headUp:0.86, headFwd:0.08, hipFwd:0.06, hipDrop:0.12},
-    /* Red fixie — compact level frame, short flat bars, curved chrome fork */
     fixie:{Rw:25, wb:1.32, bbDrop:0.64, bbBack:0.02, cr:0.44, seatBack:0.18, seatUp:2.06, htLen:0.98, htLean:0.10, forkReach:0.11, forkDrop:0.38, tire:0.11, topFlat:true, topDrop:0, shFwd:0.40, shUp:2.24, headUp:0.88, headFwd:0.07, hipFwd:0.06, hipDrop:0.14},
-    /* Orbea hardtail — sloping top tube, 29er, long suspension fork, knobbies */
     mtn :{Rw:30, wb:1.58, bbDrop:0.56, bbBack:0.05, cr:0.52, seatBack:0.30, seatUp:1.42, htLen:0.90, htLean:0.10, forkReach:0.05, forkDrop:0.78, tire:0.26, topSlope:0.28, shFwd:0.48, shUp:1.96, headUp:0.96, headFwd:0.09, hipFwd:0.08, hipDrop:0.18}
   };
   var BIKES={
@@ -997,6 +1024,23 @@
   var BIKE_ORDER=["hero","red","mtn"];
   function getBikeSpec(){ var id=null; try{ id=localStorage.getItem("kc_bike"); }catch(e){} return BIKES[id]||BIKES.hero; }
   function setBike(id){ try{ localStorage.setItem("kc_bike",id); }catch(e){} }
+  function bikeGeometryMeta(spec){
+    var P=PRESET[spec.preset]||PRESET.road, Rw=P.Rw, wb=P.wb;
+    return {
+      nativeWidth: wb*2*Rw+Rw*0.45,
+      nativeHeight: (P.bbDrop+P.seatUp+0.85)*Rw,
+      wheelRadius: Rw,
+      wheelbaseHalf: wb,
+      rearWheelCenter: { nx:0.5-wb, ny:-1 },
+      frontWheelCenter: { nx:0.5+wb, ny:-1 },
+      riderOffset: { nx:0.5-P.seatBack-P.bbBack*0.4, ny:-(P.bbDrop+P.seatUp-P.hipDrop) },
+      groundAnchor: { nx:0.5, ny:0 },
+      collisionBounds: { nx:0.5-wb-0.1, ny:-(P.bbDrop+P.seatUp+0.55), nw:wb*2+0.22, nh:(P.bbDrop+P.seatUp+0.72) }
+    };
+  }
+  function clampBikeScale(s){ return Math.max(BIKE_SCALE.min, Math.min(BIKE_SCALE.max, s)); }
+  function bikeScaleFromViewportHeight(H){ return clampBikeScale(H/BIKE_SCALE.refHeight); }
+  function bikeScaleForWidth(width, spec){ return clampBikeScale(width/bikeGeometryMeta(spec).nativeWidth); }
   function ikKnee(hx,hy,fx,fy,Lt,Ls){ var dx=fx-hx,dy=fy-hy,d=Math.hypot(dx,dy);
     var dc=Math.max(Math.abs(Lt-Ls)+0.01, Math.min(Lt+Ls-0.01, d)); var a=Math.atan2(dy,dx);
     var ca=(dc*dc+Lt*Lt-Ls*Ls)/(2*dc*Lt); ca=Math.max(-1,Math.min(1,ca)); var A=Math.acos(ca);
@@ -1023,7 +1067,64 @@
     var riderHip={x:seat.x+(P.hipFwd||0.10)*Rw,y:seat.y+(P.hipDrop||0.18)*Rw};
     var head={x:sh.x+P.headFwd*Rw,y:sh.y-P.headUp*Rw};
     return { P:P,Rw:Rw,ay:ay,rax:rax,fax:fax,cx:cx,bb:bb,cr:cr,seat:seat,topRear:topRear,riderHip:riderHip,hip:riderHip, sh:sh,
-      head:head, headTop:headTop, headBot:headBot, grip:grip, hand:grip }; }
+      head:head, headTop:headTop, headBot:headBot, grip:grip, hand:grip, groundY:groundY }; }
+  function computeBikeBounds(g){
+    var Rw=g.Rw, pad=Rw*0.22;
+    var minX=Math.min(g.rax,g.fax,g.head.x,g.grip.x,g.seat.x)-pad;
+    var maxX=Math.max(g.rax,g.fax,g.head.x,g.grip.x,g.seat.x)+pad;
+    var minY=Math.min(g.head.y,g.seat.y,g.headTop.y,g.grip.y)-pad;
+    var maxY=g.groundY+Rw*g.P.tire*0.6;
+    return { x:minX, y:minY, w:maxX-minX, h:maxY-minY }; }
+  function computeCollisionBox(g){
+    var Rw=g.Rw, P=g.P;
+    return {
+      x: g.rax-Rw*0.12,
+      y: g.head.y-Rw*0.45,
+      w: g.fax-g.rax+Rw*0.24,
+      h: g.groundY-(g.head.y-Rw*0.45)-Rw*0.08,
+      hitX: g.cx,
+      hitY: g.riderHip.y-Rw*0.15
+    }; }
+  function layoutBike(spec, scale, anchorX, groundY){
+    scale=clampBikeScale(scale);
+    var geom=bikeGeom(spec, anchorX, groundY, scale);
+    return {
+      spec: spec, scale: scale, anchorX: anchorX, groundY: groundY, cx: anchorX,
+      geom: geom, bounds: computeBikeBounds(geom), collision: computeCollisionBox(geom),
+      meta: bikeGeometryMeta(spec)
+    }; }
+  function fitBikeLayout(spec, boxW, boxH, opts){
+    opts=opts||{};
+    var meta=bikeGeometryMeta(spec), padT=opts.paddingTop!=null?opts.paddingTop:10, padB=opts.paddingBottom!=null?opts.paddingBottom:6;
+    var maxS=opts.maxScale!=null?opts.maxScale:BIKE_SCALE.max;
+    var scale=clampBikeScale(Math.min(maxS,(boxH-padT-padB)/meta.nativeHeight,boxW/meta.nativeWidth));
+    return layoutBike(spec, scale, boxW/2, boxH-padB);
+  }
+  function drawBikeDebug(c, layout){
+    var g=layout.geom, b=layout.bounds, col=layout.collision;
+    c.save();
+    c.strokeStyle="rgba(255,0,120,.85)"; c.lineWidth=1; c.strokeRect(b.x,b.y,b.w,b.h);
+    c.fillStyle="rgba(0,210,255,.95)"; [{x:g.rax,y:g.ay},{x:g.fax,y:g.ay}].forEach(function(p){ c.beginPath(); c.arc(p.x,p.y,3,0,Math.PI*2); c.fill(); });
+    c.strokeStyle="rgba(255,220,0,.95)"; c.lineWidth=2; c.beginPath(); c.moveTo(g.rax,layout.groundY); c.lineTo(g.fax,layout.groundY); c.stroke();
+    c.strokeStyle="rgba(120,255,120,.75)"; c.strokeRect(col.x,col.y,col.w,col.h);
+    c.fillStyle="rgba(255,255,255,.95)"; c.beginPath(); c.arc(layout.anchorX,layout.groundY,4,0,Math.PI*2); c.fill();
+    c.fillStyle="rgba(255,160,0,.95)"; c.beginPath(); c.arc(layout.cx,layout.groundY-g.Rw,3,0,Math.PI*2); c.fill();
+    c.restore(); }
+  function drawBikeAssembly(c, layout, opts){
+    opts=opts||{};
+    c.save();
+    if(opts.alpha!=null) c.globalAlpha=opts.alpha;
+    if(opts.skid){ c.translate(layout.cx,layout.groundY); c.rotate(-0.13); c.translate(-layout.cx,-layout.groundY); }
+    if(opts.showRider!==false) drawCyclist(c, layout.cx, layout.groundY, layout.scale, opts.phase||0, opts.wheelRot||0, layout.spec);
+    else drawBikeParts(c, layout.geom, layout.spec, opts.phase||0.7, opts.wheelRot||0);
+    if(BIKE_DEBUG) drawBikeDebug(c, layout);
+    c.restore();
+    if(opts.skid){ var Rw=layout.geom.Rw;
+      c.strokeStyle="rgba(40,42,48,0.8)"; c.lineWidth=3; c.beginPath(); c.moveTo(layout.cx-Rw*2.6,layout.groundY+0.5); c.lineTo(layout.cx-Rw*0.6,layout.groundY+0.5); c.stroke();
+      for(var sI=0;sI<5;sI++){ var spx=layout.cx-Rw*1.6-Math.random()*24, spy=layout.groundY-Math.random()*6;
+        c.strokeStyle="rgba(255,"+(210+Math.random()*40)+","+(150+Math.random()*50)+",0.9)"; c.lineWidth=1.4;
+        c.beginPath(); c.moveTo(spx,spy); c.lineTo(spx-4-Math.random()*6,spy+2+Math.random()*4); c.stroke(); } }
+  }
   function feetOf(g,phase){ return { nf:{x:g.bb.x+g.cr*Math.cos(phase),y:g.bb.y+g.cr*Math.sin(phase)},
     ff:{x:g.bb.x+g.cr*Math.cos(phase+Math.PI),y:g.bb.y+g.cr*Math.sin(phase+Math.PI)} }; }
   function drawBars(c,g,spec,tube){ var Rw=g.Rw, h=g.headTop, gp=g.grip;
@@ -1096,7 +1197,7 @@
     c.fillStyle=hg; c.beginPath(); c.arc(g.head.x,g.head.y,Rw*0.4,0,Math.PI*2); c.fill();
     c.fillStyle="rgba(18,20,24,.7)"; c.fillRect(g.head.x-Rw*0.05,g.head.y-Rw*0.12,Rw*0.4,Rw*0.16);
     legTo(nk,ft.nf,true); }
-  function drawBikeStatic(c,x,groundY,scale,spec){ var g=bikeGeom(spec,x,groundY,scale); drawBikeParts(c,g,spec,0.7,0); }
+  function drawBikeStatic(c,x,groundY,scale,spec){ drawBikeAssembly(c, layoutBike(spec, scale, x, groundY), { showRider:false, phase:0.7, wheelRot:0 }); }
 
   /* ---------- arrival (sidescroll roll-in from the left) ---------- */
   function startArrival(onDone){
@@ -1111,7 +1212,7 @@
     function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onTap); }
     var raf=0,last=performance.now();
     function frame(now){ var dt=Math.min(40,now-last); last=now;
-      var groundY=H*0.82, doorX=W*0.72, scale=Math.max(0.78,Math.min(1.5,H/540));
+      var groundY=H*0.82, doorX=W*0.72, scale=bikeScaleFromViewportHeight(H);
       S.speed += (0.34 - S.speed)*0.05; S.x += S.speed*dt*(S.ph==="in"?1.15:1);
       S.phase += S.speed*dt*0.028; S.wheelRot += S.speed*dt*0.05;
       var dist=doorX-S.x; S.doorProg=Math.max(0,Math.min(1,(270-dist)/230));
@@ -1134,7 +1235,7 @@
       var road=c.createLinearGradient(0,groundY,0,H); road.addColorStop(0,"#0c0c0f"); road.addColorStop(1,"#060608"); c.fillStyle=road; c.fillRect(0,groundY,W,H-groundY);
       c.strokeStyle="#20222a"; c.lineWidth=2; c.beginPath(); c.moveTo(0,groundY); c.lineTo(W,groundY); c.stroke();
       c.strokeStyle="rgba(120,124,132,.22)"; c.setLineDash([26,22]); c.lineWidth=3; c.beginPath(); c.moveTo(0,groundY+(H-groundY)*0.55); c.lineTo(W,groundY+(H-groundY)*0.55); c.stroke(); c.setLineDash([]);
-      drawCyclist(c,S.x,groundY,scale,S.phase,S.wheelRot);
+      drawBikeAssembly(c, layoutBike(getBikeSpec(), scale, S.x, groundY), { phase:S.phase, wheelRot:S.wheelRot, showRider:true });
       c.restore();
       var v=c.createRadialGradient(W/2,H/2,H*0.34,W/2,H/2,H*0.9); v.addColorStop(0,"transparent"); v.addColorStop(1,"rgba(0,0,0,.5)"); c.fillStyle=v; c.fillRect(0,0,W,H);
       c.fillStyle="#6f6f78"; c.font='11px "Space Mono",monospace'; c.textAlign="center"; c.textBaseline="alphabetic"; c.fillText("ROLLING IN\u2026  (tap to skip)",W/2,H-18);
@@ -1333,8 +1434,11 @@
       c.strokeStyle="#2a2a32"; c.lineWidth=3; c.beginPath(); c.moveTo(x+10,y+18); c.lineTo(x+w-10,y+18); c.stroke();
       var sel=getBikeSpec().id;
       BIKE_ORDER.forEach(function(id,i){ var spec=BIKES[id], bx=x+34+i*64, by=y+88;
-        c.save(); c.globalAlpha=(id===sel)?1:0.5; drawBikeStatic(c,bx,by,0.40,spec); c.restore();
-        if(id===sel){ c.strokeStyle=spec.accent; c.lineWidth=1.5; c.strokeRect(bx-28,by-38,56,48); } });
+        var layout=fitBikeLayout(spec, 54, 46, { paddingTop:6, paddingBottom:2, maxScale:0.46 });
+        c.save(); c.translate(bx-layout.anchorX, by-layout.groundY); c.globalAlpha=(id===sel)?1:0.5;
+        drawBikeAssembly(c, layout, { phase:0.7, wheelRot:0, showRider:true }); c.restore();
+        if(id===sel){ var b=layout.bounds; c.strokeStyle=spec.accent; c.lineWidth=1.5;
+          c.strokeRect(bx-layout.anchorX+b.x, by-layout.groundY+b.y, b.w, b.h); } });
       c.fillStyle="rgba(120,124,132,.6)"; c.font='9px "Space Mono",monospace'; c.textAlign="center"; c.fillText("BIKE WALL \u2014 tap to ride",s.x,y+h-6); }
 
     function drawChar(c,now){ var x=S.char.x,y=S.char.y; shadow(c,x,y+4,16);
@@ -1387,23 +1491,31 @@
     else if(id==="car") whSoon("The car","Parked on the main floor. Something\u2019s coming here. Stay tuned.");
     else if(id==="bikewall") openBikePicker();
   }
-  function openBikePicker(){ getCtx(); openPanel("Bike wall \u2014 pick your ride",
-    '<div class="bikeStage"><button class="bikeArrow" id="bikeL" aria-label="Previous">\u2039</button>'+
-    '<canvas class="bikeCanvas" id="bikeCanvas"></canvas>'+
-    '<button class="bikeArrow r" id="bikeR" aria-label="Next">\u203a</button></div>'+
-    '<div class="bikeNm" id="bikeName"></div>'+
-    '<div class="bikeDots" id="bikeDots"></div>'+
-    '<div class="row" style="gap:10px;margin-top:14px"><button class="btn solid" id="bikeRide">Go for a ride \u2192</button></div>',
-    function(){ initBikePicker(); }); }
+  function openBikePickerBody(){
+    getCtx();
+    openPanel("Bike wall \u2014 pick your ride",
+      '<div class="bikeStage"><button class="bikeArrow" id="bikeL" aria-label="Previous">\u2039</button>'+
+      '<canvas class="bikeCanvas" id="bikeCanvas"></canvas>'+
+      '<button class="bikeArrow r" id="bikeR" aria-label="Next">\u203a</button></div>'+
+      '<div class="bikeNm" id="bikeName"></div>'+
+      '<div class="bikeDots" id="bikeDots"></div>'+
+      '<div class="row" style="gap:10px;margin-top:14px"><button class="btn solid" id="bikeRide">Go for a ride \u2192</button></div>',
+      function(){ initBikePicker(); }, { noAnim:true });
+  }
+  function openBikePicker(){
+    kcTransition("warehouse:bikePicker", function(next){
+      openBikePickerBody();
+      next();
+    });
+  }
   function initBikePicker(){ var cv=$("bikeCanvas"), stage=cv&&cv.parentNode, name=$("bikeName"), dots=$("bikeDots"); if(!cv)return;
     var i=Math.max(0,BIKE_ORDER.indexOf(getBikeSpec().id)), DPR=Math.min(2,window.devicePixelRatio||1);
     dots.innerHTML=""; BIKE_ORDER.forEach(function(){ dots.appendChild(document.createElement("span")).className="bikeDot"; });
     function draw(){ var avail=(stage&&stage.clientWidth)||320; var cw=Math.max(200,Math.min(320,avail-96)), ch=Math.round(cw*0.6);
       cv.width=Math.round(cw*DPR); cv.height=Math.round(ch*DPR); cv.style.width=cw+"px"; cv.style.height=ch+"px";
       var cx=cv.getContext("2d"); cx.setTransform(DPR,0,0,DPR,0,0); cx.clearRect(0,0,cw,ch);
-      var spec=BIKES[BIKE_ORDER[i]], scale=cw/300*1.5, Rw=(PRESET[spec.preset]?PRESET[spec.preset].Rw:26)*scale;
-      var groundY=Math.round(ch/2 + 1.42*Rw);
-      drawBikeStatic(cx, cw/2, groundY, scale, spec);
+      var spec=BIKES[BIKE_ORDER[i]], layout=fitBikeLayout(spec, cw, ch);
+      drawBikeAssembly(cx, layout, { phase:0.7, wheelRot:0, showRider:true });
       if(name) name.textContent=spec.name;
       Array.prototype.forEach.call(dots.children,function(d,k){ d.className="bikeDot"+(k===i?" on":""); });
       setBike(BIKE_ORDER[i]); }
@@ -1477,17 +1589,40 @@
     '</div>');
     $("acNight").onclick=function(){ goRideFromArcade("collect"); };
     $("acEndless").onclick=function(){ goRideFromArcade("endless"); }; }
-  function goRideFromArcade(mode){ getCtx(); closePanel(); if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } show("ride"); $("hud").classList.add("on");
-    $("ridehint").style.display=""; var spec=getBikeSpec();
-    if(mode==="collect"){ $("ridehint").textContent="TAP / SPACE TO HOP \u00b7 GRAB ALL 3 TAGS";
-      stopRide=startRide({mode:"collect", spec:spec, onArrive:function(){ goWarehouse({skipIntro:true,spawn:"arcade"}); }, onCollect:collect }); }
-    else { $("ridehint").textContent="TAP TOP = JUMP  \u00b7  TAP BOTTOM = DUCK";
-      stopRide=startRide({mode:"endless", spec:spec, onDeath:function(score){ if(stopRide){ stopRide=null; } openGameOver(score); } }); } }
-  $("keepRiding").onclick=function(){ goRideFromArcade("endless"); };
-  $("startBtn").onclick=function(){ goArrival(); };
-  $("skipBtn").onclick=function(){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(window.top&&window.top!==window){ window.top.location.href="/site"; } else { show("exit"); } };
-  $("headOut").onclick=function(){ if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } show("exit"); };
-  $("again").onclick=function(){ ST.values=[]; ST.beatMade=false; ST.gemFound=false; ST.merchFound=false; ST.mixes.forEach(function(m){m.unlocked=false;}); ST.digIdx=0; syncHud(); goArrival(); };
+  function goRideFromArcade(mode){
+    kcTransition("bikePicker:ride", function(next){
+      getCtx();
+      closePanel();
+      if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; }
+      show("ride");
+      $("hud").classList.add("on");
+      $("ridehint").style.display="";
+      var spec=getBikeSpec();
+      if(mode==="collect"){
+        $("ridehint").textContent="TAP / SPACE TO HOP \u00b7 GRAB ALL 3 TAGS";
+        stopRide=startRide({mode:"collect", spec:spec, onArrive:function(){ goWarehouse({skipIntro:true,spawn:"arcade"}); }, onCollect:collect });
+      } else {
+        $("ridehint").textContent="TAP TOP = JUMP  \u00b7  TAP BOTTOM = DUCK";
+        stopRide=startRide({mode:"endless", spec:spec, onDeath:function(score){ if(stopRide){ stopRide=null; } openGameOver(score); } });
+      }
+      next();
+    });
+  }
+  function stopExperienceLoops(){
+    if(stopRide){ stopRide(); stopRide=null; }
+    if(stopLobby){ stopLobby(); stopLobby=null; }
+    if(stopArrival){ stopArrival(); stopArrival=null; }
+    if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; }
+  }
+  function leaveToSite(href){
+    href=href||"/site";
+    KCTransitions.navigateExternal(href, KC_TRANSITION_ROUTES["experience:site"](), stopExperienceLoops);
+  }
+  $("keepRiding").onclick=kcGuard(function(){ goRideFromArcade("endless"); });
+  $("startBtn").onclick=kcGuard(function(){ goArrival(); });
+  $("skipBtn").onclick=kcGuard(function(){ leaveToSite("/site"); });
+  $("headOut").onclick=kcGuard(function(){ if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } show("exit"); });
+  $("again").onclick=kcGuard(function(){ ST.values=[]; ST.beatMade=false; ST.gemFound=false; ST.merchFound=false; ST.mixes.forEach(function(m){m.unlocked=false;}); ST.digIdx=0; syncHud(); goArrival(); });
   $("spot-beat").onclick=function(){ getCtx(); openBeat(); };
   $("spot-dig").onclick=function(){ getCtx(); openDig(); };
   $("spot-mixes").onclick=function(){ getCtx(); openMixes(); };
