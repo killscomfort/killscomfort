@@ -804,9 +804,10 @@
       var sa=rot*.6; c.strokeStyle="rgba(255,255,255,"+(.4+glow*.5)+")"; c.lineWidth=r*.18; c.beginPath(); c.arc(cx,cy,r*.66,sa,sa+.7); c.stroke();
     }
     function bike(x,gy,now,glow,scale,alpha,skid){ var c=ctx2; c.save(); c.globalAlpha=alpha;
-      var s=scale*0.82; c.save(); c.translate(x,gy); if(skid) c.rotate(-0.13);
-      drawCyclist(c, 0, 0, s, now*0.006, now*0.02, rideSpec); c.restore();
-      if(skid){ var Rw=26*s; c.strokeStyle="rgba(40,42,48,0.8)"; c.lineWidth=3; c.beginPath(); c.moveTo(x-Rw*2.6,gy+0.5); c.lineTo(x-Rw*0.6,gy+0.5); c.stroke();
+      var s=scale*0.82; if(skid){ c.save(); c.translate(x,gy); c.rotate(-0.13); c.translate(-x,-gy); }
+      drawCyclist(c,x,gy,s,now*0.006,now*0.02,rideSpec);
+      if(skid){ c.restore(); var Rw=(PRESET[rideSpec.preset]||PRESET.road).Rw*s;
+        c.strokeStyle="rgba(40,42,48,0.8)"; c.lineWidth=3; c.beginPath(); c.moveTo(x-Rw*2.6,gy+0.5); c.lineTo(x-Rw*0.6,gy+0.5); c.stroke();
         for(var sI=0;sI<5;sI++){ var spx=x-Rw*1.6-Math.random()*24, spy=gy-Math.random()*6; c.strokeStyle="rgba(255,"+(210+Math.random()*40)+","+(150+Math.random()*50)+",0.9)"; c.lineWidth=1.4; c.beginPath(); c.moveTo(spx,spy); c.lineTo(spx-4-Math.random()*6,spy+2+Math.random()*4); c.stroke(); } }
       c.restore(); }
     function pops(){ var c=ctx2; S.pops.forEach(function(p){ c.save(); c.globalAlpha=Math.max(0,p.life); c.fillStyle="#e9e9ec";
@@ -979,16 +980,19 @@
     return function(){ cancelAnimationFrame(raf); cleanup(); };
   }
 
-  /* ---------- spec-driven bikes (modeled from Gregory's real bikes) ---------- */
+  /* ---------- spec-driven bikes (Gregory's real bikes from reference photos) ---------- */
   var PRESET={
-    road:{Rw:26, wb:1.45, bbDrop:0.80, cr:0.52, seatBack:0.52, seatUp:2.02, shFwd:0.55, shUp:2.42, barUp:1.36, barFwd:0.10, tire:0.15},
-    bmx :{Rw:21, wb:1.28, bbDrop:0.55, cr:0.50, seatBack:0.30, seatUp:1.55, shFwd:0.35, shUp:1.95, barUp:1.50, barFwd:0.04, tire:0.22},
-    mtn :{Rw:27, wb:1.52, bbDrop:0.78, cr:0.52, seatBack:0.50, seatUp:2.02, shFwd:0.50, shUp:2.40, barUp:1.42, barFwd:0.08, tire:0.24}
+    /* Windsor Clockwork — horizontal top tube, drop bars, deep silver rims */
+    road:{Rw:26, wb:1.40, bbDrop:0.70, bbBack:0.03, cr:0.48, seatBack:0.30, seatUp:2.12, shFwd:0.46, shUp:2.38, headUp:0.88, headFwd:0.08, barUp:1.32, forkReach:0.11, forkDrop:0.46, tire:0.11, topFlat:true, topDrop:-0.02, hipFwd:0.08, hipDrop:0.14},
+    /* Red fixie — level top tube, short flat bars, curved fork, black deep rims */
+    fixie:{Rw:25, wb:1.36, bbDrop:0.66, bbBack:0.02, cr:0.46, seatBack:0.28, seatUp:2.08, shFwd:0.42, shUp:2.28, headUp:0.90, headFwd:0.07, barUp:1.20, forkReach:0.13, forkDrop:0.44, tire:0.12, topFlat:true, topDrop:-0.01, hipFwd:0.07, hipDrop:0.16},
+    /* Orbea hardtail — sloping top tube, 29er, suspension fork, flat wide bars */
+    mtn :{Rw:28, wb:1.54, bbDrop:0.62, bbBack:0.06, cr:0.54, seatBack:0.38, seatUp:1.72, shFwd:0.50, shUp:2.02, headUp:1.02, headFwd:0.10, barUp:1.08, forkReach:0.09, forkDrop:0.58, tire:0.24, topSlope:0.30, hipFwd:0.10, hipDrop:0.20}
   };
   var BIKES={
-    hero:{id:"hero",name:"Hero (black)", preset:"road",bars:"riser",wheel:"deepdish",knobby:false,fork:"rigid",frame:"#15151a",rim:"#c7cace",tire:"#0c0c0e",accent:"#c7cace"},
-    red :{id:"red", name:"Red BMX",      preset:"bmx", bars:"bmx",  wheel:"slick",   knobby:false,fork:"rigid",frame:"#c0342b",rim:"#17171b",tire:"#0c0c0e",accent:"#e5534b"},
-    mtn :{id:"mtn", name:"Mountain",     preset:"mtn", bars:"flat", wheel:"slick",   knobby:true, fork:"susp", frame:"#16171b",rim:"#9a9aa3",tire:"#0c0c0e",accent:"#8ed64a"}
+    hero:{id:"hero",name:"Windsor Clockwork", preset:"road", bars:"drop", wheel:"deepdish", knobby:false, fork:"rigid", frame:"#121216", rim:"#d8dce0", tire:"#0a0a0c", accent:"#e9e9ec"},
+    red :{id:"red", name:"Red fixie",       preset:"fixie",bars:"flat",  wheel:"deepdish", knobby:false, fork:"curved",frame:"#c14a38",rim:"#1a1a1e", tire:"#0a0a0c", accent:"#e5534b"},
+    mtn :{id:"mtn", name:"Orbea",           preset:"mtn",  bars:"flat",  wheel:"slick",   knobby:true,  fork:"susp",  frame:"#101012",rim:"#8a8e94", tire:"#0c0c0e", accent:"#8ed64a"}
   };
   var BIKE_ORDER=["hero","red","mtn"];
   function getBikeSpec(){ var id=null; try{ id=localStorage.getItem("kc_bike"); }catch(e){} return BIKES[id]||BIKES.hero; }
@@ -999,24 +1003,34 @@
     var k1={x:hx+Lt*Math.cos(a+A),y:hy+Lt*Math.sin(a+A)}, k2={x:hx+Lt*Math.cos(a-A),y:hy+Lt*Math.sin(a-A)};
     return (k1.x>k2.x)?k1:k2; }
   function bikeGeom(spec,cx,groundY,scale){ var P=PRESET[spec.preset]||PRESET.road, Rw=P.Rw*scale, ay=groundY-Rw;
-    var rax=cx-P.wb*Rw, fax=cx+P.wb*Rw, bb={x:cx-0.05*Rw,y:groundY-P.bbDrop*Rw}, cr=P.cr*Rw;
-    var hip={x:bb.x-P.seatBack*Rw,y:bb.y-P.seatUp*Rw};
-    var headBot={x:fax-0.16*Rw,y:ay-0.55*Rw}, headTop={x:fax-0.32*Rw,y:ay-P.barUp*Rw};
+    var rax=cx-P.wb*Rw, fax=cx+P.wb*Rw;
+    var bb={x:cx-P.bbBack*Rw,y:groundY-P.bbDrop*Rw}, cr=P.cr*Rw;
+    var seat={x:bb.x-P.seatBack*Rw,y:bb.y-P.seatUp*Rw};
+    var headBot={x:fax-P.forkReach*Rw,y:ay-P.forkDrop*Rw};
+    var headTop;
+    if(P.topFlat) headTop={x:headBot.x-0.10*Rw,y:seat.y+(P.topDrop||0)*Rw};
+    else if(P.topSlope) headTop={x:headBot.x-0.08*Rw,y:seat.y+P.topSlope*Rw};
+    else headTop={x:headBot.x-0.10*Rw,y:ay-P.barUp*Rw};
     var grip;
-    if(spec.bars==="bmx") grip={x:headTop.x-0.02*Rw,y:headTop.y-0.85*Rw};
-    else if(spec.bars==="drop") grip={x:headTop.x+0.42*Rw,y:headTop.y+0.30*Rw};
-    else if(spec.bars==="flat") grip={x:headTop.x-0.42*Rw,y:headTop.y-0.06*Rw};
-    else grip={x:headTop.x-0.34*Rw,y:headTop.y-0.30*Rw};
-    var sh={x:bb.x+P.shFwd*Rw,y:bb.y-P.shUp*Rw};
-    return { P:P,Rw:Rw,ay:ay,rax:rax,fax:fax,cx:cx,bb:bb,cr:cr, hip:hip, sh:sh,
-      head:{x:sh.x+0.42*Rw,y:sh.y-0.52*Rw}, headTop:headTop, headBot:headBot, grip:grip, hand:grip }; }
+    if(spec.bars==="bmx") grip={x:headTop.x,y:headTop.y-0.72*Rw};
+    else if(spec.bars==="drop") grip={x:headTop.x+0.34*Rw,y:headTop.y+0.30*Rw};
+    else if(spec.bars==="flat") grip={x:headTop.x-(spec.preset==="mtn"?0.48:0.30)*Rw,y:headTop.y-0.02*Rw};
+    else grip={x:headTop.x-0.30*Rw,y:headTop.y-0.26*Rw};
+    var sh={x:seat.x+P.shFwd*Rw,y:seat.y-P.shUp*Rw};
+    var riderHip={x:seat.x+(P.hipFwd||0.10)*Rw,y:seat.y+(P.hipDrop||0.18)*Rw};
+    var head={x:sh.x+P.headFwd*Rw,y:sh.y-P.headUp*Rw};
+    return { P:P,Rw:Rw,ay:ay,rax:rax,fax:fax,cx:cx,bb:bb,cr:cr,seat:seat,riderHip:riderHip,hip:riderHip, sh:sh,
+      head:head, headTop:headTop, headBot:headBot, grip:grip, hand:grip }; }
   function feetOf(g,phase){ return { nf:{x:g.bb.x+g.cr*Math.cos(phase),y:g.bb.y+g.cr*Math.sin(phase)},
     ff:{x:g.bb.x+g.cr*Math.cos(phase+Math.PI),y:g.bb.y+g.cr*Math.sin(phase+Math.PI)} }; }
   function drawBars(c,g,spec,tube){ var Rw=g.Rw, h=g.headTop, gp=g.grip;
-    if(spec.bars==="bmx"){ var neck={x:h.x,y:h.y-Rw*0.1}; tube(h,neck); tube(neck,gp);
-      var lw=c.lineWidth; c.lineWidth=Rw*0.05; tube({x:neck.x-Rw*0.01,y:neck.y-Rw*0.34},{x:gp.x+Rw*0.01,y:gp.y+Rw*0.30}); c.lineWidth=lw; }
-    else if(spec.bars==="drop"){ tube(h,gp); c.beginPath(); c.arc(gp.x-Rw*0.06,gp.y+Rw*0.15,Rw*0.16,-1.5,1.5); c.stroke(); }
-    else if(spec.bars==="flat"){ var n={x:h.x,y:h.y-Rw*0.14}; tube(h,n); tube(n,gp); }
+    if(spec.bars==="bmx"){ var neck={x:h.x,y:h.y+Rw*0.08}; tube(h,neck); tube(neck,gp);
+      var lw=c.lineWidth; c.lineWidth=Rw*0.06; tube({x:neck.x-Rw*0.34,y:neck.y-Rw*0.02},{x:gp.x+Rw*0.34,y:gp.y}); c.lineWidth=lw; }
+    else if(spec.bars==="drop"){ tube(h,gp);
+      c.beginPath(); c.arc(gp.x-Rw*0.05,gp.y+Rw*0.14,Rw*0.18,-1.45,1.55); c.stroke();
+      c.beginPath(); c.arc(gp.x+Rw*0.22,gp.y+Rw*0.10,Rw*0.12,1.2,3.5); c.stroke(); }
+    else if(spec.bars==="flat"){ var n={x:h.x,y:h.y-Rw*0.12}; tube(h,n); tube(n,gp);
+      var lw=c.lineWidth; c.lineWidth=Rw*0.05; tube({x:gp.x-(spec.preset==="mtn"?0.50:0.32)*Rw,y:gp.y},{x:gp.x+(spec.preset==="mtn"?0.02:0.02)*Rw,y:gp.y}); c.lineWidth=lw; }
     else { var n2={x:h.x-Rw*0.03,y:h.y-Rw*0.15}; tube(h,n2); tube(n2,gp); } }
   function drawBikeParts(c,g,spec,phase,wheelRot){ var Rw=g.Rw, ft=feetOf(g,phase);
     function tube(a,b){ c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke(); }
@@ -1030,35 +1044,49 @@
         c.save(); c.translate(wx,g.ay); c.rotate(wheelRot); c.strokeStyle="rgba(200,205,210,.4)"; c.lineWidth=1; for(var s2=0;s2<8;s2++){ c.rotate(Math.PI/4); c.beginPath(); c.moveTo(0,0); c.lineTo(Rw*0.82,0); c.stroke(); } c.restore(); }
       c.fillStyle=spec.rim; c.beginPath(); c.arc(wx,g.ay,Rw*0.1,0,Math.PI*2); c.fill(); }
     wheel(g.rax); wheel(g.fax);
-    c.strokeStyle=spec.frame; c.lineCap="round"; c.lineWidth=Rw*0.15;
-    tube({x:g.rax,y:g.ay},g.bb); tube({x:g.rax,y:g.ay},g.hip); tube(g.bb,g.hip); tube(g.bb,g.headBot); tube(g.hip,g.headTop); tube(g.headTop,g.headBot);
+    c.strokeStyle=spec.frame; c.lineCap="round"; c.lineJoin="round"; c.lineWidth=Rw*0.15;
+    tube({x:g.rax,y:g.ay},g.bb);
+    tube({x:g.rax,y:g.ay},g.seat);
+    tube(g.bb,g.seat);
+    tube(g.bb,g.headBot);
+    tube(g.seat,g.headTop);
+    tube(g.headTop,g.headBot);
     c.strokeStyle="rgba(255,255,255,.14)"; c.lineWidth=Rw*0.05;
-    tube(g.bb,g.hip); tube(g.bb,g.headBot); tube(g.hip,g.headTop); tube({x:g.rax,y:g.ay},g.bb);
-    c.strokeStyle=spec.accent; c.lineWidth=Rw*0.05; tube(g.bb,g.headBot); tube(g.hip,g.headTop);
-    if(spec.fork==="susp"){ c.strokeStyle=spec.frame; c.lineWidth=Rw*0.16; tube(g.headBot,{x:g.fax,y:g.ay});
-      var fm={x:(g.headBot.x+g.fax)/2,y:(g.headBot.y+g.ay)/2}; c.strokeStyle=spec.accent; c.lineWidth=Rw*0.06; tube({x:fm.x-Rw*0.02,y:fm.y-Rw*0.16},{x:fm.x+Rw*0.02,y:fm.y+Rw*0.16}); c.strokeStyle=spec.frame; }
+    tube(g.bb,g.seat); tube(g.bb,g.headBot); tube(g.seat,g.headTop); tube({x:g.rax,y:g.ay},g.bb);
+    c.strokeStyle=spec.accent; c.lineWidth=Rw*0.05; tube(g.bb,g.headBot); tube(g.seat,g.headTop);
+    if(spec.fork==="susp"){ c.strokeStyle=spec.frame; c.lineWidth=Rw*0.18; tube(g.headBot,{x:g.fax,y:g.ay});
+      var st=g.headBot.y+(g.ay-g.headBot.y)*0.35; c.lineWidth=Rw*0.22;
+      c.beginPath(); c.moveTo(g.headBot.x,g.headBot.y); c.lineTo(g.headBot.x-Rw*0.04,st); c.lineTo(g.fax,g.ay); c.stroke();
+      c.beginPath(); c.moveTo(g.headBot.x,g.headBot.y); c.lineTo(g.headBot.x+Rw*0.04,st); c.lineTo(g.fax,g.ay); c.stroke();
+      var fm={x:(g.headBot.x+g.fax)/2,y:(g.headBot.y+g.ay)/2}; c.strokeStyle=spec.accent; c.lineWidth=Rw*0.06; tube({x:fm.x-Rw*0.02,y:fm.y-Rw*0.18},{x:fm.x+Rw*0.02,y:fm.y+Rw*0.18}); c.strokeStyle=spec.frame; }
+    else if(spec.fork==="curved"){ c.strokeStyle=spec.frame; c.lineWidth=Rw*0.11;
+      c.beginPath(); c.moveTo(g.headBot.x,g.headBot.y); c.quadraticCurveTo(g.headBot.x+Rw*0.12,g.ay-Rw*0.18,g.fax,g.ay); c.stroke();
+      c.strokeStyle="rgba(200,205,210,.45)"; c.lineWidth=Rw*0.05;
+      c.beginPath(); c.moveTo(g.headBot.x,g.headBot.y+Rw*0.04); c.quadraticCurveTo(g.headBot.x+Rw*0.10,g.ay-Rw*0.12,g.fax,g.ay+Rw*0.04); c.stroke();
+      c.strokeStyle=spec.frame; }
     else { c.strokeStyle=spec.frame; c.lineWidth=Rw*0.12; tube(g.headBot,{x:g.fax,y:g.ay}); }
     c.lineWidth=Rw*0.1; drawBars(c,g,spec,tube);
     c.strokeStyle="rgba(255,255,255,.16)"; c.lineWidth=Rw*0.04; drawBars(c,g,spec,tube);
     c.strokeStyle=spec.frame;
-    c.fillStyle="#3a3a44"; c.fillRect(g.hip.x-Rw*0.3,g.hip.y-Rw*0.12,Rw*0.6,Rw*0.16);
-    c.fillStyle="rgba(255,255,255,.18)"; c.fillRect(g.hip.x-Rw*0.3,g.hip.y-Rw*0.12,Rw*0.6,Rw*0.04);
+    c.fillStyle="#3a3a44"; c.fillRect(g.seat.x-Rw*0.22,g.seat.y-Rw*0.10,Rw*0.44,Rw*0.12);
+    c.fillStyle="rgba(255,255,255,.18)"; c.fillRect(g.seat.x-Rw*0.22,g.seat.y-Rw*0.10,Rw*0.44,Rw*0.03);
     c.strokeStyle=spec.accent; c.lineWidth=Rw*0.1; tube(g.bb,ft.nf); tube(g.bb,ft.ff);
     c.fillStyle=spec.accent; c.beginPath(); c.arc(g.bb.x,g.bb.y,Rw*0.12,0,Math.PI*2); c.fill();
     c.fillStyle="#1a1a20"; [ft.nf,ft.ff].forEach(function(f){ c.fillRect(f.x-Rw*0.2,f.y-Rw*0.04,Rw*0.4,Rw*0.12); });
     return ft; }
   function drawCyclist(c,x,groundY,scale,phase,wheelRot,spec){ spec=spec||getBikeSpec();
     var g=bikeGeom(spec,x,groundY,scale), Rw=g.Rw, ft=feetOf(g,phase);
-    var Lt=1.16*Rw, Ls=1.24*Rw;
-    var nk=ikKnee(g.hip.x,g.hip.y,ft.nf.x,ft.nf.y,Lt,Ls), fk=ikKnee(g.hip.x,g.hip.y,ft.ff.x,ft.ff.y,Lt,Ls);
+    var hip=g.riderHip||g.hip;
+    var Lt=1.10*Rw, Ls=1.18*Rw;
+    var nk=ikKnee(hip.x,hip.y,ft.nf.x,ft.nf.y,Lt,Ls), fk=ikKnee(hip.x,hip.y,ft.ff.x,ft.ff.y,Lt,Ls);
     var chrome=c.createLinearGradient(0,groundY-3*Rw,0,groundY); chrome.addColorStop(0,"#f4f5f7"); chrome.addColorStop(.5,"#c7cace"); chrome.addColorStop(1,"#74787e");
     function legTo(knee,foot,bright){ c.strokeStyle=bright?chrome:"rgba(150,155,162,.6)"; c.lineCap="round";
-      c.lineWidth=Rw*0.22; c.beginPath(); c.moveTo(g.hip.x,g.hip.y); c.lineTo(knee.x,knee.y); c.stroke();
+      c.lineWidth=Rw*0.22; c.beginPath(); c.moveTo(hip.x,hip.y); c.lineTo(knee.x,knee.y); c.stroke();
       c.lineWidth=Rw*0.18; c.beginPath(); c.moveTo(knee.x,knee.y); c.lineTo(foot.x,foot.y); c.stroke();
       c.fillStyle=bright?"#2a2a30":"#1a1a20"; c.fillRect(foot.x-Rw*0.2,foot.y-Rw*0.04,Rw*0.4,Rw*0.12); }
     legTo(fk,ft.ff,false);
     drawBikeParts(c,g,spec,phase,wheelRot);
-    c.strokeStyle=chrome; c.lineCap="round"; c.lineWidth=Rw*0.34; c.beginPath(); c.moveTo(g.hip.x,g.hip.y); c.lineTo(g.sh.x,g.sh.y); c.stroke();
+    c.strokeStyle=chrome; c.lineCap="round"; c.lineWidth=Rw*0.34; c.beginPath(); c.moveTo(hip.x,hip.y); c.lineTo(g.sh.x,g.sh.y); c.stroke();
     c.lineWidth=Rw*0.16; c.beginPath(); c.moveTo(g.sh.x,g.sh.y); c.lineTo(g.hand.x,g.hand.y); c.stroke();
     var hg=c.createRadialGradient(g.head.x-2,g.head.y-2,1,g.head.x,g.head.y,Rw*0.42); hg.addColorStop(0,"#fff"); hg.addColorStop(.5,"#cfd3d8"); hg.addColorStop(1,"#7d828a");
     c.fillStyle=hg; c.beginPath(); c.arc(g.head.x,g.head.y,Rw*0.4,0,Math.PI*2); c.fill();
@@ -1300,9 +1328,9 @@
       c.fillStyle="#0f0f13"; rr(c,x,y,w,h,8); c.fill(); c.strokeStyle="#24242b"; c.lineWidth=1; c.strokeRect(x,y,w,h);
       c.strokeStyle="#2a2a32"; c.lineWidth=3; c.beginPath(); c.moveTo(x+10,y+18); c.lineTo(x+w-10,y+18); c.stroke();
       var sel=getBikeSpec().id;
-      BIKE_ORDER.forEach(function(id,i){ var spec=BIKES[id], bx=x+34+i*64, by=y+72;
-        c.save(); c.globalAlpha=(id===sel)?1:0.5; drawBikeStatic(c,bx,by,0.42,spec); c.restore();
-        if(id===sel){ c.strokeStyle=spec.accent; c.lineWidth=1.5; c.strokeRect(bx-26,by-34,52,44); } });
+      BIKE_ORDER.forEach(function(id,i){ var spec=BIKES[id], bx=x+34+i*64, by=y+88;
+        c.save(); c.globalAlpha=(id===sel)?1:0.5; drawBikeStatic(c,bx,by,0.40,spec); c.restore();
+        if(id===sel){ c.strokeStyle=spec.accent; c.lineWidth=1.5; c.strokeRect(bx-28,by-38,56,48); } });
       c.fillStyle="rgba(120,124,132,.6)"; c.font='9px "Space Mono",monospace'; c.textAlign="center"; c.fillText("BIKE WALL \u2014 tap to ride",s.x,y+h-6); }
 
     function drawChar(c,now){ var x=S.char.x,y=S.char.y; shadow(c,x,y+4,16);
