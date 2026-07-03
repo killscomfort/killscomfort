@@ -67,6 +67,7 @@ export const BLOG_CATEGORIES = [
 ] as const;
 
 export const NAV_LINKS = [
+  { href: "/ride", label: "Play" },
   { href: "/music", label: "Music" },
   { href: "/merch", label: "Merch" },
   { href: "/services", label: "Services" },

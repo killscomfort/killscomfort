@@ -9,6 +9,8 @@ import type {
   MusicCategory,
   UserRole,
 } from "@/types/database";
+import { rideGameConfigSchema, type RideGameConfig } from "@/lib/game-config";
+import { saveRideGameConfig } from "@/lib/game-config-db";
 
 function revalidateAdmin() {
   revalidatePath("/admin");
@@ -20,6 +22,8 @@ function revalidateAdmin() {
   revalidatePath("/admin/landing-pages");
   revalidatePath("/admin/traffic");
   revalidatePath("/admin/newsletter");
+  revalidatePath("/admin/games");
+  revalidatePath("/api/game/config");
 }
 
 export async function updateInquiryStatus(formData: FormData) {
@@ -256,5 +260,45 @@ export async function createLandingPage(formData: FormData) {
     published,
   });
 
+  revalidateAdmin();
+}
+
+export async function deleteStreetRunScore(formData: FormData) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const id = String(formData.get("id"));
+
+  const { error } = await supabase.from("street_run_scores").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function deleteStreetRunScoresForEmail(formData: FormData) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const email = String(formData.get("email")).toLowerCase().trim();
+
+  const { error } = await supabase.from("street_run_scores").delete().eq("email", email);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function clearStreetRunLeaderboard() {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const { error } = await supabase.from("street_run_scores").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function updateRideGameConfig(config: RideGameConfig) {
+  await requireAdmin();
+  const parsed = rideGameConfigSchema.safeParse(config);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Invalid game config");
+  }
+
+  const supabase = await getAdminServiceClient();
+  await saveRideGameConfig(supabase, parsed.data);
   revalidateAdmin();
 }
