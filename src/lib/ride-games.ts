@@ -1,3 +1,4 @@
+/** Fullscreen warehouse game shell — no site header/footer. */
 export function isRidePath(pathname: string) {
-  return pathname === "/ride" || pathname.startsWith("/ride/");
+  return pathname === "/" || pathname === "/ride" || pathname.startsWith("/ride/");
 }

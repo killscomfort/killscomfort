@@ -1,5 +1,5 @@
-import KillsComfortExperience from "@/components/experience/KillsComfortExperience";
+import { redirect } from "next/navigation";
 
 export default function RidePage() {
-  return <KillsComfortExperience />;
+  redirect("/");
 }

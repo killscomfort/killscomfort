@@ -115,8 +115,8 @@ export function GameConfigEditor({ initial }: Props) {
       <AdminCard>
         <p className="text-sm text-bone/70">
           Edit ride copy and content. Changes apply live at{" "}
-          <a href="/ride" target="_blank" rel="noopener noreferrer" className="text-muted-gold hover:text-bone">
-            /ride
+          <a href="/" target="_blank" rel="noopener noreferrer" className="text-muted-gold hover:text-bone">
+            /
           </a>{" "}
           after save (players may need a refresh).
         </p>

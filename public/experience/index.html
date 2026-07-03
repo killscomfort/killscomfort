@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>KillsComfort — Ride</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
   html,body{margin:0;height:100%;background:#060607;}
   #kc{
@@ -200,10 +203,10 @@
       <p class="lede">That's KillsComfort: keep moving, keep digging, keep showing up. Here's where the rest of it lives.</p>
       <div class="collected" id="chips"></div>
       <div class="cta">
-        <a class="btn solid" href="/book" data-kc-link="book">Book a set</a>
-        <a class="btn" href="/music" data-kc-link="music">Listen</a>
-        <a class="btn" href="/merch" data-kc-link="merch">Shop merch</a>
-        <a class="btn ghost" href="https://instagram.com/killscomfort" data-kc-link="instagram" target="_blank" rel="noopener">Instagram</a>
+        <a class="btn solid" href="/book">Book a set</a>
+        <a class="btn" href="/music">Listen</a>
+        <a class="btn" href="/merch">Shop merch</a>
+        <a class="btn ghost" href="https://instagram.com/killscomfort" target="_blank" rel="noopener">Instagram</a>
       </div>
       <button class="btn ghost" id="again" style="margin-top:18px;align-self:flex-start;">↺ Ride again</button>
     </div>
@@ -285,41 +288,6 @@
     {by:"@LOTELEVEN",p:"Quit the job that paid more. Building the thing that pays in meaning."},
     {by:"@J.RIVERA",p:"Showed up to the picnic not knowing a soul. Left with five."} ];
   try{ var _se=localStorage.getItem("kc_email"); if(_se){ ST.email=_se; ST.emailCaptured=true; } }catch(e){}
-
-  function titleHtml(text){ return (text||"").split("|").join("<br/>"); }
-  function setText(sel, text){ var el=document.querySelector(sel); if(el&&text!=null) el.textContent=text; }
-  function setHtml(sel, html){ var el=document.querySelector(sel); if(el&&html!=null) el.innerHTML=html; }
-  function applyRemoteConfig(cfg){
-    if(!cfg) return;
-    if(cfg.enter){
-      setText("#s-enter .mark", cfg.enter.mark);
-      setHtml("#s-enter .big", titleHtml(cfg.enter.title));
-      setText("#s-enter .lede", cfg.enter.lede);
-      var sb=$("startBtn"); if(sb&&cfg.enter.cta) sb.textContent=cfg.enter.cta;
-    }
-    if(cfg.hub){
-      setText("#s-hub .eyebrow", cfg.hub.eyebrow);
-      setHtml("#s-hub .mid", titleHtml(cfg.hub.title));
-      setText("#s-hub .lede", cfg.hub.lede);
-    }
-    if(cfg.exit){
-      setText("#s-exit .eyebrow", cfg.exit.eyebrow);
-      setHtml("#s-exit .mid", titleHtml(cfg.exit.title));
-      setText("#s-exit .lede", cfg.exit.lede);
-    }
-    if(cfg.links){
-      window.__KC_LINKS__=cfg.links;
-      var lb=document.querySelector('[data-kc-link="book"]'); if(lb) lb.setAttribute("href", cfg.links.book);
-      var lm=document.querySelector('[data-kc-link="music"]'); if(lm) lm.setAttribute("href", cfg.links.music);
-      var lmer=document.querySelector('[data-kc-link="merch"]'); if(lmer) lmer.setAttribute("href", cfg.links.merch);
-      var li=document.querySelector('[data-kc-link="instagram"]'); if(li) li.setAttribute("href", cfg.links.instagram);
-    }
-    if(cfg.records) RECORDS=cfg.records;
-    if(cfg.wall) WALL=cfg.wall;
-    if(cfg.mixes) ST.mixes=cfg.mixes.map(function(m){ return { id:m.id, t:m.t, s:m.s, src:m.src, motif:m.motif, unlocked:false }; });
-    window.__KC_MERCH__ = cfg.merch || null;
-  }
-  fetch("/api/game/config").then(function(r){ return r.json(); }).then(function(d){ applyRemoteConfig(d.config); }).catch(function(){});
 
   function unlockedCount(){ var n=ST.mixes.filter(function(m){return m.unlocked;}).length; return n+(ST.merchFound?1:0); }
   function syncHud(){ $("vCount").textContent=ST.values.length; $("uCount").textContent=unlockedCount(); }
@@ -444,17 +412,12 @@
   /* merch panel */
   function openMerch(){
     ST.merchFound=true; refreshHub();
-    var m=window.__KC_MERCH__||{};
-    var merchTitle=titleHtml(m.title||"Motion Is Faith<br>Heavyweight Hoodie");
-    var merchLede=m.lede||"Blacked-out print, oversized fit. Only shows up if you went looking. Limited run.";
-    var merchCta=m.cta||"Claim it →";
-    var merchHref=(window.__KC_LINKS__&&window.__KC_LINKS__.merch)||"/merch";
     openPanel("Hidden merch",
       '<div class="merchcard"><div class="merchvis"><span>KillsComfort</span></div>'+
       '<div class="merchmeta"><div class="eyebrow">STASH DROP · FOUND IN THE WAREHOUSE</div>'+
-      '<h2 class="mid" style="font-size:30px;margin-top:8px;">'+merchTitle+'</h2>'+
-      '<p class="lede">'+escapeHtml(merchLede)+'</p>'+
-      '<div class="row" style="margin-top:14px;"><a class="btn solid" href="'+merchHref+'" data-kc-link="merch">'+escapeHtml(merchCta)+'</a>'+
+      '<h2 class="mid" style="font-size:30px;margin-top:8px;">Motion Is Faith<br>Heavyweight Hoodie</h2>'+
+      '<p class="lede">Blacked-out print, oversized fit. Only shows up if you went looking. Limited run.</p>'+
+      '<div class="row" style="margin-top:14px;"><a class="btn solid" href="/merch">Claim it →</a>'+
       '<button class="btn ghost" id="mClose2">Keep digging</button></div></div></div>',
       function(){ $("mClose2").onclick=closePanel; });
   }
@@ -487,15 +450,13 @@
     }).catch(function(){});
   }
   function saveRideScore(email, score){
-    if(!score || score < 1) return;
     fetch("/api/street-run/scores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: usernameFromEmail(email),
         email: email,
-        score: score,
-        character: "boy"
+        score: score
       })
     }).catch(function(){});
   }
@@ -514,7 +475,6 @@
     if(!isEmail(v)){ $("emErr").textContent="Enter a valid email to respawn."; return; }
     ST.email=v; ST.emailCaptured=true; try{ localStorage.setItem("kc_email",v); }catch(e){}
     postNewsletter(v);
-    saveRideScore(v, ST.lastScore);
     flash("✦ YOU'RE IN — RESPAWNING"); closePanel(); goEndless();
   }
   function openCrash(){
@@ -762,7 +722,7 @@
     stopRide=startRide({mode:"endless",onDeath:onDeath}); }
   $("startBtn").onclick=function(){ getCtx(); $("ridehint").style.display=""; $("ridehint").textContent="TAP / SPACE TO HOP · GRAB ALL 3 TAGS"; show("ride"); stopRide=startRide({mode:"collect",onArrive:goHub,onCollect:collect}); };
   $("keepRiding").onclick=goEndless;
-  $("skipBtn").onclick=function(){ if(stopRide){ stopRide(); stopRide=null; } if(window.top){ window.top.location.href="/"; } else { window.location.href="/"; } };
+  $("skipBtn").onclick=function(){ if(stopRide){ stopRide(); stopRide=null; } show("exit"); };
   $("headOut").onclick=function(){ show("exit"); };
   $("again").onclick=function(){ ST.values=[]; ST.beatMade=false; ST.gemFound=false; ST.merchFound=false; ST.mixes.forEach(function(m){m.unlocked=false;}); ST.digIdx=0; syncHud(); show("enter"); };
   $("spot-beat").onclick=function(){ getCtx(); openBeat(); };
