@@ -1,0 +1,323 @@
+"use client";
+
+import { useEffect, useMemo } from "react";
+import {
+  PayPalProvider,
+  PayPalOneTimePaymentButton,
+  PayPalGuestPaymentButton,
+  VenmoOneTimePaymentButton,
+  GooglePayOneTimePaymentButton,
+  ApplePayOneTimePaymentButton,
+  PayPalCardFieldsProvider,
+  PayPalCardNumberField,
+  PayPalCardExpiryField,
+  PayPalCardCvvField,
+  useEligibleMethods,
+  usePayPal,
+  usePayPalCardFieldsOneTimePaymentSession,
+  INSTANCE_LOADING_STATE,
+} from "@paypal/react-paypal-js/sdk-v6";
+import { Button } from "@/components/ui/Button";
+import { SITE } from "@/lib/constants";
+import {
+  formatPayPalAmount,
+  getGooglePayEnvironment,
+  getPayPalEnvironment,
+  getPublicPayPalClientId,
+  isPayPalSandbox,
+  PAYPAL_CHECKOUT_COMPONENTS,
+  PAYPAL_STANDARD_COMPONENTS,
+} from "@/lib/paypal-client";
+import { useApplePayReady } from "@/hooks/useApplePayReady";
+
+type CheckoutPaymentMethodsProps = {
+  paypalOrderId: string;
+  totalCents: number;
+  onCapture: (paypalOrderId: string) => Promise<void>;
+  onError: (message: string) => void;
+  variant?: "full" | "standard";
+  applePayEnabled?: boolean;
+  applePayDomainName?: string;
+};
+
+function formatApplePayError(message: string) {
+  if (/merchant|domain|verify|validation|not verified/i.test(message)) {
+    return (
+      "Apple Pay merchant verification failed. Register www.killscomfort.com in PayPal " +
+      "(Developer Dashboard → your app → Apple Pay → Manage → Add Domain), then try again."
+    );
+  }
+  if (/not available|Apple Pay is not/i.test(message)) {
+    return "Apple Pay requires Safari on iPhone or Mac with a card in Wallet.";
+  }
+  if (isPayPalSandbox() && /declin|fail|authoriz/i.test(message)) {
+    return (
+      "Apple Pay test failed. PayPal is in sandbox mode — use an Apple sandbox test card " +
+      "in Wallet, or switch to live PayPal for real cards."
+    );
+  }
+  return message;
+}
+
+function WalletButtons({
+  paypalOrderId,
+  totalCents,
+  onCapture,
+  onError,
+  variant = "full",
+  applePayEnabled = false,
+  applePayDomainName,
+}: CheckoutPaymentMethodsProps) {
+  const applePayReady = useApplePayReady(applePayEnabled);
+  const registeredDomain = applePayDomainName || "www.killscomfort.com";
+
+  const { eligiblePaymentMethods, isLoading } = useEligibleMethods({
+    payload: { currencyCode: "USD" },
+  });
+
+  const amount = formatPayPalAmount(totalCents);
+  const createOrder = () => Promise.resolve({ orderId: paypalOrderId });
+
+  const onApproveStandard = async (data: { orderId: string }) => {
+    try {
+      await onCapture(data.orderId);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Payment failed.");
+    }
+  };
+
+  const onApproveApplePay = async (data: {
+    approveApplePayPayment?: { id: string };
+  }) => {
+    const orderId = data.approveApplePayPayment?.id;
+    if (!orderId) {
+      onError("Apple Pay did not return an order ID.");
+      return;
+    }
+    try {
+      await onCapture(orderId);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Apple Pay failed.");
+    }
+  };
+
+  if (isLoading) {
+    return <p className="text-sm text-bone/50">Loading payment options...</p>;
+  }
+
+  const applePayConfig = eligiblePaymentMethods?.isEligible("applepay")
+    ? eligiblePaymentMethods.getDetails("applepay")?.config
+    : null;
+
+  const googlePayConfig = eligiblePaymentMethods?.isEligible("googlepay")
+    ? eligiblePaymentMethods.getDetails("googlepay")?.config
+    : null;
+
+  const wantsApplePay =
+    variant === "full" && applePayEnabled && Boolean(applePayConfig);
+
+  return (
+    <div className="space-y-3 [&_button]:min-h-12 [&_button]:w-full">
+      {wantsApplePay && applePayReady && applePayConfig && (
+        <div>
+          <ApplePayOneTimePaymentButton
+          applePayConfig={applePayConfig}
+          displayName={SITE.name}
+          domainName={registeredDomain}
+          paymentRequest={{
+            countryCode: "US",
+            currencyCode: "USD",
+            total: {
+              label: SITE.name,
+              amount,
+              type: "final",
+            },
+          }}
+          createOrder={createOrder}
+          onApprove={onApproveApplePay}
+          onError={(err) => onError(formatApplePayError(err.message))}
+          applePaySessionVersion={4}
+          buttonstyle="black"
+          type="buy"
+          locale="en"
+        />
+        </div>
+      )}
+
+      {variant === "full" && googlePayConfig && (
+        <div>
+          <GooglePayOneTimePaymentButton
+          googlePayConfig={googlePayConfig}
+          transactionInfo={{
+            countryCode: "US",
+            currencyCode: "USD",
+            totalPriceStatus: "FINAL",
+            totalPrice: amount,
+          }}
+          environment={getGooglePayEnvironment()}
+          createOrder={createOrder}
+          onApprove={async () => onApproveStandard({ orderId: paypalOrderId })}
+          onError={(err) => onError(err.message)}
+          buttonType="pay"
+          buttonColor="black"
+          buttonSizeMode="fill"
+        />
+        </div>
+      )}
+
+      {variant === "full" && ((applePayEnabled && applePayConfig) || googlePayConfig) && (
+        <p className="pt-1 text-center text-[10px] uppercase tracking-widest text-bone/30">
+          or
+        </p>
+      )}
+
+      <PayPalOneTimePaymentButton
+        orderId={paypalOrderId}
+        onApprove={onApproveStandard}
+        onError={(data) => onError(data.message || "PayPal payment failed.")}
+        type="pay"
+      />
+
+      <VenmoOneTimePaymentButton
+        orderId={paypalOrderId}
+        onApprove={onApproveStandard}
+        onError={(data) => onError(data.message || "Venmo payment failed.")}
+      />
+
+      <PayPalGuestPaymentButton
+        orderId={paypalOrderId}
+        onApprove={onApproveStandard}
+        onError={(data) => onError(data.message || "Card payment failed.")}
+      />
+    </div>
+  );
+}
+
+function CardFieldsPaymentForm({
+  paypalOrderId,
+  totalCents,
+  onCapture,
+  onError,
+}: CheckoutPaymentMethodsProps) {
+  const { submit, submitResponse, error } = usePayPalCardFieldsOneTimePaymentSession();
+
+  useEffect(() => {
+    if (!error) return;
+    onError(error.message || "Card payment failed.");
+  }, [error, onError]);
+
+  useEffect(() => {
+    if (!submitResponse) return;
+
+    if (submitResponse.state === "succeeded") {
+      void onCapture(submitResponse.data.orderId || paypalOrderId);
+    } else if (submitResponse.state === "failed") {
+      onError(submitResponse.data.message || "Card payment failed.");
+    }
+  }, [submitResponse, onCapture, onError, paypalOrderId]);
+
+  const fieldStyles = {
+    height: "3rem",
+    marginBottom: "0.75rem",
+  };
+
+  return (
+    <div className="mt-6 border-t border-clay/20 pt-6">
+      <p className="mb-4 text-xs uppercase tracking-widest text-bone/50">
+        Or pay with card
+      </p>
+      <PayPalCardNumberField placeholder="Card number" containerStyles={fieldStyles} />
+      <div className="grid grid-cols-2 gap-3">
+        <PayPalCardExpiryField placeholder="MM/YY" containerStyles={fieldStyles} />
+        <PayPalCardCvvField placeholder="CVV" containerStyles={fieldStyles} />
+      </div>
+      <Button
+        type="button"
+        className="mt-2 w-full"
+        onClick={() => submit(paypalOrderId)}
+      >
+        Pay with Card ({formatPayPalAmount(totalCents)})
+      </Button>
+    </div>
+  );
+}
+
+function CardFieldsPayment({
+  totalCents,
+  variant = "full",
+  ...props
+}: CheckoutPaymentMethodsProps) {
+  if (variant !== "full") return null;
+
+  return (
+    <PayPalCardFieldsProvider
+      amount={{
+        value: formatPayPalAmount(totalCents),
+        currencyCode: "USD",
+      }}
+    >
+      <CardFieldsPaymentForm totalCents={totalCents} variant={variant} {...props} />
+    </PayPalCardFieldsProvider>
+  );
+}
+
+function PaymentMethodsInner(props: CheckoutPaymentMethodsProps) {
+  const { loadingStatus, error } = usePayPal();
+
+  if (loadingStatus === INSTANCE_LOADING_STATE.PENDING) {
+    return <p className="text-sm text-bone/50">Loading secure checkout...</p>;
+  }
+
+  if (loadingStatus === INSTANCE_LOADING_STATE.REJECTED) {
+    return (
+      <p className="text-sm text-dried-blood">
+        {error?.message || "Could not load payment options."}
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <WalletButtons {...props} />
+      <CardFieldsPayment {...props} />
+    </>
+  );
+}
+
+export function CheckoutPaymentMethods({
+  variant = "full",
+  applePayEnabled = false,
+  applePayDomainName,
+  ...props
+}: CheckoutPaymentMethodsProps) {
+  const clientId = getPublicPayPalClientId();
+  const environment = useMemo(() => getPayPalEnvironment(), []);
+  const components =
+    variant === "standard"
+      ? [...PAYPAL_STANDARD_COMPONENTS]
+      : [...PAYPAL_CHECKOUT_COMPONENTS];
+
+  if (!clientId) {
+    return (
+      <p className="text-sm text-dried-blood">
+        Payment is not configured. Contact support to complete your order.
+      </p>
+    );
+  }
+
+  return (
+    <PayPalProvider
+      clientId={clientId}
+      environment={environment}
+      components={components}
+      pageType="checkout"
+    >
+      <PaymentMethodsInner
+        variant={variant}
+        applePayEnabled={applePayEnabled}
+        applePayDomainName={applePayDomainName}
+        {...props}
+      />
+    </PayPalProvider>
+  );
+}
