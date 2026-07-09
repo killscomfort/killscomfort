@@ -193,7 +193,7 @@ function Garment({ slug, color }: { slug: MerchSlug; color: MerchColor }) {
     if (group.current) group.current.position.y = Math.sin(clock.elapsedTime * 0.8) * 0.03;
   });
   return (
-    <group ref={group}>
+    <group ref={group} rotation={[0, slug === "booty-shorts" ? Math.PI : 0, 0]}>
       {slug === "crop-top" && <CropTop color={color} />}
       {slug === "booty-shorts" && <BootyShorts color={color} />}
       {slug === "sweatpants" && <Sweatpants color={color} />}

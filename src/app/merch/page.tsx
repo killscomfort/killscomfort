@@ -1,31 +1,18 @@
 "use client";
 
-/**
- * /merch — catalogue grid for the new drop.
- *
- * If killscomfort.com already has a merch grid (game-site storefront),
- * pull <MerchCard> into it and add the three MERCH_PRODUCTS entries —
- * everything else keeps working.
- */
-
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import dynamic from "next/dynamic";
+import MerchProductGallery from "@/components/merch/MerchProductGallery";
 import { MERCH_PRODUCTS, type MerchColor, type MerchProduct } from "@/config/merch.config";
-
-const GarmentViewer3D = dynamic(() => import("@/components/merch/GarmentViewer3D"), {
-  ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse bg-zinc-900/60" />,
-});
 
 function MerchCard({ product }: { product: MerchProduct }) {
   const [color, setColor] = useState<MerchColor>("black");
   return (
     <div className="group overflow-hidden rounded-2xl border border-zinc-800 bg-[#101014] transition hover:border-zinc-600">
       <Link href={`/merch/${product.slug}`} className="block">
-        <div className="relative h-72 bg-[radial-gradient(ellipse_at_50%_30%,#191b21_0%,#0b0b0d_75%)]">
-          <GarmentViewer3D slug={product.slug} color={color} className="h-full w-full" />
+        <div className="relative h-80 bg-[#0b0b0d]">
+          <MerchProductGallery product={product} color={color} className="h-full w-full" />
         </div>
       </Link>
       <div className="flex items-start justify-between gap-3 p-5">
@@ -33,7 +20,10 @@ function MerchCard({ product }: { product: MerchProduct }) {
           <Link href={`/merch/${product.slug}`}>
             <h3 className="font-bold uppercase tracking-wide">{product.name}</h3>
           </Link>
-          <p className="mt-1 text-sm text-zinc-500">${(product.priceCents / 100).toFixed(2)}</p>
+          <p className="mt-1 text-sm text-zinc-500">
+            ${(product.priceCents / 100).toFixed(2)} · {product.material}
+            {product.fit ? ` · ${product.fit}` : ""}
+          </p>
         </div>
         <div className="flex gap-2 pt-1">
           {product.colors.map((c) => (
@@ -76,7 +66,7 @@ function MerchPageContent() {
           Kill Comfort. Wear It.
         </h1>
         <p className="mt-3 max-w-xl text-zinc-400">
-          Three new pieces in black and white. Rotate them, pick your side, printed on demand.
+          Real cotton pieces in black and white. Logo printed on demand through Printful.
         </p>
 
         <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -102,4 +92,3 @@ export default function MerchPage() {
     </Suspense>
   );
 }
-

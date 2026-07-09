@@ -23,10 +23,18 @@ export interface MerchProduct {
   slug: MerchSlug;
   name: string;
   tagline: string;
+  material: string;
+  /** Garment fit / style for product page + Printful sourcing */
+  fit?: string;
+  /** Sourcing style name (e.g. Printful blank to pick) */
+  style?: string;
+  highlights?: string[];
   priceCents: number; // charged to customer, USD
   logoPlacement: "front" | "back";
   sizes: string[];
   colors: MerchColor[];
+  /** Printful / product photos per color — preferred over 3D */
+  gallery?: Partial<Record<MerchColor, string[]>>;
   /** Approximate Printful base cost, for your margin math only */
   estBaseCostCents: number;
 }
@@ -34,18 +42,36 @@ export interface MerchProduct {
 export const MERCH_PRODUCTS: MerchProduct[] = [
   {
     slug: "booty-shorts",
-    name: "KillsComfort Booty Shorts",
-    tagline: "Logo on back. Comfort killed where it counts.",
-    priceCents: 3800,
+    name: "Fine Shyts",
+    tagline: "Low-rise cotton boyshort. Chrome logo across the back.",
+    material: "100% cotton",
+    fit: "Low rise",
+    style: "Low-Rise Cotton Boyshort",
+    highlights: [
+      "100% cotton",
+      "Low-rise waist",
+      "Full back coverage",
+      "Everyday comfort",
+      "DTG print ready",
+    ],
+    priceCents: 4444,
     logoPlacement: "back",
-    sizes: ["XS", "S", "M", "L", "XL"],
+    sizes: ["XS", "S", "M", "L", "XL", "2XL"],
     colors: ["black", "white"],
+    gallery: {
+      black: [
+        "/merch/mockups/booty-shorts-black-back.png",
+        "/merch/mockups/booty-shorts-black-front.png",
+      ],
+      white: ["/merch/mockups/booty-shorts-black-back.png"],
+    },
     estBaseCostCents: 1900,
   },
   {
     slug: "crop-top",
     name: "KillsComfort Crop Top",
     tagline: "Chrome on chest. Built for the front row.",
+    material: "Cotton blend",
     priceCents: 3200,
     logoPlacement: "front",
     sizes: ["XS", "S", "M", "L", "XL"],
@@ -56,6 +82,7 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     slug: "sweatpants",
     name: "KillsComfort Sweatpants",
     tagline: "Logo up front. For the after-hours and the day after.",
+    material: "Cotton fleece blend",
     priceCents: 5400,
     logoPlacement: "front",
     sizes: ["S", "M", "L", "XL", "2XL"],

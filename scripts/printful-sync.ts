@@ -21,7 +21,7 @@ const BASE = "https://api.printful.com";
 const CONFIG_PATH = resolve(__dirname, "../src/config/merch.config.ts");
 
 const KEYWORDS: Record<string, string[]> = {
-  SHORTS: ["short"],
+  SHORTS: ["short", "low rise", "low-rise"],
   CROP: ["crop"],
   SWEATS: ["sweatpant", "jogger", "fleece pant"],
 };
