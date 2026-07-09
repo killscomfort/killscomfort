@@ -194,6 +194,27 @@ create table public.newsletter_subscribers (
 create unique index newsletter_subscribers_unsubscribe_token_idx
   on public.newsletter_subscribers (unsubscribe_token);
 
+-- Weekly newsletter draft approval pipeline
+create table public.newsletter_drafts (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  subject text not null,
+  preheader text,
+  content_html text not null default '',
+  source_events jsonb not null default '[]',
+  status text not null default 'collecting' check (status in (
+    'collecting', 'draft', 'in_review', 'approved', 'sent', 'archived'
+  )),
+  approved_at timestamptz,
+  sent_at timestamptz,
+  sent_count integer not null default 0 check (sent_count >= 0),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index newsletter_drafts_status_idx on public.newsletter_drafts (status);
+create index newsletter_drafts_created_at_idx on public.newsletter_drafts (created_at desc);
+
 -- RLS policies
 alter table public.profiles enable row level security;
 alter table public.inquiries enable row level security;
@@ -208,6 +229,7 @@ alter table public.site_content enable row level security;
 alter table public.page_views enable row level security;
 alter table public.excluded_ips enable row level security;
 alter table public.newsletter_subscribers enable row level security;
+alter table public.newsletter_drafts enable row level security;
 
 -- Profiles: users read/update own, admins read all
 create policy "Users can view own profile" on public.profiles
@@ -277,6 +299,8 @@ create policy "Admins full access page views" on public.page_views
 create policy "Admins full access excluded ips" on public.excluded_ips
   for all using (public.is_admin());
 create policy "Admins full access newsletter" on public.newsletter_subscribers
+  for all using (public.is_admin());
+create policy "Admins full access newsletter drafts" on public.newsletter_drafts
   for all using (public.is_admin());
 
 -- Street Run arcade leaderboard

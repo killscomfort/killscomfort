@@ -7,10 +7,19 @@ import type {
   InquiryStatus,
   LandingTemplate,
   MusicCategory,
+  NewsletterDraftStatus,
   UserRole,
 } from "@/types/database";
 import { rideGameConfigSchema, type RideGameConfig } from "@/lib/game-config";
 import { saveRideGameConfig } from "@/lib/game-config-db";
+import {
+  buildDraftHtmlFromEvents,
+  buildSourceEventFromDbEvent,
+  defaultDraftSubject,
+  defaultDraftTitle,
+  sendNewsletterDraftReadyNotification,
+  sendNewsletterDraftToSubscribers,
+} from "@/lib/newsletter-drafts";
 
 function revalidateAdmin() {
   revalidatePath("/admin");
@@ -22,6 +31,7 @@ function revalidateAdmin() {
   revalidatePath("/admin/landing-pages");
   revalidatePath("/admin/traffic");
   revalidatePath("/admin/newsletter");
+  revalidatePath("/admin/newsletter/drafts");
   revalidatePath("/admin/games");
   revalidatePath("/api/game/config");
 }
@@ -301,4 +311,207 @@ export async function updateRideGameConfig(config: RideGameConfig) {
   const supabase = await getAdminServiceClient();
   await saveRideGameConfig(supabase, parsed.data);
   revalidateAdmin();
+}
+
+
+export async function updateNewsletterDraftStatusById(
+  id: string,
+  status: NewsletterDraftStatus
+) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const updates: Record<string, unknown> = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (status === "approved") {
+    updates.approved_at = new Date().toISOString();
+  }
+
+  const { error } = await supabase
+    .from("newsletter_drafts")
+    .update(updates)
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function updateNewsletterDraft(formData: FormData) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const id = String(formData.get("id"));
+  const status = String(formData.get("status")) as NewsletterDraftStatus;
+
+  const { error } = await supabase
+    .from("newsletter_drafts")
+    .update({
+      title: String(formData.get("title")).trim(),
+      subject: String(formData.get("subject")).trim(),
+      preheader: String(formData.get("preheader") || "").trim() || null,
+      content_html: String(formData.get("content_html") || ""),
+      status,
+      updated_at: new Date().toISOString(),
+      ...(status === "approved"
+        ? { approved_at: new Date().toISOString() }
+        : {}),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function createNewsletterDraft(formData: FormData) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const title = String(formData.get("title") || defaultDraftTitle()).trim();
+  const subject = String(formData.get("subject") || defaultDraftSubject()).trim();
+
+  const { error } = await supabase.from("newsletter_drafts").insert({
+    title,
+    subject,
+    preheader: "Miami events, shows, and culture this week.",
+    content_html: emailParagraphPlaceholder(),
+    status: "draft",
+  });
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+function emailParagraphPlaceholder() {
+  return `<p style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.7;color:#ffffff;opacity:0.88;">Start writing your weekly Miami events roundup here.</p>`;
+}
+
+export async function generateNewsletterDraftFromEvents() {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const today = new Date();
+  const horizon = new Date(today);
+  horizon.setDate(horizon.getDate() + 14);
+
+  const { data: events, error: eventsError } = await supabase
+    .from("events")
+    .select("*")
+    .eq("published", true)
+    .gte("event_date", today.toISOString().slice(0, 10))
+    .lte("event_date", horizon.toISOString().slice(0, 10))
+    .order("event_date", { ascending: true });
+
+  if (eventsError) throw new Error(eventsError.message);
+
+  const sourceEvents = (events || []).map(buildSourceEventFromDbEvent);
+  const title = defaultDraftTitle();
+  const subject = defaultDraftSubject();
+  const contentHtml = buildDraftHtmlFromEvents(sourceEvents);
+
+  const { data: inserted, error } = await supabase
+    .from("newsletter_drafts")
+    .insert({
+      title,
+      subject,
+      preheader: "Miami events, shows, and culture this week.",
+      content_html: contentHtml,
+      source_events: sourceEvents,
+      status: "draft",
+    })
+    .select("id, title, subject")
+    .single();
+
+  if (error || !inserted) throw new Error(error?.message || "Failed to create draft");
+
+  await sendNewsletterDraftReadyNotification(inserted);
+  revalidateAdmin();
+  return { id: inserted.id };
+}
+
+export async function archiveNewsletterDraftById(id: string) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const { error } = await supabase
+    .from("newsletter_drafts")
+    .update({
+      status: "archived",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function restoreNewsletterDraftById(id: string) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const { error } = await supabase
+    .from("newsletter_drafts")
+    .update({
+      status: "draft",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function deleteNewsletterDraft(id: string) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+  const { error } = await supabase.from("newsletter_drafts").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidateAdmin();
+}
+
+export async function sendNewsletterDraft(id: string) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+
+  const { data: draft, error: draftError } = await supabase
+    .from("newsletter_drafts")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (draftError || !draft) {
+    throw new Error(draftError?.message || "Draft not found");
+  }
+
+  if (draft.status === "sent") {
+    throw new Error("This newsletter has already been sent.");
+  }
+
+  const { data: subscribers, error: subscribersError } = await supabase
+    .from("newsletter_subscribers")
+    .select("email, unsubscribe_token")
+    .is("unsubscribed_at", null);
+
+  if (subscribersError) throw new Error(subscribersError.message);
+
+  const { sentCount } = await sendNewsletterDraftToSubscribers(
+    {
+      subject: draft.subject,
+      preheader: draft.preheader,
+      content_html: draft.content_html,
+    },
+    subscribers || []
+  );
+
+  const now = new Date().toISOString();
+  const { error: updateError } = await supabase
+    .from("newsletter_drafts")
+    .update({
+      status: "sent",
+      sent_at: now,
+      approved_at: draft.approved_at || now,
+      sent_count: sentCount,
+      updated_at: now,
+    })
+    .eq("id", id);
+
+  if (updateError) throw new Error(updateError.message);
+  revalidateAdmin();
+  return { sentCount };
 }

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { NewsletterAdminTabs } from "@/components/admin/NewsletterAdminTabs";
 import { unsubscribeNewsletterSubscriber } from "@/lib/admin/actions";
 import { formatDate } from "@/lib/utils";
 import type { NewsletterSubscriber } from "@/types/database";
@@ -52,13 +53,23 @@ export default async function AdminNewsletterPage({
         description="Manage email subscribers from the site footer signup."
       />
 
-      <div className="mb-6 flex flex-wrap gap-4">
+      <NewsletterAdminTabs />
+
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-4">
         {filters.map((filter) => (
           <AdminCard key={filter.key} className="px-5 py-4">
             <p className="text-display text-3xl text-muted-gold">{filter.count}</p>
             <p className="mt-1 text-sm text-bone/60">{filter.label}</p>
           </AdminCard>
         ))}
+        </div>
+        <Link
+          href="/admin/newsletter/drafts"
+          className="text-sm text-muted-gold hover:text-bone"
+        >
+          Manage drafts →
+        </Link>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">

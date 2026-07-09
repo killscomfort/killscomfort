@@ -168,6 +168,38 @@ export interface NewsletterSubscriber {
   created_at: string;
 }
 
+export type NewsletterDraftStatus =
+  | "collecting"
+  | "draft"
+  | "in_review"
+  | "approved"
+  | "sent"
+  | "archived";
+
+export interface NewsletterSourceEvent {
+  title: string;
+  venue?: string | null;
+  event_date?: string | null;
+  ticket_url?: string | null;
+  source?: string | null;
+  description?: string | null;
+}
+
+export interface NewsletterDraft {
+  id: string;
+  title: string;
+  subject: string;
+  preheader: string | null;
+  content_html: string;
+  source_events: NewsletterSourceEvent[];
+  status: NewsletterDraftStatus;
+  approved_at: string | null;
+  sent_at: string | null;
+  sent_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface StreetRunScore {
   id: string;
   username: string;

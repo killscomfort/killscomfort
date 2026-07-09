@@ -24,6 +24,7 @@ export default async function AdminPage() {
     { count: postCount },
     { count: eventCount },
     { count: musicCount },
+    { count: newsletterDraftCount },
     { data: recentInquiries },
     { data: recentOrders },
   ] = await Promise.all([
@@ -48,6 +49,10 @@ export default async function AdminPage() {
     supabase.from("events").select("*", { count: "exact", head: true }),
     supabase.from("music_entries").select("*", { count: "exact", head: true }),
     supabase
+      .from("newsletter_drafts")
+      .select("*", { count: "exact", head: true })
+      .in("status", ["draft", "in_review", "approved"]),
+    supabase
       .from("inquiries")
       .select("*")
       .order("created_at", { ascending: false })
@@ -65,6 +70,7 @@ export default async function AdminPage() {
     { label: "Total Inquiries", value: inquiryCount ?? 0, href: "/admin/inquiries" },
     { label: "New Inquiries", value: newInquiryCount ?? 0, href: "/admin/inquiries?status=new" },
     { label: "Newsletter Subscribers", value: subscriberCount ?? 0, href: "/admin/newsletter" },
+    { label: "Drafts to Review", value: newsletterDraftCount ?? 0, href: "/admin/newsletter/drafts" },
     { label: "Ride Scores", value: streetRunCount ?? 0, href: "/admin/games" },
     { label: "Ride Player Emails", value: streetRunEmailCount, href: "/admin/games?view=emails" },
     { label: "Total Orders", value: orderCount ?? 0, href: "/admin/orders" },
