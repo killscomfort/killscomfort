@@ -1,4 +1,8 @@
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import {
+  createClient,
+  createServiceClient,
+  isServiceRoleConfigured,
+} from "@/lib/supabase/server";
 
 export async function requireAdmin() {
   const supabase = await createClient();
@@ -27,4 +31,13 @@ export async function requireAdmin() {
 export async function getAdminServiceClient() {
   await requireAdmin();
   return createServiceClient();
+}
+
+/** Admin DB client — prefers service role, falls back to the signed-in admin session. */
+export async function getAdminClient() {
+  const supabase = await requireAdmin();
+  if (isServiceRoleConfigured()) {
+    return createServiceClient();
+  }
+  return supabase;
 }

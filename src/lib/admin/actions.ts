@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
-import { requireAdmin, getAdminServiceClient } from "./auth";
+import { requireAdmin, getAdminClient, getAdminServiceClient } from "./auth";
 import type {
   InquiryStatus,
   LandingTemplate,
@@ -318,8 +318,7 @@ export async function updateNewsletterDraftStatusById(
   id: string,
   status: NewsletterDraftStatus
 ) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const updates: Record<string, unknown> = {
     status,
     updated_at: new Date().toISOString(),
@@ -339,8 +338,7 @@ export async function updateNewsletterDraftStatusById(
 }
 
 export async function updateNewsletterDraft(formData: FormData) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const id = String(formData.get("id"));
   const status = String(formData.get("status")) as NewsletterDraftStatus;
 
@@ -364,8 +362,7 @@ export async function updateNewsletterDraft(formData: FormData) {
 }
 
 export async function createNewsletterDraft(formData: FormData) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const title = String(formData.get("title") || defaultDraftTitle()).trim();
   const subject = String(formData.get("subject") || defaultDraftSubject()).trim();
 
@@ -386,8 +383,7 @@ function emailParagraphPlaceholder() {
 }
 
 export async function generateNewsletterDraftFromEvents() {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const today = new Date();
   const horizon = new Date(today);
   horizon.setDate(horizon.getDate() + 14);
@@ -428,8 +424,7 @@ export async function generateNewsletterDraftFromEvents() {
 }
 
 export async function archiveNewsletterDraftById(id: string) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const { error } = await supabase
     .from("newsletter_drafts")
     .update({
@@ -443,8 +438,7 @@ export async function archiveNewsletterDraftById(id: string) {
 }
 
 export async function restoreNewsletterDraftById(id: string) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const { error } = await supabase
     .from("newsletter_drafts")
     .update({
@@ -458,16 +452,14 @@ export async function restoreNewsletterDraftById(id: string) {
 }
 
 export async function deleteNewsletterDraft(id: string) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
   const { error } = await supabase.from("newsletter_drafts").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidateAdmin();
 }
 
 export async function sendNewsletterDraft(id: string) {
-  await requireAdmin();
-  const supabase = await getAdminServiceClient();
+  const supabase = await getAdminClient();
 
   const { data: draft, error: draftError } = await supabase
     .from("newsletter_drafts")

@@ -55,11 +55,19 @@ export async function createAnonClient() {
   );
 }
 
+export function isServiceRoleConfigured() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!serviceKey) return false;
+  const placeholders = ["placeholder", "your-", "xxxxxxxx"];
+  return !placeholders.some((token) => serviceKey.toLowerCase().includes(token));
+}
+
 export async function createServiceClient() {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey || serviceKey.includes("placeholder")) {
+  if (!isServiceRoleConfigured()) {
     throw new Error("Supabase service role key is not configured");
   }
+
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!.trim();
 
   const { createClient } = await import("@supabase/supabase-js");
   return createClient(
