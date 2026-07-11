@@ -63,7 +63,7 @@ function MerchPageContent() {
 
         <p className="text-[11px] tracking-[0.4em] text-zinc-500">NEW DROP</p>
         <h1 className="mt-2 text-4xl font-extrabold uppercase tracking-wide">
-          Kill Comfort. Wear It.
+          Kills Comfort. Wear It.
         </h1>
         <p className="mt-3 max-w-xl text-zinc-400">
           Real cotton pieces in black and white. Logo printed on demand through Printful.
