@@ -5,6 +5,7 @@ import { FooterWrapper } from "@/components/layout/FooterWrapper";
 import { StickyMediaPlayer } from "@/components/layout/StickyMediaPlayer";
 import { Analytics } from "@/components/layout/Analytics";
 import { Providers } from "@/components/providers/Providers";
+import FallingLogoBackground from "@/components/FallingLogoBackground";
 import { createMetadata, artistJsonLd } from "@/lib/seo";
 import { isTerminalThemeEnabled } from "@/lib/terminal-theme";
 import { cn } from "@/lib/utils";
@@ -57,10 +58,15 @@ export default function RootLayout({
       >
         <Providers>
           <Analytics />
-          <Header />
-          <main>{children}</main>
-          <FooterWrapper />
-          <StickyMediaPlayer />
+          <div style={{ position: "relative" }}>
+            <FallingLogoBackground />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <Header />
+              <main>{children}</main>
+              <FooterWrapper />
+              <StickyMediaPlayer />
+            </div>
+          </div>
         </Providers>
       </body>
     </html>
