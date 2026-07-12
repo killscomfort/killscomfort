@@ -103,7 +103,7 @@ export function GameConfigEditor({ initial }: Props) {
       try {
         await updateRideGameConfig(payload);
         setConfig(payload);
-        setMessage("Game content saved. Refresh /ride to see changes.");
+        setMessage("Game content saved. Refresh /warehouse to see changes.");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Could not save game content.");
       }
@@ -115,7 +115,7 @@ export function GameConfigEditor({ initial }: Props) {
       <AdminCard>
         <p className="text-sm text-bone/70">
           Edit ride copy and content. Changes apply live at{" "}
-          <a href="/" target="_blank" rel="noopener noreferrer" className="text-muted-gold hover:text-bone">
+          <a href="/warehouse" target="_blank" rel="noopener noreferrer" className="text-muted-gold hover:text-bone">
             /
           </a>{" "}
           after save (players may need a refresh).

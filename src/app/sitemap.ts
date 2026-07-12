@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/events",
     "/book",
     "/donate",
+    "/land",
+    "/warehouse",
     "/typeface",
     "/lp/book-event",
     "/lp/brand-partnership",

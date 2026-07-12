@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
 
 const LOGO_SRC = "/logo-chrome.png";
 const LOGO_COUNT = 16;
-const BASE_OPACITY = { min: 0.06, max: 0.2 };
+const BASE_OPACITY = { min: 0.1, max: 0.28 };
 const SIZE = { min: 110, max: 240 };
 const FALL_SPEED = { min: 0.28, max: 0.72 };
 const DRIFT_RANGE = 0.15;
@@ -51,13 +53,17 @@ function makeParticle(
 }
 
 export default function FallingLogoBackground() {
+  const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollVelRef = useRef(0);
   const lastScrollY = useRef(0);
   const animFrameRef = useRef<number | null>(null);
   const reducedMotion = useRef(false);
+  const hidden = isRidePath(pathname) || isImmersiveLandPath(pathname);
 
   useEffect(() => {
+    if (hidden) return;
+
     reducedMotion.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -161,7 +167,9 @@ export default function FallingLogoBackground() {
       window.removeEventListener("scroll", onScroll);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, []);
+  }, [hidden]);
+
+  if (hidden) return null;
 
   return (
     <canvas

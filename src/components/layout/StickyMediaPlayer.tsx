@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ExternalLink, Pause, Play, X } from "lucide-react";
 import { getLaunchTrack } from "@/lib/music";
-import { isRidePath } from "@/lib/ride-games";
+import { isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "killscomfort-sticky-player-dismissed";
@@ -50,6 +50,7 @@ export function StickyMediaPlayer() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/lp") ||
     isRidePath(pathname) ||
+    isImmersiveLandPath(pathname) ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/forgot-password") ||

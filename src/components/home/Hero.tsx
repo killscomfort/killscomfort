@@ -29,8 +29,9 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
-      <div className="terminal-hero-media absolute inset-0 overflow-hidden">
+    <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-transparent">
+      {/* Video sits under the global falling-logo canvas via translucent layers */}
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 overflow-hidden opacity-40">
         <video
           className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
           autoPlay
@@ -45,11 +46,10 @@ export function Hero() {
         </video>
       </div>
 
-      <div className="terminal-hero-media absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/5 to-near-black/85" />
-      <div className="terminal-hero-media absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-near-black/15" />
-      <div className="terminal-hero-media hero-vignette absolute inset-0 opacity-50" />
-      <div className="terminal-hero-media hero-glow-pulse absolute inset-0 bg-gradient-to-r from-muted-gold/10 via-transparent to-burnt-sienna/10 mix-blend-soft-light" />
-      <div className="terminal-hero-media grain-overlay absolute inset-0" />
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-b from-near-black/20 via-near-black/35 to-near-black/75" />
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-t from-near-black/80 via-transparent to-transparent" />
+      <div className="terminal-hero-media hero-vignette pointer-events-none absolute inset-0 opacity-30" />
+      <div className="terminal-hero-media grain-overlay pointer-events-none absolute inset-0 opacity-40" />
 
       <motion.div
         className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-28 pt-8 text-center sm:px-6 sm:pb-36 lg:px-8 lg:pb-40"
@@ -109,10 +109,10 @@ export function Hero() {
             </SparkleWrap>
           </motion.div>
           <Link
-            href="/"
+            href="/warehouse"
             className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
           >
-            Enter the ride ↓
+            Enter the warehouse ↓
           </Link>
         </motion.div>
       </motion.div>

@@ -58,7 +58,7 @@ export default async function AdminGamesPage({
     <>
       <AdminPageHeader
         title="Games"
-        description="Ride scores, player emails, and editable game content for /ride."
+        description="Ride scores, player emails, and editable game content for /warehouse."
       />
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -194,9 +194,9 @@ export default async function AdminGamesPage({
                   {scores.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-bone/50">
-                        No scores yet. Play the ride at{" "}
-                        <Link href="/" className="text-muted-gold hover:text-bone">
-                          /
+                        No scores yet. Play the warehouse at{" "}
+                        <Link href="/warehouse" className="text-muted-gold hover:text-bone">
+                          /warehouse
                         </Link>
                         .
                       </td>
@@ -243,7 +243,7 @@ export default async function AdminGamesPage({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-bone">KillsComfort Ride</p>
-                  <p className="text-sm text-bone/50">Full warehouse experience · /</p>
+                  <p className="text-sm text-bone/50">Full warehouse experience · /warehouse</p>
                 </div>
                 <div className="flex flex-wrap gap-4">
                   <Link
@@ -252,7 +252,7 @@ export default async function AdminGamesPage({
                   >
                     Edit content →
                   </Link>
-                  <Link href="/" target="_blank" className="text-sm text-muted-gold hover:text-bone">
+                  <Link href="/warehouse" target="_blank" className="text-sm text-muted-gold hover:text-bone">
                     Open game →
                   </Link>
                 </div>

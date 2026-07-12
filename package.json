@@ -15,8 +15,7 @@
     "checkout:check:prod": "node scripts/check-checkout.mjs https://www.killscomfort.com",
     "apple-pay:check": "node --env-file=.env.local scripts/setup-apple-pay.mjs",
     "apple-pay:register": "node --env-file=.env.local scripts/register-apple-pay-domain.mjs",
-    "db:generate": "supabase gen types typescript --local > src/types/database.ts",
-    "printful:sync": "npx tsx scripts/printful-sync.ts"
+    "db:generate": "supabase gen types typescript --local > src/types/database.ts"
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^10.0.0",

@@ -1,15 +1,5 @@
-import { Hero } from "@/components/home/Hero";
-import { WhoIs } from "@/components/home/WhoIs";
-import { WhatIDo } from "@/components/home/WhatIDo";
-import { BookSection } from "@/components/home/BookSection";
+import { redirect } from "next/navigation";
 
 export default function SitePage() {
-  return (
-    <>
-      <Hero />
-      <WhoIs />
-      <WhatIDo />
-      <BookSection />
-    </>
-  );
+  redirect("/");
 }
