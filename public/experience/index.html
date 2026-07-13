@@ -36,6 +36,11 @@
     <canvas id="whcv"></canvas>
   </section>
 
+  <!-- BEDROOM (upstairs) -->
+  <section class="scene bedroom" id="s-bedroom">
+    <canvas id="bedcv"></canvas>
+  </section>
+
   <!-- ENTER (fallback title; now shown inside the arcade screen) -->
   <section class="scene enter" id="s-enter">
     <div class="glow"></div>
@@ -98,6 +103,18 @@
   <!-- panels mount here -->
   <div id="panelMount"></div>
   <div id="toastMount"></div>
+
+  <div class="touchPad" id="touchPad" aria-hidden="true">
+    <div class="touchPad__cluster">
+      <button type="button" class="touchBtn touchBtn--up" id="touchUp" aria-label="Move up">▲</button>
+      <div class="touchPad__row">
+        <button type="button" class="touchBtn touchBtn--left" id="touchLeft" aria-label="Move left">◀</button>
+        <button type="button" class="touchBtn touchBtn--down" id="touchDown" aria-label="Move down">▼</button>
+        <button type="button" class="touchBtn touchBtn--right" id="touchRight" aria-label="Move right">▶</button>
+      </div>
+    </div>
+    <button type="button" class="touchBtn touchBtn--b" id="touchB" aria-label="Interact">B</button>
+  </div>
 
   <div class="skip" id="skipBtn">skip to site ›</div>
 </div>
