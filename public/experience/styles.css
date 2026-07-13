@@ -49,6 +49,7 @@ html,body{margin:0;height:100%;background:#060607;}
   #kc .lobby{background:#050506;}
   #kc .warehouse{background:#050506;}
   #kc .arrival{background:#050506;}
+  #kc .bedroom{background:#08080c;}
   #kc canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;}
   #kc .ridehint{position:absolute;left:0;right:0;bottom:26px;text-align:center;z-index:30;font-family:var(--mono);
     font-size:11px;letter-spacing:.2em;color:#cfd2d6;text-transform:uppercase;text-shadow:0 1px 2px #000;pointer-events:none;}
@@ -281,3 +282,25 @@ html,body{margin:0;height:100%;background:#060607;}
   #kc .cta .btn{justify-content:center;}
   #kc .tiny{font-family:var(--mono);font-size:10px;color:var(--grey);letter-spacing:.1em;}
   #kc .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;background:linear-gradient(180deg,var(--chrome-hi),var(--chrome-mid));color:#0a0a0b;font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:10px 16px;white-space:nowrap;}
+
+  #kc .touchPad{
+    position:absolute;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:45;
+    display:none;align-items:flex-end;gap:16px;pointer-events:auto;
+  }
+  #kc .touchPad.on{display:flex;}
+  #kc .touchPad__cluster{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  #kc .touchPad__row{display:flex;gap:6px;}
+  #kc .touchBtn{
+    appearance:none;border:1.5px solid var(--line2);background:rgba(10,10,14,.82);color:var(--bone);
+    font-family:var(--mono);font-size:14px;letter-spacing:.08em;width:52px;height:52px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;box-shadow:0 4px 18px rgba(0,0,0,.35);
+  }
+  #kc .touchBtn:active,#kc .touchBtn:focus-visible{border-color:var(--chrome-mid);background:rgba(36,36,44,.95);outline:none;}
+  #kc .touchBtn--b{
+    width:58px;height:58px;border-radius:50%;font-weight:700;font-size:16px;
+    border-color:var(--chrome-mid);background:linear-gradient(180deg,rgba(244,245,247,.18),rgba(199,202,206,.08));
+  }
+  @media (pointer:fine) and (min-width:900px){
+    #kc .touchPad{display:none !important;}
+  }

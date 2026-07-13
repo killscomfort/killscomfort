@@ -69,7 +69,7 @@
 
   /* ---------- state ---------- */
   var ST = { scene:"enter", values:[], beatMade:false, gemFound:false, merchFound:false,
-    emailCaptured:false, email:"", lastScore:0, best:0,
+    emailCaptured:false, email:"", lastScore:0, best:0, bedroomKeyFound:false,
     mixes:[ {id:"rooftop",t:"Dat Thang (Live Edit)",s:"HOUSE · 124",src:"your beat",motif:[0,4,7,12,7,4],unlocked:false},
             {id:"crate",t:"Motion Is Faith (Dub)",s:"TECHNO · 128",src:"the crate gem",motif:[0,3,7,10,7,3],unlocked:false} ],
     digIdx:0 };
@@ -106,6 +106,7 @@
     {by:"@LOTELEVEN",p:"Quit the job that paid more. Building the thing that pays in meaning."},
     {by:"@J.RIVERA",p:"Showed up to the picnic not knowing a soul. Left with five."} ];
   try{ var _se=localStorage.getItem("kc_email"); if(_se){ ST.email=_se; ST.emailCaptured=true; } }catch(e){}
+  try{ if(localStorage.getItem("kc_bed_key")==="1") ST.bedroomKeyFound=true; }catch(e){}
 
   function unlockedCount(){ var n=ST.mixes.filter(function(m){return m.unlocked;}).length; return n+(ST.merchFound?1:0); }
   function syncHud(){ $("vCount").textContent=ST.values.length; $("uCount").textContent=unlockedCount(); }
@@ -115,11 +116,50 @@
 
   function show(scene){
     ST.scene=scene;
-    ["lobby","enter","ride","hub","warehouse","arrival","exit"].forEach(function(s){ $("s-"+s).classList.toggle("on", s===scene); });
+    ["lobby","enter","ride","hub","warehouse","arrival","exit","bedroom"].forEach(function(s){ $("s-"+s).classList.toggle("on", s===scene); });
     $("hud").classList.toggle("on", scene==="hub"||scene==="ride");
     $("skipBtn").style.display = (scene==="exit") ? "none" : "block";
+    var pad=$("touchPad");
+    if(pad) pad.classList.toggle("on", scene==="warehouse"||scene==="bedroom");
     if(scene==="hub") refreshHub();
     if(scene==="exit") renderChips();
+  }
+
+  /* ---------- mobile touch pad (D-pad + B) ---------- */
+  function mountTouchPad(cfg){
+    cfg=cfg||{};
+    var pad=$("touchPad");
+    if(!pad) return { cleanup:function(){} };
+    var keys=cfg.keys||{};
+    var active=cfg.isActive||function(){ return true; };
+    var paused=cfg.paused||function(){ return false; };
+    var onInteract=cfg.onInteract||function(){};
+    var onMove=cfg.onMove||function(){};
+    var handlers=[];
+
+    function setKeys(codes, down){
+      for(var i=0;i<codes.length;i++) keys[codes[i]]=down;
+    }
+    function bindHold(id, codes){
+      var btn=$(id);
+      if(!btn) return;
+      var down=function(e){ e.preventDefault(); if(!active()||paused()) return; setKeys(codes,true); onMove(); };
+      var up=function(e){ e.preventDefault(); setKeys(codes,false); };
+      btn.addEventListener("pointerdown",down); btn.addEventListener("pointerup",up);
+      btn.addEventListener("pointerleave",up); btn.addEventListener("pointercancel",up);
+      handlers.push(function(){ btn.removeEventListener("pointerdown",down); btn.removeEventListener("pointerup",up); btn.removeEventListener("pointerleave",up); btn.removeEventListener("pointercancel",up); });
+    }
+    bindHold("touchUp",["ArrowUp","KeyW"]);
+    bindHold("touchDown",["ArrowDown","KeyS"]);
+    bindHold("touchLeft",["ArrowLeft","KeyA"]);
+    bindHold("touchRight",["ArrowRight","KeyD"]);
+    var bBtn=$("touchB");
+    if(bBtn){
+      var onB=function(e){ e.preventDefault(); if(!active()||paused()) return; onInteract(); };
+      bBtn.addEventListener("pointerdown",onB);
+      handlers.push(function(){ bBtn.removeEventListener("pointerdown",onB); });
+    }
+    return { cleanup:function(){ handlers.forEach(function(fn){ fn(); }); setKeys(["ArrowUp","KeyW","ArrowDown","KeyS","ArrowLeft","KeyA","ArrowRight","KeyD"],false); } };
   }
 
   /* ---------- hub ---------- */
@@ -138,7 +178,7 @@
     pm.innerHTML='<div class="panel"><div class="panelTop"><div class="t">'+title+'</div><button class="x" id="pClose">Close ✕</button></div><div class="panelBody" id="pBody"></div></div>';
     $("pBody").innerHTML=bodyHtml; $("pClose").onclick=closePanel; if(after) after();
   }
-  function closePanel(){ $("panelMount").innerHTML=""; }
+  function closePanel(){ $("panelMount").innerHTML=""; stopBedDrone(); }
 
   /* merch shop + cart (checkout links to real store; wire Stripe in production) */
   /* ===== MERCH / STORE ===== drop real photo URLs into `img` to replace the mockups */
@@ -867,7 +907,7 @@
       else if(Math.abs(tx-p.poster.x)<52 && ty<S.floorY*0.62){ S.target=p.poster.approach; S.pending="poster"; }
       else { S.target=Math.max(40,Math.min(W-40,tx)); S.pending=null; } }
     canvas.addEventListener("pointerdown",onPointer); window.addEventListener("keydown",onKey); window.addEventListener("keyup",onKeyUp);
-    function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onPointer); window.removeEventListener("keydown",onKey); window.removeEventListener("keyup",onKeyUp); }
+    function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onPointer); window.removeEventListener("keydown",onKey); window.removeEventListener("keyup",onKeyUp); touchCtl.cleanup(); }
 
     var raf=0,last=performance.now();
     function frame(now){ var dt=Math.min(40,now-last); last=now;
@@ -1143,7 +1183,7 @@
       cam:{x:0,y:0}, target:null, pending:null, near:null, parked:false, doorProg:1, fadeIn:0,
       walkFrom:{x:DOOR.x-24,y:DOOR.y}, intro:{phase:"done", t:0}, toast:{text:"",until:0} };
     if(opts.walkIn){ S.intro.phase="walk"; S.char.x=DOOR.x-24; S.char.y=DOOR.y; S.char.face=1; S.walkFrom={x:DOOR.x-24,y:DOOR.y}; S.fadeIn=1; }
-    else if(opts.skipIntro){ var sp={arcade:{x:760,y:300}, center:{x:720,y:480}, park:{x:PARK.x+40,y:PARK.y}, door:{x:DOOR.x+60,y:DOOR.y}}[opts.spawn||"center"];
+    else if(opts.skipIntro){ var sp={arcade:{x:760,y:300}, center:{x:720,y:480}, park:{x:PARK.x+40,y:PARK.y}, door:{x:DOOR.x+60,y:DOOR.y}, stairs:{x:1240,y:300}}[opts.spawn||"center"];
       S.char.x=sp.x; S.char.y=sp.y; S.parked=true; }
     else { S.char.x=720; S.char.y=480; S.parked=true; }
 
@@ -1159,11 +1199,14 @@
       if(hit){ S.target={x:hit.hx,y:hit.hy}; S.pending=hit.id; }
       else { S.target={x:Math.max(FL.x0,Math.min(FL.x1,wx)), y:Math.max(FL.y0,Math.min(FL.y1,wy))}; S.pending=null; } }
     canvas.addEventListener("pointerdown",onPointer); window.addEventListener("keydown",onKey); window.addEventListener("keyup",onKeyUp);
+    var touchCtl=mountTouchPad({ keys:keys, isActive:function(){ return S.intro.phase==="done"; }, paused:paused,
+      onInteract:function(){ if(!paused()&&S.near) whInteract(S.near); },
+      onMove:function(){ S.target=null; S.pending=null; } });
     function paused(){ return !!document.querySelector("#panelMount .panel"); }
 
     function resize(){ var r=canvas.getBoundingClientRect(); VW=r.width; VH=r.height; canvas.width=Math.max(1,VW*DPR); canvas.height=Math.max(1,VH*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); }
     window.addEventListener("resize",resize); resize();
-    function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onPointer); window.removeEventListener("keydown",onKey); window.removeEventListener("keyup",onKeyUp); }
+    function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onPointer); window.removeEventListener("keydown",onKey); window.removeEventListener("keyup",onKeyUp); touchCtl.cleanup(); }
 
     function camFollow(){ var tx=S.char.x-VW/2, ty=S.char.y-VH/2;
       S.cam.x += (Math.max(0,Math.min(WORLD.w-VW,tx))-S.cam.x)*0.12;
@@ -1202,11 +1245,17 @@
       items.push({ y:S.char.y, fn:function(){ drawChar(c,now); } });
       items.sort(function(a,b){ return a.y-b.y; });
       items.forEach(function(it){ it.fn(); });
-      if(S.intro.phase==="done" && S.near){ var s=stById(S.near); if(s) tag(c,s.x,s.y-58,s.label,s.ac); }
+      if(S.intro.phase==="done" && S.near){ var s=stById(S.near); if(s){
+        var lbl=s.label, ac=s.ac;
+        if(!ST.bedroomKeyFound && (s.id==="arcade"||s.id==="bikewall")){ lbl="\u25b2 LOCKED"; ac="#6f6f78"; }
+        tag(c,s.x,s.y-58,lbl,ac); } }
       c.restore();
       // screen-space UI
       if(S.intro.phase==="done"){ c.fillStyle="#6f6f78"; c.font='11px "Space Mono",monospace'; c.textAlign="center"; c.textBaseline="alphabetic";
-        c.fillText("WASD / \u2190\u2191\u2193\u2192  or TAP to walk   \u00b7   SPACE / TAP a station to interact", VW/2, VH-18); }
+        var hint=$("touchPad")&&$("touchPad").classList.contains("on")
+          ? "D-PAD to walk  \u00b7  B to interact with stations"
+          : "WASD / \u2190\u2191\u2193\u2192  or TAP to walk   \u00b7   SPACE / TAP a station to interact";
+        c.fillText(hint, VW/2, VH-18); }
       if(now<S.toast.until){ c.save(); c.font='700 12px "Space Mono",monospace'; var w=Math.min(VW-40,c.measureText(S.toast.text).width+26);
         c.fillStyle="rgba(14,14,18,.94)"; c.strokeStyle="rgba(130,134,142,.6)"; rr(c,VW/2-w/2,14,w,30,7); c.fill(); c.stroke();
         c.fillStyle="#e9e9ec"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(S.toast.text,VW/2,30); c.restore(); }
@@ -1256,11 +1305,14 @@
       c.fillStyle="#121217"; rr(c,x,y,140,84,6); c.fill(); c.strokeStyle="#2a2a32"; c.lineWidth=1; c.strokeRect(x,y,140,84);
       for(var r=0;r<2;r++)for(var cc=0;cc<4;cc++){ c.fillStyle=r+cc%2? "#1a1a20":"#15151b"; c.fillRect(x+8+cc*33,y+8+r*38,28,30);
         c.strokeStyle=cc%2?"#36e6ff":"#5dcaa5"; c.globalAlpha=.5; c.strokeRect(x+8+cc*33,y+8+r*38,28,30); c.globalAlpha=1; } }
-    function dArcade(c,s){ base(c,s,64,96); c.restore(); var x=s.x-32,y=s.y-96;
-      c.fillStyle="#0e0e13"; rr(c,x,y,64,104,8); c.fill(); neonEdge(c,x+3,y+22,58,78,s.ac);
-      c.fillStyle="#141419"; c.fillRect(x+6,y+4,52,16); c.fillStyle=s.ac; c.font='7px "Space Mono",monospace'; c.textAlign="center"; c.fillText("ARCADE",s.x,y+14);
-      c.fillStyle="#04070a"; c.fillRect(x+10,y+26,44,34); c.save(); c.shadowColor=s.ac; c.shadowBlur=8; c.fillStyle="rgba(255,154,46,.18)"; c.fillRect(x+12,y+28,40,30); c.restore();
-      ["#36e6ff","#ff9a2e","#e9e9ec"].forEach(function(col,i){ c.fillStyle=col; c.beginPath(); c.arc(x+18+i*14,y+78,3,0,Math.PI*2); c.fill(); }); }
+    function dArcade(c,s){ base(c,s,64,96); c.restore(); var x=s.x-32,y=s.y-96, locked=!ST.bedroomKeyFound;
+      if(locked) c.globalAlpha=0.5;
+      c.fillStyle="#0e0e13"; rr(c,x,y,64,104,8); c.fill(); neonEdge(c,x+3,y+22,58,78,locked?"#6f6f78":s.ac);
+      c.fillStyle="#141419"; c.fillRect(x+6,y+4,52,16); c.fillStyle=locked?"#6f6f78":s.ac; c.font='7px "Space Mono",monospace'; c.textAlign="center"; c.fillText(locked?"LOCKED":"ARCADE",s.x,y+14);
+      c.fillStyle="#04070a"; c.fillRect(x+10,y+26,44,34);
+      if(!locked){ c.save(); c.shadowColor=s.ac; c.shadowBlur=8; c.fillStyle="rgba(255,154,46,.18)"; c.fillRect(x+12,y+28,40,30); c.restore();
+        ["#36e6ff","#ff9a2e","#e9e9ec"].forEach(function(col,i){ c.fillStyle=col; c.beginPath(); c.arc(x+18+i*14,y+78,3,0,Math.PI*2); c.fill(); }); }
+      c.globalAlpha=1; }
     function dLibrary(c,s){ base(c,s,120,84); c.restore(); var x=s.x-60,y=s.y-84;
       c.fillStyle="#121217"; rr(c,x,y,120,96,6); c.fill(); c.strokeStyle="#2a2a32"; c.strokeRect(x,y,120,96);
       for(var r=0;r<3;r++){ for(var i=0;i<10;i++){ c.fillStyle=["#5dcaa5","#36e6ff","#9a9aa3","#e5534b"][(i+r)%4]; c.globalAlpha=.55; c.fillRect(x+8+i*10,y+8+r*28,7,22); } } c.globalAlpha=1; }
@@ -1296,14 +1348,20 @@
       var n=(typeof cartCount==="function")?cartCount():0;
       if(n>0){ c.save(); c.shadowColor="#ff9a2e"; c.shadowBlur=8; c.fillStyle="#ff9a2e"; c.beginPath(); c.arc(x+98,y+4,10,0,Math.PI*2); c.fill();
         c.fillStyle="#1a1200"; c.font='700 10px "Space Mono",monospace'; c.textAlign="center"; c.textBaseline="middle"; c.fillText(n+"",x+98,y+4); c.restore(); } }
-    function dBikewall(c,s){ var w=196,h=118, x=s.x-w/2,y=s.y-h+8;
+    function dBikewall(c,s){ var w=196,h=118, x=s.x-w/2,y=s.y-h+8, locked=!ST.bedroomKeyFound;
+      if(locked) c.globalAlpha=0.5;
       c.fillStyle="#0f0f13"; rr(c,x,y,w,h,8); c.fill(); c.strokeStyle="#24242b"; c.lineWidth=1; c.strokeRect(x,y,w,h);
       c.strokeStyle="#2a2a32"; c.lineWidth=3; c.beginPath(); c.moveTo(x+10,y+18); c.lineTo(x+w-10,y+18); c.stroke();
-      var sel=getBikeSpec().id;
-      BIKE_ORDER.forEach(function(id,i){ var spec=BIKES[id], bx=x+34+i*64, by=y+72;
-        c.save(); c.globalAlpha=(id===sel)?1:0.5; drawBikeStatic(c,bx,by,0.42,spec); c.restore();
-        if(id===sel){ c.strokeStyle=spec.accent; c.lineWidth=1.5; c.strokeRect(bx-26,by-34,52,44); } });
-      c.fillStyle="rgba(120,124,132,.6)"; c.font='9px "Space Mono",monospace'; c.textAlign="center"; c.fillText("BIKE WALL \u2014 tap to ride",s.x,y+h-6); }
+      if(!locked){
+        var sel=getBikeSpec().id;
+        BIKE_ORDER.forEach(function(id,i){ var spec=BIKES[id], bx=x+34+i*64, by=y+72;
+          c.save(); c.globalAlpha=(id===sel)?1:0.5; drawBikeStatic(c,bx,by,0.42,spec); c.restore();
+          if(id===sel){ c.strokeStyle=spec.accent; c.lineWidth=1.5; c.strokeRect(bx-26,by-34,52,44); } });
+        c.fillStyle="rgba(120,124,132,.6)"; c.font='9px "Space Mono",monospace'; c.textAlign="center"; c.fillText("BIKE WALL \u2014 tap to ride",s.x,y+h-6);
+      } else {
+        c.fillStyle="#6f6f78"; c.font='9px "Space Mono",monospace'; c.textAlign="center"; c.fillText("LOCKED \u2014 find the key upstairs",s.x,y+h-6);
+      }
+      c.globalAlpha=1; }
 
     function drawChar(c,now){ var x=S.char.x,y=S.char.y; shadow(c,x,y+4,16);
       if(S.char.onBike){ c.save(); c.globalAlpha=.95; c.strokeStyle="#c7cace"; c.lineWidth=2.5;
@@ -1335,13 +1393,208 @@
     return function(){ cancelAnimationFrame(raf); cleanup(); };
   }
 
+  /* ---------- bedroom (upstairs) ---------- */
+  var bedDroneStop=null;
+  function stopBedDrone(){ if(bedDroneStop){ bedDroneStop(); bedDroneStop=null; } }
+  function startBedDrone(){
+    stopBedDrone();
+    var c=getCtx(); if(!c) return;
+    var nodes=[];
+    [55,82.5,110,164.81].forEach(function(f,i){
+      var o=c.createOscillator(), g=c.createGain();
+      o.type="sine"; o.frequency.value=f; g.gain.value=0.018+i*0.005;
+      o.connect(g).connect(c.destination); o.start();
+      nodes.push(o);
+    });
+    bedDroneStop=function(){ nodes.forEach(function(o){ try{ o.stop(); }catch(e){} }); nodes=[]; };
+  }
+
+  function startBedroom(opts){
+    opts=opts||{};
+    var canvas=$("bedcv"), ctx=canvas.getContext("2d");
+    var DPR=Math.min(2,window.devicePixelRatio||1), VW=0,VH=0;
+    var WORLD={w:980,h:720}, FL={x0:90,y0:170,x1:890,y1:660};
+    function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+    function shadow(c,x,y,rx){ c.fillStyle="rgba(0,0,0,.34)"; c.beginPath(); c.ellipse(x,y,rx,rx*0.32,0,0,Math.PI*2); c.fill(); }
+
+    var ST_=[
+      { id:"bed", x:420, y:500, hx:420, hy:560, r:78, label:"\u25b2 REST", ac:"#9ab4ff", draw:dBed },
+      { id:"nightstand", x:560, y:470, hx:560, hy:530, r:62, label:"\u25b2 PHONE", ac:"#5dcaa5", draw:dNightstand },
+      { id:"keyhook", x:170, y:300, hx:170, hy:360, r:58, label:"\u25b2 KEY", ac:"#ffcf5a", draw:dKey },
+      { id:"stairsdown", x:500, y:210, hx:500, hy:270, r:68, label:"\u25bc DOWN", ac:"#c7cace", draw:dStairsDown }
+    ];
+
+    var S={ char:{x:500,y:420,vx:0,vy:0,face:1,phase:0,moving:false},
+      cam:{x:0,y:0}, target:null, pending:null, near:null, toast:{text:"",until:0} };
+    if(opts.spawn==="stairs"){ S.char.x=500; S.char.y=300; }
+
+    var keys={};
+    function paused(){ return !!document.querySelector("#panelMount .panel"); }
+    function onKey(e){
+      if(["ArrowLeft","KeyA","ArrowRight","KeyD","ArrowUp","KeyW","ArrowDown","KeyS"].indexOf(e.code)>=0){ keys[e.code]=true; S.target=null; S.pending=null; }
+      if(e.code==="Space"||e.code==="KeyE"||e.code==="Enter"){ e.preventDefault(); if(!paused()&&S.near) brInteract(S.near); }
+    }
+    function onKeyUp(e){ keys[e.code]=false; }
+    function onPointer(e){ if(paused())return; e.preventDefault(); getCtx();
+      var r=canvas.getBoundingClientRect(), sx=(e.clientX-r.left), sy=(e.clientY-r.top);
+      var wx=sx+S.cam.x, wy=sy+S.cam.y, hit=null;
+      for(var i=0;i<ST_.length;i++){ var s=ST_[i]; if(Math.abs(wx-s.x)<64 && Math.abs(wy-(s.y-6))<64){ hit=s; break; } }
+      if(hit){ S.target={x:hit.hx,y:hit.hy}; S.pending=hit.id; }
+      else { S.target={x:Math.max(FL.x0,Math.min(FL.x1,wx)), y:Math.max(FL.y0,Math.min(FL.y1,wy))}; S.pending=null; } }
+    canvas.addEventListener("pointerdown",onPointer); window.addEventListener("keydown",onKey); window.addEventListener("keyup",onKeyUp);
+    var touchCtl=mountTouchPad({ keys:keys, paused:paused,
+      onInteract:function(){ if(!paused()&&S.near) brInteract(S.near); },
+      onMove:function(){ S.target=null; S.pending=null; } });
+
+    function resize(){ var r=canvas.getBoundingClientRect(); VW=r.width; VH=r.height; canvas.width=Math.max(1,VW*DPR); canvas.height=Math.max(1,VH*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); }
+    window.addEventListener("resize",resize); resize();
+    function cleanup(){ window.removeEventListener("resize",resize); canvas.removeEventListener("pointerdown",onPointer); window.removeEventListener("keydown",onKey); window.removeEventListener("keyup",onKeyUp); touchCtl.cleanup(); }
+
+    function camFollow(){ var tx=S.char.x-VW/2, ty=S.char.y-VH/2;
+      S.cam.x += (Math.max(0,Math.min(WORLD.w-VW,tx))-S.cam.x)*0.12;
+      S.cam.y += (Math.max(0,Math.min(WORLD.h-VH,ty))-S.cam.y)*0.12;
+      if(WORLD.w<VW) S.cam.x=(WORLD.w-VW)/2; if(WORLD.h<VH) S.cam.y=(WORLD.h-VH)/2; }
+    function nearestStation(){ var best=null,bd=1e9; for(var i=0;i<ST_.length;i++){ var s=ST_[i], d=Math.hypot(S.char.x-s.hx,S.char.y-s.hy); if(d<s.r&&d<bd){bd=d;best=s;} } return best?best.id:null; }
+    function stById(id){ for(var i=0;i<ST_.length;i++) if(ST_[i].id===id) return ST_[i]; return null; }
+
+    var raf=0,last=performance.now();
+    function frame(now){ var dt=Math.min(40,now-last); last=now;
+      var ax=0,ay=0;
+      if(keys.ArrowLeft||keys.KeyA)ax-=1; if(keys.ArrowRight||keys.KeyD)ax+=1;
+      if(keys.ArrowUp||keys.KeyW)ay-=1; if(keys.ArrowDown||keys.KeyS)ay+=1;
+      if((ax||ay)){ S.target=null; S.pending=null; }
+      else if(S.target){ var dx=S.target.x-S.char.x, dy=S.target.y-S.char.y, d=Math.hypot(dx,dy);
+        if(d<6){ var pd=S.pending; S.target=null; S.pending=null; if(pd&&!paused()) brInteract(pd); } else { ax=dx/d; ay=dy/d; } }
+      var mv=(ax||ay)&&!paused(); S.char.moving=mv;
+      if(mv){ var L=Math.hypot(ax,ay)||1; var sp=0.27*dt; S.char.x+=ax/L*sp; S.char.y+=ay/L*sp; if(ax<-0.05)S.char.face=-1; else if(ax>0.05)S.char.face=1; S.char.phase+=dt*0.014;
+        S.char.x=Math.max(FL.x0,Math.min(FL.x1,S.char.x)); S.char.y=Math.max(FL.y0,Math.min(FL.y1,S.char.y)); }
+      S.near=paused()?null:nearestStation();
+      camFollow(); draw(now); raf=requestAnimationFrame(frame);
+    }
+
+    function draw(now){ var c=ctx; c.clearRect(0,0,VW,VH);
+      c.save(); c.translate(-S.cam.x,-S.cam.y);
+      drawRoom(c,now);
+      var items=ST_.map(function(s){ return {y:s.y, fn:function(){ s.draw(c,s,now); }}; });
+      items.push({ y:S.char.y, fn:function(){ drawBedChar(c,now); } });
+      items.sort(function(a,b){ return a.y-b.y; });
+      items.forEach(function(it){ it.fn(); });
+      if(S.near){ var s=stById(S.near); if(s) bedTag(c,s.x,s.y-58,s.label,s.ac); }
+      c.restore();
+      c.fillStyle="#6f6f78"; c.font='11px "Space Mono",monospace'; c.textAlign="center"; c.textBaseline="alphabetic";
+      var hint=$("touchPad")&&$("touchPad").classList.contains("on")
+        ? "D-PAD to walk  \u00b7  B to interact"
+        : "WASD / \u2190\u2191\u2193\u2192  or TAP to walk   \u00b7   SPACE to interact";
+      c.fillText(hint, VW/2, VH-18);
+      if(now<S.toast.until){ c.save(); c.font='700 12px "Space Mono",monospace'; var w=Math.min(VW-40,c.measureText(S.toast.text).width+26);
+        c.fillStyle="rgba(14,14,18,.94)"; c.strokeStyle="rgba(130,134,142,.6)"; rr(c,VW/2-w/2,14,w,30,7); c.fill(); c.stroke();
+        c.fillStyle="#e9e9ec"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(S.toast.text,VW/2,30); c.restore(); }
+      var v=c.createRadialGradient(VW/2,VH/2,VH*0.34,VW/2,VH/2,VH*0.9); v.addColorStop(0,"transparent"); v.addColorStop(1,"rgba(0,0,0,.5)"); c.fillStyle=v; c.fillRect(0,0,VW,VH);
+    }
+
+    function drawRoom(c,now){
+      c.fillStyle="#0a0a0d"; c.fillRect(0,0,WORLD.w,WORLD.h);
+      var rug=c.createLinearGradient(FL.x0,FL.y0,FL.x1,FL.y1); rug.addColorStop(0,"#14131a"); rug.addColorStop(1,"#101018");
+      c.fillStyle=rug; rr(c,FL.x0-20,FL.y0-10,(FL.x1-FL.x0)+40,(FL.y1-FL.y0)+24,18); c.fill();
+      c.fillStyle="#12121a"; c.fillRect(0,0,WORLD.w,FL.y0-8);
+      c.fillStyle="rgba(120,180,220,.08)"; c.fillRect(720,40,180,120);
+      c.strokeStyle="rgba(90,94,102,.25)"; c.lineWidth=1;
+      for(var x=FL.x0;x<=FL.x1;x+=70){ c.beginPath(); c.moveTo(x,FL.y0); c.lineTo(x,FL.y1); c.stroke(); }
+      c.save(); c.shadowColor="#b8c8ff"; c.shadowBlur=14; c.fillStyle="rgba(200,210,255,.85)"; c.font='700 24px "Space Mono",monospace'; c.textAlign="center"; c.fillText("UPSTAIRS BEDROOM",WORLD.w/2,58); c.restore();
+      c.fillStyle="rgba(120,124,132,.45)"; c.font='11px "Space Mono",monospace'; c.fillText("// slow down upstairs",WORLD.w/2,84);
+      var lampPulse=0.5+Math.sin(now/900)*0.12;
+      c.save(); c.globalAlpha=lampPulse; c.fillStyle="rgba(255,214,140,.12)"; c.beginPath(); c.arc(760,180,90,0,Math.PI*2); c.fill(); c.restore();
+    }
+    function dBed(c,s){ shadow(c,s.x,s.y+24,90); var x=s.x-120,y=s.y-70;
+      c.fillStyle="#1a1a22"; rr(c,x,y+40,240,56,10); c.fill();
+      c.fillStyle="#242430"; rr(c,x+8,y+8,224,48,8); c.fill();
+      c.fillStyle="#cfd5e8"; rr(c,x+16,y+16,208,34,6); c.fill();
+      c.fillStyle="#9aa3bf"; rr(c,x+16,y+16,48,34,6); c.fill(); }
+    function dNightstand(c,s){ shadow(c,s.x,s.y+16,34); var x=s.x-28,y=s.y-44;
+      c.fillStyle="#17171d"; rr(c,x,y+18,56,40,5); c.fill();
+      c.fillStyle="#0a0a0e"; rr(c,x+8,y,40,24,4); c.fill();
+      c.save(); c.shadowColor=s.ac; c.shadowBlur=8; c.fillStyle="rgba(93,202,165,.2)"; c.fillRect(x+10,y+3,36,18); c.restore(); }
+    function dKey(c,s){ shadow(c,s.x,s.y+8,20); c.strokeStyle="#3a3a42"; c.lineWidth=2; c.beginPath(); c.moveTo(s.x,s.y-40); c.lineTo(s.x,s.y+4); c.stroke();
+      c.fillStyle=ST.bedroomKeyFound?"#ffcf5a":"#6f6f78"; c.beginPath(); c.arc(s.x,s.y-46,8,0,Math.PI*2); c.fill();
+      if(!ST.bedroomKeyFound){ c.fillStyle="#101015"; c.fillRect(s.x-3,s.y-49,6,10); } }
+    function dStairsDown(c,s){ var x=s.x-50,y=s.y-60;
+      for(var i=0;i<5;i++){ c.fillStyle=i%2?"#17171d":"#1c1c23"; c.fillRect(x+i*8,y+i*12,100-i*16,14); }
+      c.fillStyle=s.ac; c.font='700 14px "Space Mono",monospace'; c.textAlign="center"; c.fillText("\u25bc",s.x,y-4); }
+    function drawBedChar(c,now){ var x=S.char.x,y=S.char.y; shadow(c,x,y+4,16);
+      c.save(); c.translate(x,y); var bob=S.char.moving?Math.abs(Math.sin(S.char.phase))*2:Math.sin(now/560)*1.1; c.translate(0,-bob);
+      if(S.char.face<0) c.scale(-1,1);
+      var G=c.createLinearGradient(0,-46,0,0); G.addColorStop(0,"#ffffff"); G.addColorStop(.45,"#dfe3e7"); G.addColorStop(1,"#6c7178");
+      var stride=S.char.moving?Math.sin(S.char.phase)*6:2;
+      c.strokeStyle=G; c.lineCap="round"; c.lineWidth=5;
+      c.beginPath(); c.moveTo(0,-18); c.lineTo(-stride*0.6,0); c.stroke();
+      c.beginPath(); c.moveTo(0,-18); c.lineTo(stride*0.6,0); c.stroke();
+      c.fillStyle=G; c.beginPath(); c.moveTo(-6,-18); c.lineTo(6,-18); c.lineTo(5,-36); c.lineTo(-5,-36); c.closePath(); c.fill();
+      c.fillStyle=G; c.beginPath(); c.arc(0,-42,6,0,Math.PI*2); c.fill(); c.restore(); }
+    function bedTag(c,x,y,text,ac){ c.save(); c.font='700 10px "Space Mono",monospace'; var w=c.measureText(text).width+16;
+      c.fillStyle="rgba(10,10,12,.88)"; c.strokeStyle=ac; c.lineWidth=1; rr(c,x-w/2,y-16,w,18,4); c.fill(); c.stroke();
+      c.fillStyle="#e9e9ec"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(text,x,y-7); c.restore(); }
+
+    startBedroom._toast=function(t){ S.toast={text:t,until:performance.now()+2600}; };
+    raf=requestAnimationFrame(frame);
+    return function(){ cancelAnimationFrame(raf); cleanup(); stopBedDrone(); };
+  }
+
+  function openBedRest(){
+    openPanel("Rest","<p class=\"lede\" style=\"margin:0 0 14px\">Lie down. Slow frequencies wash over you — sleep, reset, breathe.</p>"+
+      "<div class=\"row\" style=\"gap:10px;flex-wrap:wrap\"><button class=\"btn solid\" id=\"bedPlay\">Play relaxing tone</button><button class=\"btn ghost\" id=\"bedStop\">Stop</button></div>",
+      function(){ $("bedPlay").onclick=function(){ startBedDrone(); flash("Relaxing frequencies on"); };
+        $("bedStop").onclick=function(){ stopBedDrone(); flash("Tone stopped"); }; });
+  }
+  function openNightstandPhone(){
+    openPanel("Nightstand phone",
+      "<p class=\"lede\" style=\"margin:0 0 14px\">Booking, links, what\u2019s next — straight from upstairs.</p>"+
+      "<div class=\"row\" style=\"flex-direction:column;gap:10px;align-items:stretch\">"+
+      "<a class=\"btn solid\" href=\"/book\">Book a set</a>"+
+      "<a class=\"btn ghost\" href=\"/music\">Listen</a>"+
+      "<a class=\"btn ghost\" href=\"/merch\">Shop merch</a>"+
+      "<a class=\"btn ghost\" href=\"/services\">Services</a>"+
+      "<a class=\"btn ghost\" href=\"https://instagram.com/killscomfort\" target=\"_blank\" rel=\"noopener\">Instagram</a></div>");
+  }
+  function openBedroomKey(){
+    if(!ST.bedroomKeyFound){
+      ST.bedroomKeyFound=true;
+      try{ localStorage.setItem("kc_bed_key","1"); }catch(e){}
+      chime(); collect("key");
+      if(startBedroom._toast) startBedroom._toast("Key found — arcade unlocked");
+    }
+    openPanel("The key",
+      "<p class=\"lede\" style=\"margin:0 0 14px\">This unlocks the arcade games downstairs. Night Ride and Endless Survival are yours.</p>"+
+      "<div class=\"row\" style=\"flex-direction:column;gap:10px;align-items:stretch\">"+
+      "<button class=\"btn solid\" id=\"keyArcade\">Open arcade games</button>"+
+      "<button class=\"btn ghost\" id=\"keyDown\">Head downstairs</button></div>",
+      function(){
+        $("keyArcade").onclick=function(){ closePanel(); whArcade(); };
+        $("keyDown").onclick=function(){ closePanel(); goWarehouse({skipIntro:true,spawn:"stairs"}); };
+      });
+  }
+  function brInteract(id){
+    if(id==="bed") openBedRest();
+    else if(id==="nightstand") openNightstandPhone();
+    else if(id==="keyhook") openBedroomKey();
+    else if(id==="stairsdown") goWarehouse({skipIntro:true,spawn:"stairs"});
+  }
+
   /* ---------- wiring ---------- */
-  var stopRide=null, stopLobby=null, stopWarehouse=null, stopArrival=null;
+  var stopRide=null, stopLobby=null, stopWarehouse=null, stopArrival=null, stopBedroom=null;
   function goHub(){ goWarehouse({skipIntro:true,spawn:"center"}); }
-  function goWarehouse(o){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } closePanel(); $("hud").classList.remove("on"); show("warehouse"); stopWarehouse=startWarehouse(o||{}); }
-  function goArrival(){ if(stopRide){ stopRide(); stopRide=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopArrival){ stopArrival(); stopArrival=null; } closePanel(); $("hud").classList.remove("on"); show("arrival"); stopArrival=startArrival(function(){ stopArrival=null; goWarehouse({walkIn:true}); }); }
+  function goWarehouse(o){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } closePanel(); stopBedDrone(); $("hud").classList.remove("on"); show("warehouse"); stopWarehouse=startWarehouse(o||{}); }
+  function goBedroom(o){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } closePanel(); $("hud").classList.remove("on"); show("bedroom"); stopBedroom=startBedroom(o||{spawn:"stairs"}); }
+  function goArrival(){ if(stopRide){ stopRide(); stopRide=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } if(stopArrival){ stopArrival(); stopArrival=null; } closePanel(); $("hud").classList.remove("on"); show("arrival"); stopArrival=startArrival(function(){ stopArrival=null; goWarehouse({walkIn:true}); }); }
   function whToast(t){ if(startWarehouse._toast) startWarehouse._toast(t); }
   function whSoon(title,body){ openPanel(title,'<p class="lede" style="margin:0">'+body+'</p>'); }
+  function hasArcadeKey(){ return !!ST.bedroomKeyFound; }
+  function openArcadeLocked(){
+    openPanel("Arcade locked",
+      '<p class="lede" style="margin:0 0 14px">The games are locked. Head upstairs, grab the key from the hook, then come back down.</p>'+
+      '<div class="row" style="flex-direction:column;gap:10px;align-items:stretch">'+
+      '<button class="btn solid" id="lockStairs">Go upstairs \u2192</button></div>',
+      function(){ $("lockStairs").onclick=function(){ closePanel(); goBedroom({spawn:"stairs"}); }; });
+  }
   function whInteract(id){ getCtx();
     if(id==="studio") openBeat();
     else if(id==="music") openDig();
@@ -1350,10 +1603,10 @@
     else if(id==="library") whLibrary();
     else if(id==="inquiry") openInquiry();
     else if(id==="arcade") whArcade();
-    else if(id==="stairs") whSoon("Bedroom \u2014 upstairs","The bed (sleep + relaxing frequencies), the nightstand (phone: booking, links, what\u2019s next), and the key that unlocks games. Building this next.");
+    else if(id==="stairs") goBedroom({spawn:"stairs"});
     else if(id==="closet") whSoon("Closet","Customize your character \u2014 outfits and looks. Coming soon.");
     else if(id==="car") whSoon("The car","Parked on the main floor. Something\u2019s coming here. Stay tuned.");
-    else if(id==="bikewall") openBikePicker();
+    else if(id==="bikewall"){ if(!hasArcadeKey()) openArcadeLocked(); else openBikePicker(); }
   }
   function openBikePicker(){ getCtx(); openPanel("Bike wall \u2014 pick your ride",
     '<div class="bikeStage"><button class="bikeArrow" id="bikeL" aria-label="Previous">\u2039</button>'+
@@ -1438,14 +1691,18 @@
       function v(id){ var e=$(id); return e?(""+e.value).trim():""; }
     }
   }
-  function whArcade(){ openPanel("Arcade \u2014 pick a game",
+  function whArcade(){
+    if(!hasArcadeKey()){ openArcadeLocked(); return; }
+    openPanel("Arcade \u2014 pick a game",
     '<div class="row" style="flex-direction:column;gap:10px;align-items:stretch">'+
     '<button class="btn solid" id="acNight">Night Ride \u00b7 grab the 3 tags</button>'+
     '<button class="btn ghost" id="acEndless">Endless Survival \u00b7 highscore</button>'+
     '</div>');
     $("acNight").onclick=function(){ goRideFromArcade("collect"); };
     $("acEndless").onclick=function(){ goRideFromArcade("endless"); }; }
-  function goRideFromArcade(mode){ getCtx(); closePanel(); if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } show("ride"); $("hud").classList.add("on");
+  function goRideFromArcade(mode){
+    if(!hasArcadeKey()){ openArcadeLocked(); return; }
+    getCtx(); closePanel(); if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } show("ride"); $("hud").classList.add("on");
     $("ridehint").style.display=""; var spec=getBikeSpec();
     if(mode==="collect"){ $("ridehint").textContent="TAP / SPACE TO HOP \u00b7 GRAB ALL 3 TAGS";
       stopRide=startRide({mode:"collect", spec:spec, onArrive:function(){ goWarehouse({skipIntro:true,spawn:"arcade"}); }, onCollect:collect }); }
@@ -1453,8 +1710,8 @@
       stopRide=startRide({mode:"endless", spec:spec, onDeath:function(score){ if(stopRide){ stopRide=null; } openGameOver(score); } }); } }
   $("keepRiding").onclick=function(){ goRideFromArcade("endless"); };
   $("startBtn").onclick=function(){ goArrival(); };
-  $("skipBtn").onclick=function(){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(window.top&&window.top!==window){ window.top.location.href="/site"; } else { show("exit"); } };
-  $("headOut").onclick=function(){ if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } show("exit"); };
+  $("skipBtn").onclick=function(){ if(stopRide){ stopRide(); stopRide=null; } if(stopLobby){ stopLobby(); stopLobby=null; } if(stopArrival){ stopArrival(); stopArrival=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } stopBedDrone(); if(window.top&&window.top!==window){ window.top.location.href="/site"; } else { show("exit"); } };
+  $("headOut").onclick=function(){ if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } stopBedDrone(); show("exit"); };
   $("again").onclick=function(){ ST.values=[]; ST.beatMade=false; ST.gemFound=false; ST.merchFound=false; ST.mixes.forEach(function(m){m.unlocked=false;}); ST.digIdx=0; syncHud(); goArrival(); };
   $("spot-beat").onclick=function(){ getCtx(); openBeat(); };
   $("spot-dig").onclick=function(){ getCtx(); openDig(); };
