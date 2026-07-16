@@ -94,8 +94,39 @@ export async function POST(request: NextRequest) {
 
     const session = event.data.object as Stripe.Checkout.Session;
     const metadata = session.metadata || {};
+
+    // Academy Full Spectrum unlock (no merch metadata; uses client_reference_id = user id)
     if (metadata.type !== "merch") {
-      return NextResponse.json({ received: true, ignored: true, reason: "non-merch session" });
+      const userId = session.client_reference_id;
+      if (
+        userId &&
+        ["paid", "no_payment_required"].includes(session.payment_status)
+      ) {
+        const { createClient } = await import("@supabase/supabase-js");
+        const admin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        await admin
+          .from("profiles")
+          .update({
+            has_full_access: true,
+            stripe_customer_id: String(session.customer ?? ""),
+          })
+          .eq("id", userId);
+
+        return NextResponse.json({
+          received: true,
+          academy: true,
+          userId,
+        });
+      }
+
+      return NextResponse.json({
+        received: true,
+        ignored: true,
+        reason: "non-merch session",
+      });
     }
 
     const stripeSessionId = session.id;
