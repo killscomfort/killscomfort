@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
+import { isAcademyPath, isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
 
 const LOGO_SRC = "/logo-chrome.png";
 const LOGO_COUNT = 40;
@@ -156,7 +156,10 @@ export default function FallingLogoBackground() {
   const lastScrollY = useRef(0);
   const animFrameRef = useRef<number | null>(null);
   const reducedMotion = useRef(false);
-  const hidden = isRidePath(pathname) || isImmersiveLandPath(pathname);
+  const hidden =
+    isRidePath(pathname) ||
+    isImmersiveLandPath(pathname) ||
+    isAcademyPath(pathname);
 
   useEffect(() => {
     if (hidden) return;

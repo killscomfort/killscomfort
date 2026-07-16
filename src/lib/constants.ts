@@ -70,6 +70,7 @@ export const NAV_LINKS = [
   { href: "/music", label: "Music" },
   { href: "/merch", label: "Merch" },
   { href: "/warehouse", label: "Warehouse" },
+  { href: "/academy", label: "Academy" },
   { href: "/services", label: "Services" },
   { href: "/events", label: "Events" },
   { href: "/about", label: "About" },

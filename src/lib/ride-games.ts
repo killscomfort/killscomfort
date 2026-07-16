@@ -14,3 +14,8 @@ export function isRidePath(pathname: string) {
 export function isImmersiveLandPath(pathname: string) {
   return pathname === "/land" || pathname.startsWith("/land/");
 }
+
+/** Academy course shell — own chrome; hide site header/footer/player. */
+export function isAcademyPath(pathname: string) {
+  return pathname === "/academy" || pathname.startsWith("/academy/");
+}

@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/donate",
     "/land",
     "/warehouse",
+    "/academy",
     "/typeface",
     "/lp/book-event",
     "/lp/brand-partnership",
