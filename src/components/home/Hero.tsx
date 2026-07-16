@@ -29,9 +29,9 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-transparent">
-      {/* Video sits under the global falling-logo canvas via translucent layers */}
-      <div className="terminal-hero-media pointer-events-none absolute inset-0 overflow-hidden opacity-40">
+    <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-near-black">
+      {/* Opaque media plane so falling logos stay behind the hero video */}
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 overflow-hidden">
         <video
           className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
           autoPlay
@@ -46,9 +46,9 @@ export function Hero() {
         </video>
       </div>
 
-      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-b from-near-black/20 via-near-black/35 to-near-black/75" />
-      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-t from-near-black/80 via-transparent to-transparent" />
-      <div className="terminal-hero-media hero-vignette pointer-events-none absolute inset-0 opacity-30" />
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/45 to-near-black/85" />
+      <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-t from-near-black/90 via-transparent to-transparent" />
+      <div className="terminal-hero-media hero-vignette pointer-events-none absolute inset-0 opacity-40" />
       <div className="terminal-hero-media grain-overlay pointer-events-none absolute inset-0 opacity-40" />
 
       <motion.div

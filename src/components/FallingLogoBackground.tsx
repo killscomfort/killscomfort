@@ -5,17 +5,37 @@ import { usePathname } from "next/navigation";
 import { isAcademyPath, isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
 
 const LOGO_SRC = "/logo-chrome.png";
-const LOGO_COUNT = 40;
-const WHOIS_RING_BIAS = 0.65;
+const LOGO_COUNT_DESKTOP = 28;
+const LOGO_COUNT_MOBILE = 10;
+const WHOIS_SEED_DESKTOP = 10;
+const WHOIS_SEED_MOBILE = 4;
+const WHOIS_RING_BIAS = 0.55;
 const WHOIS_RING_MARGIN = 24;
-const BASE_OPACITY = { min: 0.12, max: 0.32 };
-const SIZE = { min: 100, max: 260 };
+const BASE_OPACITY = { min: 0.1, max: 0.24 };
+const SIZE_DESKTOP = { min: 100, max: 240 };
+const SIZE_MOBILE = { min: 72, max: 140 };
 const FALL_SPEED = { min: 0.28, max: 0.72 };
 const DRIFT_RANGE = 0.15;
 const ROT_SPEED = 0.006;
 const SCROLL_BOOST = 0.12;
 const SCROLL_DECAY = 0.9;
 const SCROLL_VEL_MAX = 4;
+
+function isMobileViewport() {
+  return typeof window !== "undefined" && window.innerWidth < 768;
+}
+
+function logoCount() {
+  return isMobileViewport() ? LOGO_COUNT_MOBILE : LOGO_COUNT_DESKTOP;
+}
+
+function whoisSeedCount() {
+  return isMobileViewport() ? WHOIS_SEED_MOBILE : WHOIS_SEED_DESKTOP;
+}
+
+function sizeRange() {
+  return isMobileViewport() ? SIZE_MOBILE : SIZE_DESKTOP;
+}
 
 type Particle = {
   x: number;
@@ -140,7 +160,7 @@ function makeParticle(
   return {
     x,
     y,
-    size: rand(SIZE.min, SIZE.max),
+    size: rand(sizeRange().min, sizeRange().max),
     rotation: rand(0, Math.PI * 2),
     rotSpeed: rand(-ROT_SPEED, ROT_SPEED),
     speed: rand(FALL_SPEED.min, FALL_SPEED.max),
@@ -189,7 +209,7 @@ export default function FallingLogoBackground() {
       imgReady = true;
     };
 
-    let particles = Array.from({ length: LOGO_COUNT }, () =>
+    let particles = Array.from({ length: logoCount() }, () =>
       makeParticle(canvas.width, canvas.height, true, getWhoIsRing())
     );
     let whoisSeeded = false;
@@ -197,7 +217,8 @@ export default function FallingLogoBackground() {
     function seedWhoisRing() {
       const ring = getWhoIsRing();
       if (!ring) return;
-      for (let i = 0; i < 14; i++) {
+      const n = Math.min(whoisSeedCount(), particles.length);
+      for (let i = 0; i < n; i++) {
         const idx = Math.floor(Math.random() * particles.length);
         particles[idx] = makeParticle(
           canvas!.width,
@@ -214,9 +235,10 @@ export default function FallingLogoBackground() {
     }
 
     function onResizeParticles() {
-      particles = Array.from({ length: LOGO_COUNT }, () =>
+      particles = Array.from({ length: logoCount() }, () =>
         makeParticle(canvas!.width, canvas!.height, true, getWhoIsRing())
       );
+      whoisSeeded = false;
     }
     window.addEventListener("resize", onResizeParticles);
 
@@ -283,7 +305,9 @@ export default function FallingLogoBackground() {
         const drawW = p.size * aspectRatio;
         const drawH = p.size;
         const drawOpacity =
-          whoisRing && isInWhoIsFlank(whoisRing, p) ? Math.min(0.42, p.opacity + 0.08) : p.opacity;
+          whoisRing && isInWhoIsFlank(whoisRing, p)
+            ? Math.min(0.34, p.opacity + 0.06)
+            : p.opacity;
 
         ctx.save();
         ctx.globalAlpha = drawOpacity;
