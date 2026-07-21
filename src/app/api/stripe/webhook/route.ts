@@ -95,9 +95,10 @@ export async function POST(request: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
     const metadata = session.metadata || {};
 
-    // Academy Full Spectrum unlock (no merch metadata; uses client_reference_id = user id)
-    if (metadata.type !== "merch") {
-      const userId = session.client_reference_id;
+    // Academy Full Spectrum unlock
+    if (metadata.type === "academy") {
+      const userId =
+        metadata.user_id || session.client_reference_id || null;
       if (
         userId &&
         ["paid", "no_payment_required"].includes(session.payment_status)
@@ -107,13 +108,24 @@ export async function POST(request: NextRequest) {
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!
         );
-        await admin
+        const { error } = await admin
           .from("profiles")
           .update({
             has_full_access: true,
             stripe_customer_id: String(session.customer ?? ""),
           })
           .eq("id", userId);
+
+        if (error) {
+          console.error("[stripe-webhook] academy unlock failed", {
+            userId,
+            message: error.message,
+          });
+          return NextResponse.json(
+            { error: "academy_unlock_failed", message: error.message },
+            { status: 500 }
+          );
+        }
 
         return NextResponse.json({
           received: true,
@@ -122,6 +134,14 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      return NextResponse.json({
+        received: true,
+        ignored: true,
+        reason: "academy_session_incomplete",
+      });
+    }
+
+    if (metadata.type !== "merch") {
       return NextResponse.json({
         received: true,
         ignored: true,
