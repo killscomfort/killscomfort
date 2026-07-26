@@ -32,6 +32,18 @@ export const STREAMING_PROFILES = {
 
 export const MUSIC_RELEASES: MusicRelease[] = [
   {
+    title: "FuckDaHaters",
+    releaseDate: "2026-07-17",
+    category: "original",
+    featured: true,
+    spotlight: true,
+    spotlightLabel: "Out Now",
+    coverUrl: "/releases/fuckdahaters.jpg",
+    links: {
+      // TODO: set HyperFollow URL — drives Listen CTA + sticky player
+    },
+  },
+  {
     title: "Dat Thang",
     releaseDate: "2026-03-27",
     category: "original",
@@ -295,12 +307,23 @@ export function getLatestRelease(): MusicRelease {
 }
 
 export function getSpotlightRelease(): MusicRelease | undefined {
-  return MUSIC_RELEASES.find((r) => r.spotlight);
+  return (
+    MUSIC_RELEASES.find((r) => r.spotlight) ??
+    [...MUSIC_RELEASES]
+      .filter((r) => r.featured)
+      .sort(
+        (a, b) =>
+          new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+      )[0]
+  );
 }
 
 export function getLaunchTrack(): MusicRelease | undefined {
-  return MUSIC_RELEASES.find((r) =>
-    r.title.toLowerCase().includes("thisdickaintfree")
+  return (
+    getSpotlightRelease() ??
+    MUSIC_RELEASES.find((r) =>
+      r.title.toLowerCase().includes("thisdickaintfree")
+    )
   );
 }
 
