@@ -32,10 +32,21 @@ export const STREAMING_PROFILES = {
 
 export const MUSIC_RELEASES: MusicRelease[] = [
   {
+    title: "FuckDaHaters",
+    releaseDate: "2026-07-17T12:00:00",
+    category: "original",
+    featured: true,
+    spotlight: true,
+    spotlightLabel: "Out Now",
+    coverUrl: "/releases/fuckdahaters.jpg",
+    links: {
+      // TODO: set HyperFollow URL — drives Listen CTA + sticky player
+    },
+  },
+  {
     title: "Dat Thang",
     releaseDate: "2026-03-27",
     category: "original",
-    featured: true,
     coverUrl:
       "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d8/a9/6c/d8a96c9d-17c7-42bc-7405-842db6dc4717/artwork.jpg/1000x1000bb.jpg",
     previewUrl:
@@ -53,7 +64,6 @@ export const MUSIC_RELEASES: MusicRelease[] = [
     title: "Motion is Faith",
     releaseDate: "2026-02-03",
     category: "original",
-    featured: true,
     coverUrl:
       "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ee/27/18/ee271829-c074-a332-c9a5-97ef544d21c5/artwork.jpg/1000x1000bb.jpg",
     previewUrl:
@@ -69,7 +79,6 @@ export const MUSIC_RELEASES: MusicRelease[] = [
     title: "Good Ol Rub",
     releaseDate: "2025-10-17",
     category: "original",
-    featured: true,
     coverUrl:
       "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/50/fa/c6/50fac600-a9d3-6037-0567-f3c0f10d970f/artwork.jpg/1000x1000bb.jpg",
     previewUrl:
@@ -295,12 +304,15 @@ export function getLatestRelease(): MusicRelease {
 }
 
 export function getSpotlightRelease(): MusicRelease | undefined {
-  return MUSIC_RELEASES.find((r) => r.spotlight);
+  return MUSIC_RELEASES.find((r) => r.spotlight || r.featured);
 }
 
 export function getLaunchTrack(): MusicRelease | undefined {
-  return MUSIC_RELEASES.find((r) =>
-    r.title.toLowerCase().includes("thisdickaintfree")
+  return (
+    getSpotlightRelease() ??
+    MUSIC_RELEASES.find((r) =>
+      r.title.toLowerCase().includes("thisdickaintfree")
+    )
   );
 }
 

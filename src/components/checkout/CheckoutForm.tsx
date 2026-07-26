@@ -179,9 +179,6 @@ export function CheckoutForm({
         <p className="text-bone/70">Your cart is empty.</p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button href="/merch">Shop Merch</Button>
-          <Button href="/services" variant="outline">
-            Book a Service
-          </Button>
         </div>
       </div>
     );
