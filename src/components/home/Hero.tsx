@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
@@ -108,12 +107,6 @@ export function Hero() {
               </Button>
             </SparkleWrap>
           </motion.div>
-          <Link
-            href="/warehouse"
-            className="font-mono text-xs uppercase tracking-[0.2em] text-bone/55 transition-colors hover:text-muted-gold"
-          >
-            Enter the warehouse ↓
-          </Link>
         </motion.div>
       </motion.div>
     </section>

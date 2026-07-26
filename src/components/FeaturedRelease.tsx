@@ -25,8 +25,8 @@ export default function FeaturedRelease({ release }: FeaturedReleaseProps) {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(201,162,39,0.08),transparent_55%)]" />
 
-      <div className="relative mx-auto grid max-w-5xl items-center gap-8 px-4 py-12 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-10 sm:px-6 sm:py-16 lg:px-8">
-        <div className="relative mx-auto aspect-square w-full max-w-[14rem] overflow-hidden bg-near-black ring-1 ring-bone/15">
+      <div className="relative mx-auto grid max-w-5xl items-center gap-8 px-4 py-12 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-10 sm:px-6 sm:py-16 lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
+        <div className="relative mx-auto aspect-square w-48 shrink-0 overflow-hidden bg-near-black ring-1 ring-bone/15 sm:mx-0 sm:w-full">
           <Image
             src={release.coverUrl}
             alt={`${release.title} cover art`}
@@ -38,14 +38,14 @@ export default function FeaturedRelease({ release }: FeaturedReleaseProps) {
           />
         </div>
 
-        <div className="text-center sm:text-left">
+        <div className="min-w-0 text-center sm:text-left">
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-muted-gold">
             {release.spotlightLabel ?? "Out Now"}
             <span className="text-bone/40"> · </span>
             {formatDate(release.releaseDate)}
           </p>
 
-          <h2 className="mt-3 text-3xl uppercase leading-none tracking-wide text-bone sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 break-words text-3xl uppercase leading-[0.95] tracking-wide text-bone sm:text-4xl lg:text-5xl">
             {release.title}
           </h2>
 
