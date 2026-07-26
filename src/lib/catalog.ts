@@ -2,7 +2,10 @@ import { getBookingService, type BookingService } from "@/lib/booking-services";
 import { getMerchItem, type MerchItem } from "@/lib/merch";
 
 export type MerchCatalogItem = MerchItem & { kind: "merch" };
-export type ServiceCatalogItem = BookingService & { kind: "service" };
+export type ServiceCatalogItem = Omit<BookingService, "priceCents"> & {
+  kind: "service";
+  priceCents: number;
+};
 export type CatalogItem = MerchCatalogItem | ServiceCatalogItem;
 
 export function getCatalogItem(slug: string): CatalogItem | undefined {
