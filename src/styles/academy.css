@@ -35,14 +35,32 @@
 
 .kc-btn {
   display: inline-block; font-family: var(--kc-mono); font-size: 13px; letter-spacing: .08em;
+  font-weight: 600;
   background: var(--kc-text); color: var(--kc-bg); border: 1px solid var(--kc-text);
   padding: 12px 22px; border-radius: 8px; cursor: pointer; text-decoration: none; text-transform: uppercase;
   transition: transform .15s, box-shadow .15s;
 }
 .kc-btn:hover { transform: translateY(-1px); box-shadow: 0 0 18px rgba(237,235,230,.25); }
-.kc-btn.ghost { background: transparent; color: var(--kc-text); border-color: var(--kc-line); }
+.kc-btn.ghost {
+  background: transparent;
+  color: var(--kc-text);
+  border-color: var(--kc-dim);
+  font-weight: 500;
+}
 .kc-btn:disabled { opacity: .4; cursor: not-allowed; }
 .kc-btn:focus-visible { outline: 2px solid var(--kc-ok); outline-offset: 2px; }
+
+/* Beat global / body link color so solid CTAs stay dark-on-light */
+.kc-academy a.kc-btn,
+.kc-academy button.kc-btn {
+  color: var(--kc-bg) !important;
+  -webkit-text-fill-color: var(--kc-bg);
+}
+.kc-academy a.kc-btn.ghost,
+.kc-academy button.kc-btn.ghost {
+  color: var(--kc-text) !important;
+  -webkit-text-fill-color: var(--kc-text);
+}
 
 /* ---------- sector / lesson list ---------- */
 .kc-sector { margin-top: 34px; }
