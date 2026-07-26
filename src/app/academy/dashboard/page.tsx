@@ -82,9 +82,15 @@ export default function Dashboard() {
 
   const saveGuestEmail = async () => {
     setGuestMsg(null);
-    const { error } = await supabase().auth.updateUser({ email: guestEmail });
-    if (error) return setGuestMsg(error.message);
-    setGuestMsg('✦ Check ' + guestEmail + ' for a confirmation link — open it and your progress is locked in forever.');
+    const res = await fetch('/api/academy/attach-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: guestEmail }),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) return setGuestMsg(payload.error ?? 'Could not save email.');
+    setProfile((p) => (p ? { ...p, email: guestEmail.toLowerCase() } : p));
+    setGuestMsg('✦ Email locked in — welcome note sent. Your progress is permanent now. Stay with the process.');
   };
 
   const buyFullSpectrum = async () => {

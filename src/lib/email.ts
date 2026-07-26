@@ -135,3 +135,62 @@ export async function sendInquiryConfirmation(name: string, email: string) {
     }),
   });
 }
+
+export async function sendAcademyWelcomeEmail(input: {
+  email: string;
+  username?: string | null;
+  founding?: boolean;
+  cohortSize?: number;
+}) {
+  const name = input.username?.trim() || "producer";
+  const dashboardUrl = `${SITE.url}/academy/dashboard`;
+  const firstLessonUrl = `${SITE.url}/academy/lesson/why-color`;
+  const founding = Boolean(input.founding);
+
+  const content = [
+    emailParagraph(
+      `Welcome in, <strong>${escapeHtml(name)}</strong> — you&apos;re registered for <strong>The Chromatic Wheel</strong>. No confirmation link. You&apos;re already cleared to start.`
+    ),
+    founding
+      ? emailParagraph(
+          `<strong>Founding member unlock:</strong> you&apos;re one of the first 20 in the registry — Full Spectrum access is yours free. All 26 lessons, every badge path, the whole wheel. Don&apos;t waste the seat.`
+        )
+      : emailParagraph(
+          "Sectors 01–02 are free forever. When you&apos;re ready, Full Spectrum unlocks the rest of the wheel."
+        ),
+    emailParagraph(
+      "This course rewards people who stay in the process: one lesson, then another, then a streak that proves you showed up when it was easier not to."
+    ),
+    emailParagraph("Your commitment checklist:"),
+    emailList([
+      "Open Sector 01 today — and keep going",
+      "Finish at least one lesson before the day ends",
+      "Come back tomorrow. Streaks are how fluency sticks",
+      "Treat theory like training, not content you binge once",
+    ]),
+    emailParagraph(
+      "Growth lives on the otherside of killing your comforts. The wheel only works if you keep turning it."
+    ),
+    emailButton(firstLessonUrl, "Start Sector 01 now"),
+    emailButton(dashboardUrl, "Open your dashboard"),
+    emailParagraph(
+      `Glad you&apos;re here.<br/><br/>— <strong>${escapeHtml(SITE.founder)}</strong><br/><span style="opacity:0.65;">${escapeHtml(SITE.founderRoles)}</span>`
+    ),
+  ].join("");
+
+  return sendEmail({
+    to: input.email,
+    subject: founding
+      ? `Founding unlock — Full Spectrum is yours | ${SITE.name} Academy`
+      : `You're in — stay with the process | ${SITE.name} Academy`,
+    html: renderEmailLayout({
+      title: founding
+        ? "You're a founding member. Full Spectrum unlocked."
+        : "You're registered. Now stay with it.",
+      preheader: founding
+        ? "First 20 registry seats get Full Spectrum free. Start Sector 01 and protect your streak."
+        : "No confirmation needed. Start Sector 01, protect your streak, and keep killing comfort.",
+      content,
+    }),
+  });
+}

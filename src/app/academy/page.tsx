@@ -70,7 +70,7 @@ export default function AcademyLanding() {
           ['I paid but sectors are still locked.', "Give it a few seconds after checkout — unlock is automatic. If it's still locked after a minute, refresh the dashboard while logged into the SAME email you paid with. Your purchase is tied to your account, never lost."],
           ['Does my progress work across devices?', 'Yes — one account, everything syncs: XP, streaks, badges, lesson history. Log in anywhere.'],
           ['Is Full Spectrum a subscription?', 'No. One payment, $49, yours permanently — including future lessons added to the wheel.'],
-          ['Can I try it without signing up?', 'Yes — Continue as guest starts the free sectors instantly, no email. Guest progress lives on that device only; add an email anytime from your dashboard to keep it forever and enable purchases.'],
+          ['Can I try it without signing up?', 'Yes — Continue as guest starts the free sectors instantly, no email. Guest progress lives on that device only; add an email anytime from your dashboard to keep it forever and enable purchases. No confirmation link — we email a welcome note instead.'],
           ['I have a discount or access code — where does it go?', 'Discount codes: tap Unlock Full Spectrum and enter the code on the checkout page. Access codes (free unlocks): enter them in the Access Code box on your dashboard.'],
           ['Forgot your password?', "Use 'Forgot password?' on the login screen — a reset link lands in your email within a minute (check spam)."],
         ].map(([q, a]) => (
@@ -85,8 +85,8 @@ export default function AcademyLanding() {
         <p className="kc-eyebrow">FULL SPECTRUM ACCESS</p>
         <p className="kc-price">$49 <span style={{ fontSize: 13, color: 'var(--kc-dim)' }}>one-time</span></p>
         <p className="kc-li">
-          Sectors 01–02 <b>free forever</b> with signup · Full Spectrum unlocks all 26 lessons,
-          {' '}{TOTAL_XP} total XP, every badge, and everything the wheel can teach.
+          Sectors 01–02 <b>free forever</b> with signup · <b>first 20 registry seats</b> unlock Full Spectrum free ·
+          after that, $49 unlocks all 26 lessons,{' '}{TOTAL_XP} total XP, every badge, and everything the wheel can teach.
         </p>
         <Link href="/academy/auth" className="kc-btn">Enter the Academy</Link>
       </section>

@@ -137,6 +137,14 @@
   background: var(--kc-panel2); color: var(--kc-text); border: 1px solid var(--kc-line);
   border-radius: 7px; padding: 12px; margin-bottom: 10px; }
 .kc-field:focus { outline: none; border-color: var(--kc-dim); }
+.kc-field-wrap { position: relative; margin-bottom: 10px; }
+.kc-field-wrap .kc-field { margin-bottom: 0; padding-right: 68px; }
+.kc-field-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-family: var(--kc-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--kc-dim); background: transparent; border: 0; cursor: pointer; padding: 6px 8px;
+}
+.kc-field-toggle:hover { color: var(--kc-text); }
 .kc-err { color: var(--kc-warn); font-size: 12px; margin: 6px 0; }
 
 /* ---------- pricing ---------- */
