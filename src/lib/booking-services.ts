@@ -1,28 +1,36 @@
 export type BookingService = {
   slug: string;
   name: string;
-  priceCents: number;
   description: string;
+  /** Present only for legacy purchasable services — unused for current offers */
+  priceCents?: number;
 };
 
-/** Paid services — deposits and lessons. Custom quotes still go through /book inquiry. */
+/** Services shown on /services — inquire by email, no cart checkout. */
 export const BOOKING_SERVICES: BookingService[] = [
   {
-    slug: "dj-booking-deposit",
-    name: "DJ Booking Deposit",
-    priceCents: 15000,
+    slug: "ai-fluency-consultation",
+    name: "AI Fluency Consultation",
     description:
-      "Reserve your date with a $150 deposit. Applied toward your final event fee — clubs, festivals, private events.",
+      "Practical guidance on using AI in your creative and business workflow — tools, prompts, and systems that actually move work forward.",
   },
   {
-    slug: "private-lesson",
-    name: "Private Lesson (1 hr)",
-    priceCents: 7500,
+    slug: "audio-engineering",
+    name: "Audio Engineering",
     description:
-      "One-on-one session — DJ technique, production, or sound engineering with Gregory Tovar.",
+      "Mixing, mastering, session work, and sonic polish — SAE-trained engineering for tracks, live setups, and brand sound.",
+  },
+  {
+    slug: "av-production-assistant",
+    name: "AV Production Assistant",
+    description:
+      "On-site and remote support for live events, shoots, and installs — signal flow, gear, and production logistics handled.",
   },
 ];
 
+/** Only priced services are cart-eligible. Current offers are inquiry-only. */
 export function getBookingService(slug: string) {
-  return BOOKING_SERVICES.find((service) => service.slug === slug);
+  const service = BOOKING_SERVICES.find((item) => item.slug === slug);
+  if (!service?.priceCents) return undefined;
+  return service as BookingService & { priceCents: number };
 }

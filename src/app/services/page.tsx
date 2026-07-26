@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCatalog } from "@/components/booking/ServiceCatalog";
 import { createMetadata } from "@/lib/seo";
@@ -7,7 +5,7 @@ import { SITE } from "@/lib/constants";
 
 export const metadata = createMetadata({
   title: "Services",
-  description: `DJ booking deposits and private lessons — ${SITE.name}.`,
+  description: `AI fluency consultation, audio engineering, and AV production support from ${SITE.name}.`,
   path: "/services",
 });
 
@@ -17,25 +15,15 @@ export default function ServicesPage() {
       <section className="section-padding">
         <div className="mx-auto max-w-3xl">
           <SectionHeading
-            label="Booking"
+            label="Offerings"
             title="Services"
-            description="Deposits and lessons — add to cart and checkout securely."
+            description="What I can help with — reach out and we'll shape the right fit."
             align="center"
             className="mx-auto"
           />
 
-          <p className="mx-auto mt-4 max-w-xl text-center text-sm text-bone/50">
-            Need a custom quote first?{" "}
-            <Link href="/book" className="text-muted-gold hover:text-bone">
-              Send an inquiry instead
-            </Link>
-            .
-          </p>
-
-          <div className="mt-8">
-            <Suspense fallback={<p className="text-center text-bone/50">Loading services...</p>}>
-              <ServiceCatalog />
-            </Suspense>
+          <div className="mt-10">
+            <ServiceCatalog />
           </div>
         </div>
       </section>
