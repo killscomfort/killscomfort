@@ -11,10 +11,9 @@ const to =
   "Killscomfort@gmail.com";
 const key = process.env.RESEND_API_KEY;
 const from =
-  process.env.EMAIL_FROM?.includes("onboarding@resend.dev")
-    ? process.env.EMAIL_FROM
-    : process.env.RESEND_TEST_FROM ||
-      "KillsComfort <onboarding@resend.dev>";
+  process.env.EMAIL_FROM ||
+  process.env.RESEND_TEST_FROM ||
+  "KillsComfort <orders@killscomfort.com>";
 const replyTo =
   process.env.EMAIL_REPLY_TO?.trim() ||
   process.env.INQUIRY_NOTIFICATION_EMAIL?.trim() ||
