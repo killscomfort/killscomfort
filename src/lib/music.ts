@@ -39,8 +39,14 @@ export const MUSIC_RELEASES: MusicRelease[] = [
     spotlight: true,
     spotlightLabel: "Out Now",
     coverUrl: "/releases/fuckdahaters.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d5/27/7f/d5277f40-e1be-838c-8e20-6a8fded14dab/mzaf_15935654106479880086.plus.aac.p.m4a",
     links: {
-      // TODO: set HyperFollow URL — drives Listen CTA + sticky player
+      listen: "https://distrokid.com/hyperfollow/killscomfort/fuckdahaters",
+      spotify: "https://open.spotify.com/track/3gFSh81vG2ctiQSAgN7L3U",
+      appleMusic:
+        "https://music.apple.com/us/album/fuckdahaters/6782772749?i=6782772750",
+      deezer: "https://www.deezer.com/album/1011200851",
     },
   },
   {
