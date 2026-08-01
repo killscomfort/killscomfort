@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { BrandText } from "@/components/ui/BrandText";
 import { SparkleWrap } from "@/components/ui/SparkleWrap";
 import { HOME_HERO_IMAGE } from "@/lib/about";
 import { LOGO_SRC, SITE } from "@/lib/constants";
+import { INTRO_COMPLETE_EVENT, hasSeenIntro } from "@/lib/intro";
 import { TERMINAL_ASCII_LOGO, TERMINAL_MIAMI_STATUS } from "@/lib/terminal-theme";
 
 const containerVariants = {
@@ -27,22 +29,58 @@ const itemVariants = {
 };
 
 export function Hero() {
+  const [canLoadHeroVideo, setCanLoadHeroVideo] = useState(false);
+
+  useEffect(() => {
+    if (hasSeenIntro()) {
+      setCanLoadHeroVideo(true);
+      return;
+    }
+
+    const unlock = () => setCanLoadHeroVideo(true);
+    window.addEventListener(INTRO_COMPLETE_EVENT, unlock);
+
+    // Cover races where the intro finishes before this effect attaches.
+    const retry = window.setInterval(() => {
+      if (hasSeenIntro()) {
+        setCanLoadHeroVideo(true);
+        window.clearInterval(retry);
+      }
+    }, 200);
+
+    return () => {
+      window.removeEventListener(INTRO_COMPLETE_EVENT, unlock);
+      window.clearInterval(retry);
+    };
+  }, []);
+
   return (
     <section className="terminal-hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-near-black">
       {/* Opaque media plane so falling logos stay behind the hero video */}
       <div className="terminal-hero-media pointer-events-none absolute inset-0 overflow-hidden">
-        <video
+        {/* Poster shows immediately so deferred video does not leave a blank hero. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          poster={HOME_HERO_IMAGE}
+          src={HOME_HERO_IMAGE}
+          alt=""
           aria-hidden="true"
-        >
-          <source src="/video/dj-footy-ai.mp4" type="video/mp4" />
-        </video>
+        />
+
+        {canLoadHeroVideo && (
+          <video
+            className="absolute left-1/2 top-[-4%] h-[108%] w-full max-w-none -translate-x-1/2 object-cover object-[50%_38%] grayscale contrast-125 brightness-75 saturate-0"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster={HOME_HERO_IMAGE}
+            aria-hidden="true"
+          >
+            <source src="/video/dj-footy-ai.mp4" type="video/mp4" />
+          </video>
+        )}
       </div>
 
       <div className="terminal-hero-media pointer-events-none absolute inset-0 bg-gradient-to-b from-near-black/30 via-near-black/45 to-near-black/85" />
