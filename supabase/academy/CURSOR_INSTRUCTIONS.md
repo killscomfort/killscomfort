@@ -15,7 +15,7 @@ matches the site's aesthetic. Your job is placement, wiring, and verification.
 - `app/academy/`        → the course routes (landing, auth, dashboard, lesson/[slug])
 - `app/api/stripe/`     → checkout + webhook routes
 - `components/`         → Wheel.tsx, Geometry.tsx, ui.tsx (namespaced kc- classes)
-- `content/`            → curriculum.ts (all 26 lessons)
+- `content/`            → curriculum.ts (all 27 lessons)
 - `lib/`                → theory.ts, audio.ts, supabase.ts
 - `styles/academy.css`  → self-contained; imported only by app/academy/layout.tsx;
                           will not leak into or collide with existing site CSS

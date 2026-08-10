@@ -1,6 +1,6 @@
 // ============================================================
 // KILLSCOMFORT ACADEMY — THE CHROMATIC WHEEL
-// Full curriculum: 6 sectors / 26 lessons.
+// Full curriculum: 6 sectors / 27 lessons.
 // Informed by the structure of university fundamentals programs
 // (notation, keys, rhythm, meter, intervals, melody, chords,
 // progressions, form + ear training) and production-school
@@ -118,7 +118,24 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'pulse-and-grid', sector: 1, title: 'Pulse & Grid', tag: 'sig.05 // TIME',
+    slug: 'coltrane-circle', sector: 1, title: "Coltrane's Circle: History on the Wheel", tag: 'sig.05 // COLTRANE',
+    minutes: 9, xp: 60, free: true, focusKeys: ['B', 'G', 'Eb'], geometry: 'triangle',
+    content: [
+      "In the early 1960s, **John Coltrane** drew a circle of tones that has become one of the most studied diagrams in jazz history — often called Coltrane's Circle or Tone Circle. It is not a different map from the circle of fifths you just learned. It is the *same twelve points*, covered in geometric overlays: stars, triangles, and interlocking paths. Coltrane was treating harmony the way this Academy does — as **shape you can see**, not only hear.",
+      "That drawing sits next to his 1960 masterpiece ***Giant Steps***. The tune cycles home centers by **major thirds** — B → G → E♭ → B — an equilateral triangle on the chromatic circle. Three equal leaps of four semitones carve a closed loop with no \"easy\" neighbor-key glide; every landing is a new gravity well. Where the circle of fifths walks by one note at a time, Coltrane's triangle *jumps*. The ear feels the lift because the geometry is extreme on purpose.",
+      "Coltrane was deep in spiritual study, physics, and sacred geometry while he practiced. The diagram is a historical receipt: a working musician used the wheel as a **laboratory**, not a classroom poster. When you highlight B, G, and E♭ on our Chromatic Wheel, you are standing inside the same architecture he mapped — neighbors for smooth travel, triangles for Giant Steps tension, the full dodecagon for the raw twelve. History lesson, then back to the grid: the past already proved this map is playable.",
+    ],
+    task: {
+      intro: 'HISTORY CHECK // Coltrane on the wheel.',
+      questions: [
+        { q: "Coltrane's famous tone circle is best understood as…", options: ['a different tuning system that replaces the circle of fifths', 'the same twelve-tone wheel with geometric overlays he used as a practice map', 'a tempo chart for modal jazz', 'a brand logo'], answer: 1, why: 'Same twelve points — geometry drawn on top so relationships become visible, exactly like this Academy’s wheel.' },
+        { q: 'Giant Steps cycles its key centers by…', options: ['perfect fifths only', 'major thirds — an equilateral triangle on the chromatic circle', 'chromatic half-steps', 'relative minors'], answer: 1, why: 'B–G–E♭ (and repeats) are four-semitone leaps: three equal sides, one closed triangle of homes.' },
+        { q: 'Why does this history matter for producers and DJs?', options: ['It is only for saxophonists', 'It proves the wheel is a working tool musicians used to invent, not just memorize', 'Coltrane invented the twelve tones', 'It replaces learning rhythm'], answer: 1, why: 'Coltrane treated geometry as a lab for new movement — the same map you will use to write, sample, and mix.' },
+      ],
+    },
+  },
+  {
+    slug: 'pulse-and-grid', sector: 1, title: 'Pulse & Grid', tag: 'sig.06 // TIME',
     minutes: 7, xp: 50, free: true, focusKeys: [], geometry: 'square',
     content: [
       "Color needs a canvas. In music, the canvas is **time**, and the grid stretched across it is meter. The pulse is the steady heartbeat (the BPM you already think in as a DJ). Meter groups pulses: **4/4** — four beats per bar — is the square frame nearly all club music is painted in. House and techno don't just use 4/4; they *are* 4/4, kick on every beat, a perfect square repeating forever.",
@@ -137,7 +154,7 @@ export const LESSONS: Lesson[] = [
 
   // ==================== SECTOR 02 — SCALES & SHADES ====================
   {
-    slug: 'major-scale', sector: 2, title: 'Building the Major Scale', tag: 'sig.06 // THE FORMULA',
+    slug: 'major-scale', sector: 2, title: 'Building the Major Scale', tag: 'sig.07 // THE FORMULA',
     minutes: 8, xp: 60, free: true, focusKeys: ['C'], geometry: undefined,
     content: [
       "A scale is a key's **palette in order**. The major scale — the bright, resolved sound — is built from one formula: **W W H W W W H** (whole step, whole step, half step, whole, whole, whole, half). Start on C and apply it: C D E F G A B C. All white keys, no accidentals, which is why C major is the beginner's key — and why we place it at the top of the wheel at pure red, hue zero.",
@@ -154,7 +171,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'intervals', sector: 2, title: 'Distance Is Contrast', tag: 'sig.07 // INTERVALS',
+    slug: 'intervals', sector: 2, title: 'Distance Is Contrast', tag: 'sig.08 // INTERVALS',
     minutes: 8, xp: 60, free: true, focusKeys: ['C', 'F♯'], geometry: 'diameter',
     content: [
       "An **interval** is the distance between two tones — and distance is contrast. Small, simple-ratio intervals (octave 2:1, fifth 3:2, fourth 4:3) are low-contrast: they blend like adjacent hues. Complex ratios (the minor second, the tritone) are high-contrast: they vibrate against each other like clashing colors. Neither is good or bad. **Consonance is rest; dissonance is energy.** Music is the traffic between them.",
@@ -171,7 +188,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'relative-minor', sector: 2, title: 'Shades: The Relative Minor', tag: 'sig.08 // LIGHT/DARK',
+    slug: 'relative-minor', sector: 2, title: 'Shades: The Relative Minor', tag: 'sig.09 // LIGHT/DARK',
     minutes: 7, xp: 60, free: true, focusKeys: ['C'], geometry: undefined,
     content: [
       "Every hue has a shade. Every major key has a **relative minor**: a minor key built from the *exact same seven notes*, but with home moved to the 6th degree. C major and A minor share every note — same palette, different center of gravity. Same hue, darker value. On our wheel they occupy the same segment: the bright outer ring is the major, the dark inner ring is its relative minor.",
@@ -188,7 +205,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'key-signatures', sector: 2, title: 'Reading Key Signatures', tag: 'sig.09 // THE CODE',
+    slug: 'key-signatures', sector: 2, title: 'Reading Key Signatures', tag: 'sig.10 // THE CODE',
     minutes: 7, xp: 60, free: true, focusKeys: ['G', 'D', 'F', 'B♭'], geometry: undefined,
     content: [
       "Key signatures look like a cipher — clusters of sharps or flats at the start of written music — but the wheel decodes them instantly. **Each clockwise step from C adds one sharp. Each counter-clockwise step adds one flat.** C has none. G has one sharp. D has two. F has one flat, B♭ two. The number of accidentals is literally the key's distance from the top of the wheel.",
@@ -207,7 +224,7 @@ export const LESSONS: Lesson[] = [
 
   // ==================== SECTOR 03 — CHORDS ARE COLOR MIXING ====================
   {
-    slug: 'triads', sector: 3, title: 'Triads: Mixing Three Tones', tag: 'sig.10 // PIGMENT',
+    slug: 'triads', sector: 3, title: 'Triads: Mixing Three Tones', tag: 'sig.11 // PIGMENT',
     minutes: 8, xp: 70, free: false, focusKeys: ['C'], geometry: 'triangle',
     content: [
       "A chord is tones **mixed like pigment** — sounded together so they fuse into one color. The basic unit is the triad: root, third, fifth. Stack in-palette thirds on each scale degree of a major key and you get its seven native chords, always in this pattern: **I major, ii minor, iii minor, IV major, V major, vi minor, vii° diminished**. Seven chords, free with every key. That's your paint set.",
@@ -224,11 +241,11 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'geometry-of-chords', sector: 3, title: 'The Geometry of Chords', tag: 'sig.11 // SACRED FORMS',
+    slug: 'geometry-of-chords', sector: 3, title: 'The Geometry of Chords', tag: 'sig.12 // SACRED FORMS',
     minutes: 9, xp: 70, free: false, focusKeys: [], geometry: 'triangle',
     content: [
       "Place the twelve tones evenly on a circle and draw straight lines between chord tones. Chords become **shapes** — and the regular polygons of sacred geometry turn out to be real, playable sounds. The **augmented triad** divides the octave into three equal parts: a perfect equilateral triangle. The **diminished seventh** divides it into four: a perfect square. The **whole-tone scale** divides it into six: a hexagon. The **tritone** is the diameter itself.",
-      "Here's the deep part: perfectly symmetrical shapes produce perfectly *ambiguous* sounds. An equilateral triangle has no 'top,' and an augmented triad has no home — spin it a third of a turn and it maps onto itself, so the ear can't tell which note is the root. Symmetry erases gravity. That's why augmented and diminished chords feel suspended, floating, unresolved — and why composers use them as **trapdoors between keys**: a shape with no home can enter any home.",
+      "Here's the deep part: perfectly symmetrical shapes produce perfectly *ambiguous* sounds. An equilateral triangle has no 'top,' and an augmented triad has no home — spin it a third of a turn and it maps onto itself, so the ear can't tell which note is the root. Symmetry erases gravity. That's why augmented and diminished chords feel suspended, floating, unresolved — and why composers use them as **trapdoors between keys**: a shape with no home can enter any home. Coltrane's *Giant Steps* centers (B–G–E♭) are the same triangle idea applied to *key homes*, not just chord tones — history you already met in Sector 01.",
       "Ordinary major and minor triads are *slightly asymmetric* triangles — and that tiny asymmetry is exactly what gives them a root, a direction, a place on the wheel. Perfect symmetry is beautiful and rootless; broken symmetry is where music gets gravity. If you take one idea from sacred geometry into your sessions, take this: **the shape of a chord predicts how it behaves.**",
     ],
     task: {
@@ -241,7 +258,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'chord-functions', sector: 3, title: 'Base, Support, Accent', tag: 'sig.12 // FUNCTION',
+    slug: 'chord-functions', sector: 3, title: 'Base, Support, Accent', tag: 'sig.13 // FUNCTION',
     minutes: 8, xp: 70, free: false, focusKeys: ['C', 'G', 'F'], geometry: undefined,
     content: [
       "Interior designers use the 60-30-10 rule: a dominant base color, a secondary support, a small sharp accent. Keys work the same way. Every chord in a key performs one of three **functions**: **Tonic** (home, rest — the I and its stand-ins iii and vi), **Subdominant** (motion away from home — IV and ii), and **Dominant** (tension demanding return — V and vii°). Base, support, accent.",
@@ -258,7 +275,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'sevenths', sector: 3, title: 'Sevenths & Extensions: Tinting the Mix', tag: 'sig.13 // NUANCE',
+    slug: 'sevenths', sector: 3, title: 'Sevenths & Extensions: Tinting the Mix', tag: 'sig.14 // NUANCE',
     minutes: 8, xp: 70, free: false, focusKeys: ['C'], geometry: undefined,
     content: [
       "A triad is a flat color. Add the **seventh** — one more in-palette third on top — and the color gets depth: the maj7 is soft luxury (neo-soul, deep house pads), the dominant 7 is gritty pull (blues, funk bass stabs), the m7 is smoke (the default chord of lo-fi and R&B). Same base pigment, different **tint**.",
@@ -275,7 +292,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'borrowed-colors', sector: 3, title: 'Borrowed Colors', tag: 'sig.14 // INTERCHANGE',
+    slug: 'borrowed-colors', sector: 3, title: 'Borrowed Colors', tag: 'sig.15 // INTERCHANGE',
     minutes: 8, xp: 70, free: false, focusKeys: ['C', 'E♭', 'A♭'], geometry: undefined,
     content: [
       "The seven diatonic chords are your palette — but nobody said you can't **borrow**. Modal interchange means grabbing a chord from the parallel key: writing in C major but pulling the ♭VI (A♭ major) or iv (F minor) from C *minor*. The borrowed chord lands like an accent color from outside the scheme: instantly noticeable, emotionally loaded, gone before it overstays.",
@@ -294,7 +311,7 @@ export const LESSONS: Lesson[] = [
 
   // ==================== SECTOR 04 — PROGRESSIONS ARE PALETTES ====================
   {
-    slug: 'core-palettes', sector: 4, title: 'Core Palettes', tag: 'sig.15 // SCHEMES',
+    slug: 'core-palettes', sector: 4, title: 'Core Palettes', tag: 'sig.16 // SCHEMES',
     minutes: 9, xp: 80, free: false, focusKeys: ['C', 'G', 'F'], geometry: undefined,
     content: [
       "A progression is a **color scheme in motion** — a repeating loop of functions. Four schemes cover an absurd share of modern music. **I–IV–V**: the primary triad scheme, blues to punk to festival house. **I–V–vi–IV**: the four-chord pop axis — bright, then a shadow, then lift. **vi–IV–I–V**: the same four chords rotated to start in shadow — the melancholic default of EDM and emotional house. **ii–V–I**: the jazz cadence, support→tension→home in its most elegant form.",
@@ -311,7 +328,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'melody-over-harmony', sector: 4, title: 'Melody: The Brushstroke', tag: 'sig.16 // LINE',
+    slug: 'melody-over-harmony', sector: 4, title: 'Melody: The Brushstroke', tag: 'sig.17 // LINE',
     minutes: 9, xp: 80, free: false, focusKeys: ['C'], geometry: undefined,
     content: [
       "If chords are fields of color, melody is the **brushstroke across them**. The core skill is knowing, at every moment, whether your melody note is a **chord tone** (inside the color underneath — stable, consonant) or a **non-chord tone** (outside it — friction, motion). Strong melodies land chord tones on strong beats and use outside notes as passing motion between them: friction in transit, agreement on arrival.",
@@ -328,7 +345,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'tension-complements', sector: 4, title: 'Tension: The Complementary Pair', tag: 'sig.17 // OPPOSITION',
+    slug: 'tension-complements', sector: 4, title: 'Tension: The Complementary Pair', tag: 'sig.18 // OPPOSITION',
     minutes: 8, xp: 80, free: false, focusKeys: ['C', 'F♯'], geometry: 'diameter',
     content: [
       "In color theory, complements — opposite hues — produce maximum vibration when adjacent. On our wheel, the complement of any key is the key a **tritone** away: the diameter, six steps, the far pole. C's complement is F♯. This is the axis of maximum harmonic tension, and controlling it is what separates producers who *build* energy from producers who just get louder.",
@@ -345,7 +362,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'modulation', sector: 4, title: 'Modulation: Shifting the Palette', tag: 'sig.18 // TRAVEL',
+    slug: 'modulation', sector: 4, title: 'Modulation: Shifting the Palette', tag: 'sig.19 // TRAVEL',
     minutes: 9, xp: 80, free: false, focusKeys: ['C', 'G', 'A'], geometry: undefined,
     content: [
       "Modulation is repainting the room mid-song: moving the tonal center to a new key. The wheel makes the cost visible. **Neighbor moves** (one step: C→G) are nearly seamless — one note changes; the ear barely files a report. **Relative moves** (outer ring to inner ring) are free. **Far moves** (three-plus steps) are dramatic and need either a bridge or the confidence to just *cut*.",
@@ -364,7 +381,7 @@ export const LESSONS: Lesson[] = [
 
   // ==================== SECTOR 05 — PRODUCTION IN COLOR ====================
   {
-    slug: 'writing-in-key', sector: 5, title: 'Writing in Key', tag: 'sig.19 // SESSION',
+    slug: 'writing-in-key', sector: 5, title: 'Writing in Key', tag: 'sig.20 // SESSION',
     minutes: 10, xp: 90, free: false, focusKeys: ['A'], geometry: undefined,
     content: [
       "Open your DAW. Pick a hue — say A minor — and commit the session to it: set the DAW's scale highlighting, name the project with the key, and build everything inside that palette. **Bassline first** in club music: roots and fifths of your progression on the grid from Sector 01, chord tones on the strong beats. The bass is the underpainting; every layer above must agree with it or the whole canvas muddies.",
@@ -381,7 +398,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'sample-keying', sector: 5, title: 'Keying Samples', tag: 'sig.20 // CRATE',
+    slug: 'sample-keying', sector: 5, title: 'Keying Samples', tag: 'sig.21 // CRATE',
     minutes: 9, xp: 90, free: false, focusKeys: ['E♭', 'B♭', 'A♭'], geometry: undefined,
     content: [
       "Every sample arrives wearing a hue. Before it enters your session, **identify its key** — by ear against a keyboard (find the note that feels like home, then test major vs. minor third), or with detection tools, which you should treat as a first opinion, not gospel: verify by ear, because detectors routinely confuse relative majors and minors (same palette, remember — same pixels, different center).",
@@ -398,7 +415,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'harmonic-mixing', sector: 5, title: 'Harmonic Mixing: The DJ Wheel', tag: 'sig.21 // THE BOOTH',
+    slug: 'harmonic-mixing', sector: 5, title: 'Harmonic Mixing: The DJ Wheel', tag: 'sig.22 // THE BOOTH',
     minutes: 10, xp: 90, free: false, focusKeys: ['A', 'E', 'D'], geometry: 'dodecagram',
     content: [
       "Here's the secret hiding in plain sight: the **Camelot wheel** — the harmonic mixing system serious DJs live by — *is the circle of fifths with numbers on it*. 8A/8B, 9A/9B… the numbers walk around our wheel; A is the inner ring (minor), B is the outer (major). You've spent five sectors learning the full theory behind the tool. Now the tool is transparent: it's this course's wheel wearing club clothing.",
@@ -415,7 +432,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'form-arrangement', sector: 5, title: 'Form & the Golden Section', tag: 'sig.22 // ARCHITECTURE',
+    slug: 'form-arrangement', sector: 5, title: 'Form & the Golden Section', tag: 'sig.23 // ARCHITECTURE',
     minutes: 10, xp: 90, free: false, focusKeys: [], geometry: 'phi',
     content: [
       "Zoom out from the loop: **arrangement** is composition at the scale of the whole canvas. Club structures are built from 8- and 16-bar blocks — intro, build, drop, break, build, drop, outro — because DJs need predictable seams to mix across. Within that grid, energy is the real subject: every block either adds color (layers in) or removes it (layers out). Sketch your track as a brightness curve before you arrange a single region.",
@@ -434,7 +451,7 @@ export const LESSONS: Lesson[] = [
 
   // ==================== SECTOR 06 — MIXING THE SPECTRUM ====================
   {
-    slug: 'frequency-temperature', sector: 6, title: 'The Temperature of Frequency', tag: 'sig.23 // SPECTRUM',
+    slug: 'frequency-temperature', sector: 6, title: 'The Temperature of Frequency', tag: 'sig.24 // SPECTRUM',
     minutes: 9, xp: 100, free: false, focusKeys: [], geometry: undefined,
     content: [
       "The color mapping has one more octave to climb: the **frequency spectrum of a mix** behaves like temperature in an image. Sub and bass (20–250Hz) are the warm, heavy reds and ambers — physical, felt in the chest. Mids (250Hz–4kHz) are the greens and yellows where almost everything lives — vocals, synth bodies, snare crack. Highs (4k–20kHz) are the cool blues and violets: air, shimmer, distance. A mix is **white light**: all temperatures present, none shouting.",
@@ -451,7 +468,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'eq-color-balance', sector: 6, title: 'EQ Is Color Balance', tag: 'sig.24 // CARVING',
+    slug: 'eq-color-balance', sector: 6, title: 'EQ Is Color Balance', tag: 'sig.25 // CARVING',
     minutes: 10, xp: 100, free: false, focusKeys: [], geometry: undefined,
     content: [
       "EQ is not an effect; it's **color correction**. Every element in your mix occupies a region of the spectrum-image, and two elements occupying the same region don't add — they *mask*, smearing into brown the way over-mixed paint does. The masking pairs every engineer fights: kick vs. bass (both warm reds), vocal vs. synth pads (both midfield greens), hats vs. cymbal wash (competing blues).",
@@ -468,7 +485,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'effects-atmosphere', sector: 6, title: 'Effects Are Atmosphere', tag: 'sig.25 // DEPTH OF FIELD',
+    slug: 'effects-atmosphere', sector: 6, title: 'Effects Are Atmosphere', tag: 'sig.26 // DEPTH OF FIELD',
     minutes: 10, xp: 100, free: false, focusKeys: [], geometry: undefined,
     content: [
       "If EQ is color balance, effects are the **photographic qualities** of the image. **Compression is contrast**: it shrinks the gap between loud and quiet, pushing everything toward the midtones — punchy and present at best, flat and lifeless when crushed. Use it like a photographer uses contrast: enough to make the subject pop, never so much that the shadows die.",
@@ -485,7 +502,7 @@ export const LESSONS: Lesson[] = [
     },
   },
   {
-    slug: 'cymatics-and-space', sector: 6, title: 'Cymatics & the Stereo Canvas', tag: 'sig.26 // FINAL FORM',
+    slug: 'cymatics-and-space', sector: 6, title: 'Cymatics & the Stereo Canvas', tag: 'sig.27 // FINAL FORM',
     minutes: 10, xp: 100, free: false, focusKeys: [], geometry: 'chladni',
     content: [
       "One last piece of sacred geometry — the one you can watch. **Cymatics**: scatter sand on a metal plate, bow its edge, and the sand leaps into symmetric geometric patterns — Chladni figures — that reorganize as the pitch changes. Higher tones, more intricate mandalas. It's the course's thesis made physical: sound doesn't *resemble* geometry; vibration literally **arranges matter into form**. The wheel you've studied is one more Chladni plate, drawn in keys.",

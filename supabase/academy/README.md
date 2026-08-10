@@ -12,7 +12,7 @@
 
 Music theory fluency through the color wheel and sacred geometry, for producers,
 DJs and engineers. A drop-in module for the existing Next.js site at
-killscomfort.com: 26 lessons across 6 sectors, XP + levels, badges, daily
+killscomfort.com: 27 lessons across 6 sectors, XP + levels, badges, daily
 streaks, free tier (Sectors 01–02) + one-time paid Full Spectrum unlock.
 
 ## What's inside
@@ -23,7 +23,7 @@ app/api/stripe/              → checkout + webhook (Full Spectrum purchase)
 components/Wheel.tsx         → interactive circle-of-fifths color wheel (plays audio)
 components/Geometry.tsx      → sacred geometry SVG figures (vesica, flower, φ, Chladni)
 components/ui.tsx            → XP bar, badges, streak, terminal chrome
-content/curriculum.ts        → all 26 lessons: content + quiz tasks (edit freely)
+content/curriculum.ts        → all 27 lessons: content + quiz tasks (edit freely)
 lib/theory.ts                → key↔hue mapping, XP curve, badge defs
 lib/audio.ts                 → Web Audio triad synth
 lib/supabase.ts              → browser client

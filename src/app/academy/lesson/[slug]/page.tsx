@@ -55,7 +55,7 @@ export default function LessonPage({ params }: { params: Promise<{ slug: string 
         <div className="kc-panel" style={{ textAlign: 'center' }}>
           <p className="kc-eyebrow">YOU&apos;VE REACHED THE EDGE OF THE FREE SPECTRUM</p>
           <p>Sectors 01–02 were the foundations. <strong>{lesson.title}</strong> and everything past it — chords, progressions, harmonic DJ mixing, spectrum mixing — lives in Full Spectrum.</p>
-          <p style={{ fontSize: 12, color: 'var(--kc-dim)' }}>One payment. Yours permanently. All 26 lessons, every badge, future lessons included.</p>
+          <p style={{ fontSize: 12, color: 'var(--kc-dim)' }}>One payment. Yours permanently. All 27 lessons, every badge, future lessons included.</p>
           <button className="kc-btn" onClick={buyFullSpectrum}>Continue — Unlock Full Spectrum $49</button>
           <p style={{ marginTop: 10 }}><Link href="/academy/dashboard" style={{ fontSize: 12, color: 'var(--kc-dim)' }}>Back to dashboard</Link></p>
         </div>

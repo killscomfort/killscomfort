@@ -9,7 +9,7 @@ export default function AcademyLanding() {
   return (
     <main>
       <AsciiHeader />
-      <StatusLine text="academy.init // 6 sectors / 26 lessons / one wheel" />
+      <StatusLine text="academy.init // 6 sectors / 27 lessons / one wheel" />
 
       <section className="kc-grid kc-grid-2" style={{ alignItems: 'center' }}>
         <div>
@@ -86,7 +86,7 @@ export default function AcademyLanding() {
         <p className="kc-price">$49 <span style={{ fontSize: 13, color: 'var(--kc-dim)' }}>one-time</span></p>
         <p className="kc-li">
           Sectors 01–02 <b>free forever</b> with signup · <b>first 20 registry seats</b> unlock Full Spectrum free ·
-          after that, $49 unlocks all 26 lessons,{' '}{TOTAL_XP} total XP, every badge, and everything the wheel can teach.
+          after that, $49 unlocks all 27 lessons,{' '}{TOTAL_XP} total XP, every badge, and everything the wheel can teach.
         </p>
         <Link href="/academy/auth" className="kc-btn">Enter the Academy</Link>
       </section>

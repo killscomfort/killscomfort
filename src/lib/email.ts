@@ -153,7 +153,7 @@ export async function sendAcademyWelcomeEmail(input: {
     ),
     founding
       ? emailParagraph(
-          `<strong>Founding member unlock:</strong> you&apos;re one of the first 20 in the registry — Full Spectrum access is yours free. All 26 lessons, every badge path, the whole wheel. Don&apos;t waste the seat.`
+          `<strong>Founding member unlock:</strong> you&apos;re one of the first 20 in the registry — Full Spectrum access is yours free. All 27 lessons, every badge path, the whole wheel. Don&apos;t waste the seat.`
         )
       : emailParagraph(
           "Sectors 01–02 are free forever. When you&apos;re ready, Full Spectrum unlocks the rest of the wheel."
