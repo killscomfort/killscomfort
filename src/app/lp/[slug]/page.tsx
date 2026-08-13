@@ -11,6 +11,10 @@ const landingPages: Record<
     template: "booking" | "partnership";
     headline: string;
     subheadline: string;
+    /** Search-oriented title; falls back to headline when omitted. */
+    metaTitle?: string;
+    /** Search-oriented description; falls back to subheadline when omitted. */
+    metaDescription?: string;
     bullets: string[];
     testimonial?: { quote: string; author: string };
   }
@@ -19,6 +23,9 @@ const landingPages: Record<
     template: "booking",
     headline: "Bring Real Energy to Your Next Event",
     subheadline: "Miami-rooted. Street-tested. Built to move crowds.",
+    metaTitle: "Book a Miami DJ for Your Event",
+    metaDescription:
+      "Book KillsComfort for clubs, festivals, private parties, and corporate events in Miami and beyond. SAE-trained DJ and sound engineer — inquire for availability.",
     bullets: [
       "Clubs, festivals, and private venues",
       "Versatile sets — house, techno, hip-hop, and everything between",
@@ -35,6 +42,9 @@ const landingPages: Record<
     headline: "Miami DJ for Hire",
     subheadline:
       "SAE-trained. Club-tested. Ready for your event — corporate, private, festival, or nightlife.",
+    metaTitle: "Miami DJ for Hire | KillsComfort",
+    metaDescription:
+      "Hire a Miami DJ for corporate events, private parties, festivals, and nightlife. Versatile house, techno, hip-hop, Afrobeats, and Latin sets with pro sound.",
     bullets: [
       "Based in Miami, available for events across South Florida and beyond",
       "Versatile sets spanning house, techno, hip-hop, Afrobeats, and Latin",
@@ -52,6 +62,9 @@ const landingPages: Record<
     headline: "Create Something That Moves Culture",
     subheadline:
       `Partner with ${SITE.name} for campaigns that feel real, not manufactured.`,
+    metaTitle: "Brand Partnerships with KillsComfort",
+    metaDescription:
+      "Partner with Miami DJ and creative KillsComfort for music production, sonic branding, and culture-forward campaigns that feel real — not manufactured.",
     bullets: [
       "Authentic storytelling rooted in Miami street culture",
       "Music production and sonic branding",
@@ -74,8 +87,8 @@ export async function generateMetadata({ params }: Props) {
   const page = landingPages[slug];
   if (!page) return createMetadata({ title: "Page Not Found", noIndex: true });
   return createMetadata({
-    title: page.headline,
-    description: page.subheadline,
+    title: page.metaTitle || page.headline,
+    description: page.metaDescription || page.subheadline,
     path: `/lp/${slug}`,
     noIndex: false,
   });
