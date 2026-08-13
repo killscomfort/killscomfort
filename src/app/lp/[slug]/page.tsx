@@ -30,6 +30,23 @@ const landingPages: Record<
       author: "Festival Coordinator",
     },
   },
+  "miami-dj-for-hire": {
+    template: "booking",
+    headline: "Miami DJ for Hire",
+    subheadline:
+      "SAE-trained. Club-tested. Ready for your event — corporate, private, festival, or nightlife.",
+    bullets: [
+      "Based in Miami, available for events across South Florida and beyond",
+      "Versatile sets spanning house, techno, hip-hop, Afrobeats, and Latin",
+      "Professional gear, seamless setup, and a crowd-first mindset every time",
+      "DJ + sound engineering background — the mix sounds right, not just loud",
+    ],
+    testimonial: {
+      quote:
+        "Exactly the energy we needed. He read the room perfectly and kept the floor packed all night.",
+      author: "Private Event Host, Miami",
+    },
+  },
   "brand-partnership": {
     template: "partnership",
     headline: "Create Something That Moves Culture",

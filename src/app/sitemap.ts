@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/typeface",
     "/lp/book-event",
     "/lp/brand-partnership",
+    "/lp/miami-dj-for-hire",
   ];
 
   return staticPages.map((path) => ({
