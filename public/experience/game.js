@@ -69,7 +69,7 @@
 
   /* ---------- state ---------- */
   var ST = { scene:"enter", values:[], beatMade:false, gemFound:false, merchFound:false,
-    emailCaptured:false, email:"", lastScore:0, best:0, bedroomKeyFound:false,
+    emailCaptured:false, email:"", username:"", lastScore:0, best:0, bedroomKeyFound:true,
     mixes:[ {id:"rooftop",t:"Dat Thang (Live Edit)",s:"HOUSE · 124",src:"your beat",motif:[0,4,7,12,7,4],unlocked:false},
             {id:"crate",t:"Motion Is Faith (Dub)",s:"TECHNO · 128",src:"the crate gem",motif:[0,3,7,10,7,3],unlocked:false} ],
     digIdx:0 };
@@ -106,6 +106,7 @@
     {by:"@LOTELEVEN",p:"Quit the job that paid more. Building the thing that pays in meaning."},
     {by:"@J.RIVERA",p:"Showed up to the picnic not knowing a soul. Left with five."} ];
   try{ var _se=localStorage.getItem("kc_email"); if(_se){ ST.email=_se; ST.emailCaptured=true; } }catch(e){}
+  try{ var _su=localStorage.getItem("kc_username"); if(_su) ST.username=_su; }catch(e){}
   try{ if(localStorage.getItem("kc_bed_key")==="1") ST.bedroomKeyFound=true; }catch(e){}
 
   function unlockedCount(){ var n=ST.mixes.filter(function(m){return m.unlocked;}).length; return n+(ST.merchFound?1:0); }
@@ -607,38 +608,93 @@
     }).catch(function(){});
   }
   function saveRideScore(email, score){
+    var uname = (ST.username||"").trim() || usernameFromEmail(email);
     fetch("/api/street-run/scores", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: usernameFromEmail(email),
+        username: uname,
         email: email,
         score: score
       })
     }).catch(function(){});
   }
+  function fetchLeaderboard(cb){
+    fetch("/api/street-run/scores?limit=10")
+      .then(function(r){ return r.json(); })
+      .then(function(d){ cb(d.scores||[]); })
+      .catch(function(){ cb([]); });
+  }
+  function renderLeaderboardHtml(scores, myScore){
+    var base='<div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.07);padding-top:14px;">'+
+      '<div style="font:700 10px/1 \'Space Mono\',monospace;letter-spacing:2px;color:#6f6f78;margin-bottom:10px;">// LEADERBOARD</div>';
+    if(!scores||!scores.length){
+      return base+'<p style="font:10px \'Space Mono\',monospace;color:#6f6f78;margin:0;">No scores yet — be the first.</p></div>';
+    }
+    var medals=['🥇','🥈','🥉'];
+    var myRank=-1;
+    var rows=scores.map(function(entry,i){
+      var isMine=(myScore>0&&entry.score===myScore&&myRank===-1);
+      if(isMine)myRank=i+1;
+      var bg=isMine?'background:rgba(54,230,255,0.08);border-left:2px solid #36e6ff;padding-left:6px;':'border-left:2px solid transparent;padding-left:6px;';
+      var col=isMine?'#36e6ff':(i<3?'#c7cace':'#6f6f78');
+      return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;'+bg+'">'+
+        '<span style="width:22px;font:700 10px \'Space Mono\',monospace;color:'+col+';flex-shrink:0;text-align:right;">'+(medals[i]||('#'+(i+1)))+'</span>'+
+        '<span style="flex:1;font:11px \'Space Mono\',monospace;color:'+(isMine?'#e9e9ec':'#9a9aa3')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHtml(entry.username)+'</span>'+
+        '<span style="font:700 11px \'Space Mono\',monospace;color:'+col+';flex-shrink:0;">'+entry.score+'m</span>'+
+        '</div>';
+    }).join("");
+    base+=rows;
+    if(myScore>0&&myRank===-1){
+      base+='<p style="font:10px \'Space Mono\',monospace;color:#6f6f78;margin:8px 0 0;">Your score: '+myScore+'m — not in top 10 yet.</p>';
+    }
+    return base+'</div>';
+  }
+  function isValidUsername(v){ return v.length>=2&&v.length<=20&&/^[a-zA-Z0-9 _-]+$/.test(v); }
   function openEmailGate(){
+    var showUn=!ST.username;
+    var unField=showUn?'<input id="unInput" type="text" placeholder="your name (2–20 chars)" maxlength="20" style="margin-bottom:8px;">':'';
     openPanel("You wiped out",
-      '<p class="lede" style="margin-top:0;">Score <b style="color:var(--chrome-hi)">'+ST.lastScore+'m</b>. Drop your email to respawn — and get first word on KillsComfort events, drops & secret sets.</p>'+
-      '<div class="wallform" style="margin-top:14px;"><input id="emInput" type="email" placeholder="you@email.com"><button class="btn solid" id="emGo">Respawn →</button></div>'+
+      '<p class="lede" style="margin-top:0;">Score <b style="color:var(--chrome-hi)">'+ST.lastScore+'m</b>. Drop your email to respawn and lock in your leaderboard name — plus get first word on KillsComfort events, drops &amp; secret sets.</p>'+
+      '<div class="wallform" style="margin-top:14px;flex-direction:column;gap:0;">'+unField+
+      '<div style="display:flex;gap:8px;width:100%;"><input id="emInput" type="email" placeholder="you@email.com" style="flex:1;"><button class="btn solid" id="emGo">Respawn →</button></div></div>'+
       '<p class="tiny" id="emErr" style="margin-top:8px;color:#d8a07a;min-height:12px;"></p>'+
-      '<button class="btn ghost" id="emBack" style="margin-top:4px;">Back to warehouse</button>',
-      function(){ var i=$("emInput"); if(i) i.focus();
-        $("emGo").onclick=submitEmail; $("emInput").addEventListener("keydown",function(e){ if(e.key==="Enter") submitEmail(); });
-        $("emBack").onclick=function(){ closePanel(); goHub(); }; });
+      '<button class="btn ghost" id="emBack" style="margin-top:4px;">Back to warehouse</button>'+
+      '<div id="lbGate"></div>',
+      function(){
+        var fi=showUn?$("unInput"):null;
+        var ei=$("emInput"); if(fi)fi.focus(); else if(ei)ei.focus();
+        $("emGo").onclick=submitEmail;
+        $("emInput").addEventListener("keydown",function(e){ if(e.key==="Enter") submitEmail(); });
+        if(fi) fi.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); $("emInput").focus(); } });
+        $("emBack").onclick=function(){ closePanel(); goHub(); };
+        fetchLeaderboard(function(scores){ var el=$("lbGate"); if(el) el.innerHTML=renderLeaderboardHtml(scores,ST.lastScore); });
+      });
   }
   function submitEmail(){
+    var showUn=!ST.username;
+    var unEl=showUn?$("unInput"):null;
+    var un=unEl?unEl.value.trim():"";
     var v=$("emInput").value.trim();
+    if(showUn && !isValidUsername(un)){ $("emErr").textContent="Pick a name: 2–20 characters, letters/numbers/spaces only."; if(unEl)unEl.focus(); return; }
     if(!isEmail(v)){ $("emErr").textContent="Enter a valid email to respawn."; return; }
+    if(un){ ST.username=un; try{ localStorage.setItem("kc_username",un); }catch(e){} }
     ST.email=v; ST.emailCaptured=true; try{ localStorage.setItem("kc_email",v); }catch(e){}
     postNewsletter(v);
+    saveRideScore(v, ST.lastScore);
     flash("✦ YOU'RE IN — RESPAWNING"); closePanel(); goEndless();
   }
   function openCrash(){
+    var isNew=(ST.lastScore>0&&ST.lastScore===ST.best);
     openPanel("You wiped out",
-      '<p class="lede" style="margin-top:0;">Score <b style="color:var(--chrome-hi)">'+ST.lastScore+'m</b> · Best <b>'+ST.best+'m</b></p>'+
-      '<div class="row" style="margin-top:16px;"><button class="btn solid" id="crRun">Run again →</button><button class="btn ghost" id="crHub">Back to warehouse</button></div>',
-      function(){ $("crRun").onclick=function(){ closePanel(); goEndless(); }; $("crHub").onclick=function(){ closePanel(); goHub(); }; });
+      '<p class="lede" style="margin-top:0;">Score <b style="color:var(--chrome-hi)">'+ST.lastScore+'m</b>'+(isNew?' <span style="color:#36e6ff;font-size:11px;letter-spacing:1px;">★ NEW BEST</span>':'')+' · Best <b>'+ST.best+'m</b></p>'+
+      '<div class="row" style="margin-top:16px;"><button class="btn solid" id="crRun">Run again →</button><button class="btn ghost" id="crHub">Back to warehouse</button></div>'+
+      '<div id="lbCrash"></div>',
+      function(){
+        $("crRun").onclick=function(){ closePanel(); goEndless(); };
+        $("crHub").onclick=function(){ closePanel(); goHub(); };
+        fetchLeaderboard(function(scores){ var el=$("lbCrash"); if(el) el.innerHTML=renderLeaderboardHtml(scores,ST.lastScore); });
+      });
   }
   function onDeath(score){
     stopRide=null; ST.lastScore=score; if(score>ST.best) ST.best=score;
@@ -1587,7 +1643,7 @@
   function goArrival(){ if(stopRide){ stopRide(); stopRide=null; } if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } if(stopArrival){ stopArrival(); stopArrival=null; } closePanel(); $("hud").classList.remove("on"); show("arrival"); stopArrival=startArrival(function(){ stopArrival=null; goWarehouse({walkIn:true}); }); }
   function whToast(t){ if(startWarehouse._toast) startWarehouse._toast(t); }
   function whSoon(title,body){ openPanel(title,'<p class="lede" style="margin:0">'+body+'</p>'); }
-  function hasArcadeKey(){ return !!ST.bedroomKeyFound; }
+  function hasArcadeKey(){ return true; }
   function openArcadeLocked(){
     openPanel("Arcade locked",
       '<p class="lede" style="margin:0 0 14px">The games are locked. Head upstairs, grab the key from the hook, then come back down.</p>'+

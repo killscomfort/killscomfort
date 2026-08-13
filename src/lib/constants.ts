@@ -19,7 +19,7 @@ export const SITE = {
     "Miami-based DJ, producer, sound engineer, SAE Institute alum, and creative visionary building a movement rooted in self-discovery, creative expression, and service to others.",
   location: "Miami, Florida",
   email: "Killscomfort@gmail.com",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://killscomfort.com",
+  url: "https://killscomfort.com",
 } as const;
 
 /** Base palette from killscomfort.com; accents from inverted hero image */
