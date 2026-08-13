@@ -13,11 +13,9 @@ import type {
 import { rideGameConfigSchema, type RideGameConfig } from "@/lib/game-config";
 import { saveRideGameConfig } from "@/lib/game-config-db";
 import {
-  buildDraftHtmlFromEvents,
-  buildSourceEventFromDbEvent,
+  createWeeklyNewsletterDraftFromEvents,
   defaultDraftSubject,
   defaultDraftTitle,
-  sendNewsletterDraftReadyNotification,
   sendNewsletterDraftToSubscribers,
 } from "@/lib/newsletter-drafts";
 
@@ -384,43 +382,12 @@ function emailParagraphPlaceholder() {
 
 export async function generateNewsletterDraftFromEvents() {
   const supabase = await getAdminClient();
-  const today = new Date();
-  const horizon = new Date(today);
-  horizon.setDate(horizon.getDate() + 14);
-
-  const { data: events, error: eventsError } = await supabase
-    .from("events")
-    .select("*")
-    .eq("published", true)
-    .gte("event_date", today.toISOString().slice(0, 10))
-    .lte("event_date", horizon.toISOString().slice(0, 10))
-    .order("event_date", { ascending: true });
-
-  if (eventsError) throw new Error(eventsError.message);
-
-  const sourceEvents = (events || []).map(buildSourceEventFromDbEvent);
-  const title = defaultDraftTitle();
-  const subject = defaultDraftSubject();
-  const contentHtml = buildDraftHtmlFromEvents(sourceEvents);
-
-  const { data: inserted, error } = await supabase
-    .from("newsletter_drafts")
-    .insert({
-      title,
-      subject,
-      preheader: "Miami events, shows, and culture this week.",
-      content_html: contentHtml,
-      source_events: sourceEvents,
-      status: "draft",
-    })
-    .select("id, title, subject")
-    .single();
-
-  if (error || !inserted) throw new Error(error?.message || "Failed to create draft");
-
-  await sendNewsletterDraftReadyNotification(inserted);
+  const draft = await createWeeklyNewsletterDraftFromEvents(supabase, {
+    status: "draft",
+    notify: true,
+  });
   revalidateAdmin();
-  return { id: inserted.id };
+  return { id: draft.id };
 }
 
 export async function archiveNewsletterDraftById(id: string) {
