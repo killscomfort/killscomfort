@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { SITE } from "@/lib/constants";
 import { getNewsletterUnsubscribeUrl } from "@/lib/newsletter";
 import { formatNewsletterSourceList } from "@/lib/newsletter-sources";
@@ -155,13 +156,9 @@ export async function sendNewsletterDraftReadyNotification(
   });
 }
 
-type DraftInsertClient = {
-  from: (table: "events" | "newsletter_drafts") => any;
-};
-
 /** Create a weekly draft from published site events (next 14 days) and notify admin. */
 export async function createWeeklyNewsletterDraftFromEvents(
-  supabase: DraftInsertClient,
+  supabase: SupabaseClient,
   options?: { notify?: boolean; status?: NewsletterDraft["status"] }
 ) {
   const today = new Date();

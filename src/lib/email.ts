@@ -81,12 +81,12 @@ export async function sendNewsletterConfirmation(
   const unsubscribeUrl = `${SITE.url}/newsletter/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
   const content = [
     emailParagraph(
-      "You just joined the <strong>KillsComfort</strong> community — a movement for people who choose growth over comfort, creative expression over autopilot, and the work of becoming over staying the same."
+      "You just joined the <strong>Comfort Killers Newsletter</strong> — for people who choose growth over comfort, creative expression over autopilot, and the work of becoming over staying the same."
     ),
-    emailParagraph("Here&apos;s what you can expect from us:"),
+    emailParagraph("Here&apos;s what you can expect from Comfort Killers:"),
     emailList([
       "New music, mixes, and releases before they hit the feed",
-      "Shows, events, and booking updates in Miami and beyond",
+      "Miami shows, events, and booking updates",
       "Ideas and reminders to keep finding new ways to kill your comforts",
     ]),
     emailParagraph(
@@ -105,11 +105,11 @@ export async function sendNewsletterConfirmation(
 
   return sendEmail({
     to: email,
-    subject: `Welcome to the ${SITE.name} community`,
+    subject: "Welcome to Comfort Killers Newsletter",
     html: renderEmailLayout({
-      title: "Welcome to the community",
+      title: "Welcome to Comfort Killers",
       preheader:
-        "You're in. New music, shows, and ways to kill your comforts — straight to your inbox.",
+        "You're in. Music, Miami events, and ways to kill your comforts — straight to your inbox.",
       content,
     }),
   });

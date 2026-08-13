@@ -126,7 +126,7 @@ export function Footer() {
 
         <div className="mt-10">
           <Suspense fallback={null}>
-            <NewsletterSignup />
+            <NewsletterSignup source="footer" compact />
           </Suspense>
         </div>
 

@@ -42,7 +42,7 @@ export default async function AdminNewsletterDraftsPage() {
     <>
       <AdminPageHeader
         title="Newsletter Drafts"
-        description="Review, edit, and approve weekly Miami events roundups before sending."
+        description="Create → approve → send. Monday cron drafts a Miami roundup; you review here, then post to subscribers."
       />
 
       <NewsletterAdminTabs />

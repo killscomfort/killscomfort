@@ -442,6 +442,10 @@ export async function sendNewsletterDraft(id: string) {
     throw new Error("This newsletter has already been sent.");
   }
 
+  if (draft.status !== "approved") {
+    throw new Error("Approve the draft before sending.");
+  }
+
   const { data: subscribers, error: subscribersError } = await supabase
     .from("newsletter_subscribers")
     .select("email, unsubscribe_token")

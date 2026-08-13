@@ -25,7 +25,7 @@ export function NewsletterDraftActions() {
     startTransition(async () => {
       try {
         await generateNewsletterDraftFromEvents();
-        setMessage("Draft generated from site events.");
+        setMessage("This week's draft is ready — review, approve, then send.");
         refresh();
       } catch (err) {
         setError(
@@ -76,7 +76,7 @@ export function NewsletterDraftActions() {
         className="justify-center"
       >
         <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-        Generate from events
+        {isPending ? "Creating…" : "Generate this week's draft"}
       </Button>
       <Button
         type="button"
@@ -87,7 +87,7 @@ export function NewsletterDraftActions() {
         className="justify-center"
       >
         <Plus className="mr-1.5 h-3.5 w-3.5" />
-        Blank draft
+        Create blank draft
       </Button>
     </div>
   );
