@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Send, X } from "lucide-react";
+import { Check, Send, X } from "lucide-react";
 import {
   archiveNewsletterDraftById,
   deleteNewsletterDraft,
   restoreNewsletterDraftById,
   sendNewsletterDraft,
   updateNewsletterDraft,
+  updateNewsletterDraftStatusById,
 } from "@/lib/admin/actions";
 import {
   NEWSLETTER_DRAFT_STATUSES,
@@ -48,7 +49,11 @@ export function NewsletterDraftDetailPanel({
   const normalizedStatus = normalizeNewsletterDraftStatus(draft.status);
   const isArchived = normalizedStatus === "archived";
   const isSent = normalizedStatus === "sent";
-  const canSend = normalizedStatus === "approved" || normalizedStatus === "in_review";
+  const canApprove =
+    !isSent &&
+    !isArchived &&
+    normalizedStatus !== "approved";
+  const canSend = normalizedStatus === "approved";
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -72,6 +77,26 @@ export function NewsletterDraftDetailPanel({
         setMessage("Draft saved.");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to save changes");
+      }
+    });
+  }
+
+  function handleApprove() {
+    setError("");
+    setMessage("");
+    startTransition(async () => {
+      try {
+        await updateNewsletterDraftStatusById(draft.id, "approved");
+        const updated: NewsletterDraft = {
+          ...draft,
+          status: "approved",
+          approved_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        onUpdated(updated);
+        setMessage("Approved. Ready to send to subscribers.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to approve draft");
       }
     });
   }
@@ -331,6 +356,17 @@ export function NewsletterDraftDetailPanel({
                   Edit draft
                 </Button>
               )}
+              {canApprove && (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleApprove}
+                  disabled={isPending}
+                >
+                  <Check className="mr-1.5 h-3.5 w-3.5" />
+                  {isPending ? "Approving…" : "Approve"}
+                </Button>
+              )}
               {canSend && !isSent && (
                 <Button
                   type="button"
@@ -339,9 +375,16 @@ export function NewsletterDraftDetailPanel({
                   disabled={isPending || activeSubscriberCount === 0}
                 >
                   <Send className="mr-1.5 h-3.5 w-3.5" />
-                  Send to {activeSubscriberCount}
+                  {isPending
+                    ? "Sending…"
+                    : `Send to ${activeSubscriberCount}`}
                 </Button>
               )}
+              {canApprove && (
+                  <p className="w-full basis-full text-xs text-bone/45">
+                    Approve unlocks send to all active subscribers.
+                  </p>
+                )}
               {isArchived ? (
                 <Button
                   type="button"

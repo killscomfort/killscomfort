@@ -4,8 +4,17 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
-export function NewsletterSignup() {
+export type NewsletterSignupSource = "home" | "footer";
+
+type Props = {
+  source: NewsletterSignupSource;
+  /** Tighter layout for footer / secondary placements */
+  compact?: boolean;
+};
+
+export function NewsletterSignup({ source, compact = false }: Props) {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -21,7 +30,7 @@ export function NewsletterSignup() {
     const form = new FormData(e.currentTarget);
     const data = {
       email: form.get("email") as string,
-      source: "footer",
+      source,
       utm_source: searchParams.get("utm_source") || undefined,
       utm_medium: searchParams.get("utm_medium") || undefined,
       utm_campaign: searchParams.get("utm_campaign") || undefined,
@@ -56,34 +65,57 @@ export function NewsletterSignup() {
 
   if (success) {
     return (
-      <div className="rounded-sm border border-clay/20 bg-near-black/40 px-6 py-8 text-center sm:px-10 sm:py-10">
-        <p className="text-lg text-bone sm:text-xl">You&apos;re on the list.</p>
+      <div
+        className={cn(
+          "rounded-sm border border-clay/20 bg-near-black/40 text-center",
+          compact ? "px-5 py-6 sm:px-8 sm:py-8" : "px-6 py-8 sm:px-10 sm:py-10"
+        )}
+      >
+        <p className="text-lg text-bone sm:text-xl">You&apos;re in Comfort Killers.</p>
         <p className="mt-2 text-sm text-bone/60 sm:text-base">
-          Keep killing your comforts — we&apos;ll be in touch when there&apos;s
-          something worth sharing.
+          Welcome to the Comfort Killers Newsletter — we&apos;ll send music, Miami
+          events, and ways to keep killing your comforts. No noise.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-sm border border-clay/20 bg-near-black/40 px-6 py-8 sm:px-10 sm:py-10">
+    <div
+      className={cn(
+        "rounded-sm border border-clay/20 bg-near-black/40",
+        compact ? "px-5 py-6 sm:px-8 sm:py-8" : "px-6 py-8 sm:px-10 sm:py-10"
+      )}
+    >
       <div className="mx-auto max-w-2xl text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-muted-gold">
-          Newsletter
+          Comfort Killers Newsletter
         </p>
-        <h2 className="mt-3 text-2xl font-normal normal-case tracking-normal text-bone sm:text-3xl">
+        <h2
+          className={cn(
+            "mt-3 font-normal normal-case tracking-normal text-bone",
+            compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
+          )}
+        >
           Find new ways to kill your comforts
         </h2>
-        <p className="mt-3 text-sm leading-relaxed text-bone/65 sm:text-base">
-          New music, shows, and mindset — straight to your inbox. No noise, just
-          growth.
+        <p
+          className={cn(
+            "mt-3 leading-relaxed text-bone/65",
+            compact ? "text-sm" : "text-sm sm:text-base"
+          )}
+        >
+          New music, Miami events, and mindset — straight to your inbox. No spam,
+          just the Comfort Killers dispatch.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="mx-auto mt-6 flex max-w-xl flex-col gap-3 sm:mt-8 sm:flex-row sm:items-start"
+        className={cn(
+          "mx-auto flex max-w-xl flex-col gap-3 sm:flex-row sm:items-start",
+          compact ? "mt-5 sm:mt-6" : "mt-6 sm:mt-8"
+        )}
       >
         <div className="min-w-0 flex-1">
           <Input
@@ -103,7 +135,7 @@ export function NewsletterSignup() {
           disabled={loading}
           className="shrink-0 sm:mt-0 sm:h-[3.125rem]"
         >
-          {loading ? "Joining..." : "Join the list"}
+          {loading ? "Joining..." : "Join Comfort Killers"}
         </Button>
       </form>
 

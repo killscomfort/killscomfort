@@ -2,6 +2,7 @@ import FeaturedRelease from "@/components/FeaturedRelease";
 import { Hero } from "@/components/home/Hero";
 import { WhoIs } from "@/components/home/WhoIs";
 import { WhatIDo } from "@/components/home/WhatIDo";
+import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { BookSection } from "@/components/home/BookSection";
 import { getSpotlightRelease } from "@/lib/music";
 
@@ -14,6 +15,7 @@ export default function HomePage() {
       {featured && <FeaturedRelease release={featured} />}
       <WhoIs />
       <WhatIDo />
+      <NewsletterSection />
       <BookSection />
     </>
   );
