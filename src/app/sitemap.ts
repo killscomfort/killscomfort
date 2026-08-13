@@ -15,16 +15,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/land",
     "/warehouse",
     "/academy",
+    "/blog",
     "/typeface",
     "/lp/book-event",
     "/lp/brand-partnership",
     "/lp/miami-dj-for-hire",
   ];
 
-  return staticPages.map((path) => ({
+  const blogPosts = ["/blog/curb-runner"];
+
+  return [...staticPages, ...blogPosts].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.8,
+    priority: path === "" ? 1 : path.startsWith("/blog") ? 0.7 : 0.8,
   }));
 }

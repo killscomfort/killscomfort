@@ -1619,7 +1619,7 @@
       if(startBedroom._toast) startBedroom._toast("Key found — arcade unlocked");
     }
     openPanel("The key",
-      "<p class=\"lede\" style=\"margin:0 0 14px\">This unlocks the arcade games downstairs. Night Ride and Endless Survival are yours.</p>"+
+      "<p class=\"lede\" style=\"margin:0 0 14px\">This unlocks the arcade games downstairs. Night Ride, Endless Survival, and Curb Runner are yours.</p>"+
       "<div class=\"row\" style=\"flex-direction:column;gap:10px;align-items:stretch\">"+
       "<button class=\"btn solid\" id=\"keyArcade\">Open arcade games</button>"+
       "<button class=\"btn ghost\" id=\"keyDown\">Head downstairs</button></div>",
@@ -1753,9 +1753,19 @@
     '<div class="row" style="flex-direction:column;gap:10px;align-items:stretch">'+
     '<button class="btn solid" id="acNight">Night Ride \u00b7 grab the 3 tags</button>'+
     '<button class="btn ghost" id="acEndless">Endless Survival \u00b7 highscore</button>'+
+    '<button class="btn ghost" id="acCurb">Curb Runner \u00b7 deliver the zines</button>'+
+    '<p class="lede" style="margin:4px 0 0;font-size:12px;opacity:.65">New in the cabinet: hop curbs, dodge potholes, land zines on lit porches. <a href="/blog/curb-runner" target="_top" style="color:inherit;text-decoration:underline">Read the drop</a>.</p>'+
     '</div>');
     $("acNight").onclick=function(){ goRideFromArcade("collect"); };
-    $("acEndless").onclick=function(){ goRideFromArcade("endless"); }; }
+    $("acEndless").onclick=function(){ goRideFromArcade("endless"); };
+    $("acCurb").onclick=function(){ openCurbRunner(); }; }
+  function openCurbRunner(){
+    if(!hasArcadeKey()){ openArcadeLocked(); return; }
+    openPanel("Curb Runner",
+      '<div class="arcadeGame">'+
+      '<iframe class="arcadeGame__frame" src="./curb-runner.html" title="Killscomfort: Curb Runner" allow="autoplay" loading="eager"></iframe>'+
+      '</div>');
+  }
   function goRideFromArcade(mode){
     if(!hasArcadeKey()){ openArcadeLocked(); return; }
     getCtx(); closePanel(); if(stopWarehouse){ stopWarehouse(); stopWarehouse=null; } if(stopBedroom){ stopBedroom(); stopBedroom=null; } show("ride"); $("hud").classList.add("on");
