@@ -10,11 +10,12 @@ export async function GET() {
   const printful = Boolean(process.env.PRINTFUL_API_KEY?.trim());
 
   const merchCheckout = stripe ? "stripe" : paypal ? "paypal" : "unavailable";
-  const serviceCheckout = paypal ? "paypal" : "unavailable";
+  // Current /services offers are inquire-by-email only (no priced cart SKUs).
+  const serviceCheckout = "inquiry";
   const donations = stripe ? "stripe" : "unavailable";
 
   return NextResponse.json({
-    ok: merchCheckout !== "unavailable" || serviceCheckout !== "unavailable",
+    ok: merchCheckout !== "unavailable" || donations !== "unavailable",
     stripe,
     paypal,
     supabase,

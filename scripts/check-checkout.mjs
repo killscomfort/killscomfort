@@ -89,32 +89,20 @@ async function main() {
   );
 
   results.push(
-    await check("Service PayPal order", async () => {
-      const { res, data } = await fetchJson("/api/orders/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer_name: "Checkout Check",
-          customer_email: "checkout-check@example.com",
-          customer_phone: "3055550100",
-          items: [{ slug: "private-lesson", quantity: 1 }],
-        }),
-      });
-
-      if (res.status === 503) {
-        return {
-          ok: false,
-          detail: data.message || "PayPal not configured",
-        };
-      }
-
+    await check("Services inquiry page", async () => {
+      const res = await fetch(`${baseUrl}/services`);
       if (!res.ok) {
-        return { ok: false, detail: data.message || `HTTP ${res.status}` };
+        return { ok: false, detail: `HTTP ${res.status}` };
       }
-
+      const html = await res.text();
+      const inquiryOnly =
+        /inquire|reach out|email/i.test(html) &&
+        !/private-lesson|Add to cart/i.test(html);
       return {
-        ok: Boolean(data.paypalOrderId),
-        detail: data.paypalOrderId ? `Order ${data.orderNumber}` : "Missing PayPal order id",
+        ok: inquiryOnly,
+        detail: inquiryOnly
+          ? "Services are inquiry-only (no cart checkout)"
+          : "Services page still looks cart-oriented",
       };
     })
   );

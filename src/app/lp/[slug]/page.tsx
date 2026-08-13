@@ -42,7 +42,7 @@ const landingPages: Record<
     headline: "Miami DJ for Hire",
     subheadline:
       "SAE-trained. Club-tested. Ready for your event — corporate, private, festival, or nightlife.",
-    metaTitle: "Miami DJ for Hire | KillsComfort",
+    metaTitle: "Miami DJ for Hire",
     metaDescription:
       "Hire a Miami DJ for corporate events, private parties, festivals, and nightlife. Versatile house, techno, hip-hop, Afrobeats, and Latin sets with pro sound.",
     bullets: [
@@ -62,7 +62,7 @@ const landingPages: Record<
     headline: "Create Something That Moves Culture",
     subheadline:
       `Partner with ${SITE.name} for campaigns that feel real, not manufactured.`,
-    metaTitle: "Brand Partnerships with KillsComfort",
+    metaTitle: "Brand Partnerships",
     metaDescription:
       "Partner with Miami DJ and creative KillsComfort for music production, sonic branding, and culture-forward campaigns that feel real — not manufactured.",
     bullets: [
