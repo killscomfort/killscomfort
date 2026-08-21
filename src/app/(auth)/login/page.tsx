@@ -2,17 +2,23 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { SITE } from "@/lib/constants";
 
+function safeRedirect(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/dashboard";
+  }
+  return value;
+}
+
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/dashboard";
+  const redirect = safeRedirect(searchParams.get("redirect"));
   const authError = searchParams.get("error");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(
@@ -27,6 +33,14 @@ function LoginForm() {
     const form = new FormData(e.currentTarget);
     const supabase = createClient();
 
+    // Clear academy guest sessions so password login can replace them.
+    const {
+      data: { user: existing },
+    } = await supabase.auth.getUser();
+    if (existing?.is_anonymous) {
+      await supabase.auth.signOut();
+    }
+
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: form.get("email") as string,
       password: form.get("password") as string,
@@ -38,8 +52,8 @@ function LoginForm() {
       return;
     }
 
-    router.push(redirect);
-    router.refresh();
+    // Hard navigation so middleware sees the new auth cookies (soft push can miss them).
+    window.location.assign(redirect);
   }
 
   return (
