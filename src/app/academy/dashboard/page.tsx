@@ -20,6 +20,9 @@ export default function Dashboard() {
   const [code, setCode] = useState('');
   const [codeMsg, setCodeMsg] = useState<string | null>(null);
   const [guestEmail, setGuestEmail] = useState('');
+  const [guestPassword, setGuestPassword] = useState('');
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [guestBusy, setGuestBusy] = useState(false);
   const [guestMsg, setGuestMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,14 +85,48 @@ export default function Dashboard() {
 
   const saveGuestEmail = async () => {
     setGuestMsg(null);
+    setGuestBusy(true);
+    const email = guestEmail.trim().toLowerCase();
     const res = await fetch('/api/academy/attach-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: guestEmail }),
+      body: JSON.stringify({
+        email,
+        ...(needsPassword && guestPassword ? { password: guestPassword } : {}),
+      }),
     });
     const payload = await res.json().catch(() => ({}));
-    if (!res.ok) return setGuestMsg(payload.error ?? 'Could not save email.');
-    setProfile((p) => (p ? { ...p, email: guestEmail.toLowerCase() } : p));
+    setGuestBusy(false);
+
+    if (!res.ok) {
+      if (payload.code === 'already_registered') {
+        setNeedsPassword(true);
+        return setGuestMsg(payload.error ?? 'That email already has an account — enter your password to merge.');
+      }
+      if (payload.code === 'invalid_credentials') {
+        setNeedsPassword(true);
+        return setGuestMsg(payload.error ?? 'Wrong password.');
+      }
+      return setGuestMsg(payload.error ?? 'Could not save email.');
+    }
+
+    if (payload.merged) {
+      // Guest session was deleted — sign into the existing account with the password they just used.
+      const { error } = await supabase().auth.signInWithPassword({ email, password: guestPassword });
+      if (error) {
+        setNeedsPassword(true);
+        return setGuestMsg('Progress merged, but sign-in failed — log in from /academy/auth with that email.');
+      }
+      setGuestMsg('✦ Guest progress merged into your account. Reloading…');
+      window.location.reload();
+      return;
+    }
+
+    // Refresh session so auth.email / is_anonymous update client-side.
+    await supabase().auth.refreshSession();
+    setNeedsPassword(false);
+    setGuestPassword('');
+    setProfile((p) => (p ? { ...p, email } : p));
     setGuestMsg('✦ Email locked in — welcome note sent. Your progress is permanent now. Stay with the process.');
   };
 
@@ -113,10 +150,36 @@ export default function Dashboard() {
         <div className="kc-panel" style={{ marginBottom: 14, borderColor: 'var(--kc-dim)' }}>
           <p className="kc-eyebrow">GUEST SESSION — PROGRESS SAVED ON THIS DEVICE ONLY</p>
           <p style={{ fontSize: 12 }}>Add an email to keep your XP, streak and badges permanently (and to unlock purchases).</p>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <input className="kc-field" style={{ marginBottom: 0 }} placeholder="email" type="email"
-              value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} />
-            <button className="kc-btn ghost" onClick={saveGuestEmail} disabled={!guestEmail.includes('@')}>Save</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input className="kc-field" style={{ marginBottom: 0 }} placeholder="email" type="email"
+                value={guestEmail}
+                onChange={(e) => {
+                  setGuestEmail(e.target.value);
+                  setNeedsPassword(false);
+                  setGuestPassword('');
+                  setGuestMsg(null);
+                }} />
+              <button
+                className="kc-btn ghost"
+                onClick={saveGuestEmail}
+                disabled={guestBusy || !guestEmail.includes('@') || (needsPassword && guestPassword.length < 6)}
+              >
+                {guestBusy ? '…' : needsPassword ? 'Merge' : 'Save'}
+              </button>
+            </div>
+            {needsPassword && (
+              <input
+                className="kc-field"
+                style={{ marginBottom: 0 }}
+                placeholder="account password"
+                type="password"
+                autoComplete="current-password"
+                value={guestPassword}
+                onChange={(e) => setGuestPassword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') void saveGuestEmail(); }}
+              />
+            )}
           </div>
           {guestMsg && <p style={{ fontSize: 11, marginTop: 8, color: guestMsg.startsWith('✦') ? 'var(--kc-ok)' : 'var(--kc-warn)' }}>{guestMsg}</p>}
         </div>
