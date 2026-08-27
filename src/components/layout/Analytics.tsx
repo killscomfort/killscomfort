@@ -10,7 +10,6 @@ export function Analytics() {
     gtmId,
     gtagPrimaryId,
     googleTagEnabled,
-    anyGoogleEnabled,
   } = getAnalyticsConfig();
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
 
@@ -72,11 +71,16 @@ export function Analytics() {
         </Script>
       )}
 
-      {anyGoogleEnabled && (
-        <Suspense fallback={null}>
-          <AnalyticsPageView />
-        </Suspense>
-      )}
+      {/*
+        Always mounted. This drives BOTH the GA4 page_view and the first-party
+        /api/analytics/page-view beacon that feeds /admin/traffic. It must not be
+        gated on a Google ID being present — doing so silently disabled the
+        first-party traffic dashboard whenever GA/GTM/Ads were unconfigured.
+        trackPageView() already no-ops safely via window.gtag?.() when absent.
+      */}
+      <Suspense fallback={null}>
+        <AnalyticsPageView />
+      </Suspense>
     </>
   );
 }
