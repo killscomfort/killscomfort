@@ -73,13 +73,30 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.role !== "admin") {
+      // Log the actual cause. These three failure modes are indistinguishable
+      // from the user's side — all of them just bounce to /dashboard — and
+      // swallowing the error made a missing profile row look identical to a
+      // legitimate permission denial.
+      const reason = profileError
+        ? `profile read failed: ${profileError.message}`
+        : !profile
+          ? "no profiles row for this user (run supabase/grant-admin.sql step 3)"
+          : `role is "${profile.role}", not "admin" (run supabase/grant-admin.sql step 2)`;
+
+      console.warn("[middleware] admin access denied", {
+        userId: user.id,
+        email: user.email,
+        path: pathname,
+        reason,
+      });
+
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
