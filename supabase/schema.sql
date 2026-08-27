@@ -47,12 +47,22 @@ create table public.orders (
   subtotal_cents integer not null,
   total_cents integer not null,
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed', 'refunded', 'cancelled')),
+  -- True when the order contains goods that do not route to Printful and must be
+  -- packed and shipped by hand. Drives the manual fulfillment Kanban board.
+  requires_manual_fulfillment boolean not null default false,
+  fulfillment_stage text not null default 'paid'
+    check (fulfillment_stage in ('paid', 'packed', 'shipped', 'done')),
+  fulfillment_notes text,
+  shipped_at timestamptz,
   paypal_order_id text,
   paypal_capture_id text,
   stripe_session_id text unique,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create index if not exists orders_manual_fulfillment_idx
+  on public.orders (requires_manual_fulfillment, fulfillment_stage, created_at desc);
 
 create table public.order_items (
   id uuid primary key default gen_random_uuid(),

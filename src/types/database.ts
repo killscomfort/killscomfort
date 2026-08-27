@@ -51,12 +51,19 @@ export interface Order {
   subtotal_cents: number;
   total_cents: number;
   status: OrderStatus;
+  requires_manual_fulfillment: boolean;
+  fulfillment_stage: FulfillmentStage;
+  fulfillment_notes: string | null;
+  shipped_at: string | null;
   paypal_order_id: string | null;
   paypal_capture_id: string | null;
   stripe_session_id: string | null;
   created_at: string;
   updated_at: string;
 }
+
+/** Kanban columns for orders Gregory packs and ships himself. */
+export type FulfillmentStage = "paid" | "packed" | "shipped" | "done";
 
 export interface OrderItem {
   id: string;

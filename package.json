@@ -11,6 +11,7 @@
     "email:test": "node --env-file=.env.local scripts/test-order-email.mjs",
     "email:test-newsletter": "node --env-file=.env.local scripts/test-newsletter-email.mjs",
     "email:test-newsletter-draft": "node --env-file=.env.local scripts/test-newsletter-draft-email.mjs",
+    "fulfillment:check": "node --env-file=.env.local scripts/check-fulfillment.mjs",
     "checkout:check": "node scripts/check-checkout.mjs",
     "checkout:check:prod": "node scripts/check-checkout.mjs https://www.killscomfort.com",
     "apple-pay:check": "node --env-file=.env.local scripts/setup-apple-pay.mjs",

@@ -35,6 +35,8 @@ export type OrderEmailPayload = {
   shipping: OrderShipping;
   items: ValidatedOrderItem[];
   totalCents: number;
+  /** Item labels that have no Printful mapping and must be shipped by hand. */
+  manualItems?: string[];
 };
 
 function isServiceOrder(items: ValidatedOrderItem[]) {
@@ -103,8 +105,18 @@ export async function sendOrderNotification(payload: OrderEmailPayload) {
     { label: "Total", value: formatPrice(payload.totalCents) },
   ];
 
+  const manualItems = payload.manualItems ?? [];
+  const needsManual = manualItems.length > 0;
+
   const content = [
     emailParagraph(`A new ${service ? "service" : "merch"} order was placed.`),
+    needsManual
+      ? emailParagraph(
+          `<strong>⚠ Ship this one yourself.</strong> ${manualItems.length === 1 ? "This item does" : "These items do"} not route to Printful:<br/>${manualItems
+            .map((item) => escapeHtml(item))
+            .join("<br/>")}`
+        )
+      : "",
     emailDetailBlock(detailRows),
     emailParagraph("<strong>Items</strong>"),
     emailList(renderItems(payload.items)),
@@ -113,7 +125,7 @@ export async function sendOrderNotification(payload: OrderEmailPayload) {
 
   return sendEmail({
     to: getOrdersNotificationEmail(),
-    subject: `New ${label} ${payload.orderNumber} — ${formatPrice(payload.totalCents)}`,
+    subject: `${needsManual ? "[SHIP MANUALLY] " : ""}New ${label} ${payload.orderNumber} — ${formatPrice(payload.totalCents)}`,
     html: renderEmailLayout({
       title: `New ${label}`,
       preheader: `${payload.customerName} — ${formatPrice(payload.totalCents)}`,

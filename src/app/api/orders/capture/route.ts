@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { capturePayPalOrder, isPayPalConfigured } from "@/lib/paypal";
+import { cartRequiresShipping } from "@/lib/catalog";
 import {
   sendOrderConfirmation,
   sendOrderNotification,
@@ -72,19 +73,78 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Payment amount mismatch." }, { status: 400 });
     }
 
-    const { data: orderItems } = await supabase
+    // Money is already captured at this point. Every failure below must be loud:
+    // a silent one leaves the customer charged with the order row still reading
+    // "pending".
+    const { data: orderItems, error: itemsReadError } = await supabase
       .from("order_items")
       .select("*")
       .eq("order_id", orderId);
 
-    await supabase
+    if (itemsReadError) {
+      // Do NOT fall through with an empty item list. cartRequiresShipping([])
+      // returns false, which would write requires_manual_fulfillment = false and
+      // hide a physical order from the fulfillment board entirely.
+      console.error("[capture] CAPTURED BUT ITEMS UNREADABLE", {
+        orderId,
+        orderNumber: order.order_number,
+        paypalCaptureId: capturePayment.id,
+        error: itemsReadError.message,
+      });
+      return NextResponse.json(
+        {
+          message:
+            "Payment captured but the order could not be finalized. Contact support with your order number.",
+          orderNumber: order.order_number,
+        },
+        { status: 500 }
+      );
+    }
+
+    // The PayPal path never calls Printful — there is no fulfillment provider on
+    // this route at all. So every PayPal order containing physical goods is
+    // hand-shipped, including the Diamond Hoodie (its Printful variant map is
+    // only reachable from the Stripe webhook). Flag it so it lands on the manual
+    // fulfillment board instead of silently reading as complete.
+    const requiresManualFulfillment = cartRequiresShipping(
+      (orderItems || []).map((item) => ({ slug: item.product_slug }))
+    );
+
+    const { data: paidOrder, error: paidUpdateError } = await supabase
       .from("orders")
       .update({
         status: "paid",
         paypal_capture_id: capturePayment.id,
+        requires_manual_fulfillment: requiresManualFulfillment,
+        fulfillment_stage: "paid",
         updated_at: new Date().toISOString(),
       })
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .select("id")
+      .maybeSingle();
+
+    // This update touches requires_manual_fulfillment / fulfillment_stage. If the
+    // manual-fulfillment migration hasn't been applied yet, PostgREST rejects the
+    // WHOLE statement — meaning status:'paid' and the capture id don't land
+    // either. Unchecked, we'd email the customer a confirmation and return 200
+    // while the money is gone and the order still reads pending.
+    if (paidUpdateError || !paidOrder) {
+      console.error("[capture] CAPTURED BUT ORDER UPDATE FAILED", {
+        orderId,
+        orderNumber: order.order_number,
+        paypalCaptureId: capturePayment.id,
+        error: paidUpdateError?.message ?? "no row updated",
+        hint: "If this mentions requires_manual_fulfillment, apply supabase/migrations/20260820_manual_fulfillment_kanban.sql",
+      });
+      return NextResponse.json(
+        {
+          message:
+            "Payment captured but the order could not be finalized. Contact support with your order number.",
+          orderNumber: order.order_number,
+        },
+        { status: 500 }
+      );
+    }
 
     const items = (orderItems || []).map((item) => ({
       product_slug: item.product_slug,
@@ -114,6 +174,13 @@ export async function POST(request: NextRequest) {
       shipping,
       items,
       totalCents: order.total_cents,
+      // Nothing on this route is auto-fulfilled, so every shippable line is yours.
+      manualItems: requiresManualFulfillment
+        ? items.map(
+            (item) =>
+              `${item.product_name}${item.size ? ` (${item.size})` : ""} × ${item.quantity}`
+          )
+        : [],
     };
 
     const [notificationResult, confirmationResult] = await Promise.all([

@@ -170,6 +170,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true, duplicate: true });
     }
 
+    // Only a winning claim reaches here, and a winning claim always carries a
+    // recordId. Guard explicitly rather than asserting — proceeding without a
+    // lock record would mean fulfilling with no way to mark the result.
+    if (!recordId) {
+      throw new Error(
+        `Fulfillment lock returned no record id for ${stripeSessionId}`
+      );
+    }
+
     const cartLines = parseMerchCart(metadata);
     const printfulLines = cartLines.filter((line) =>
       hasPrintfulVariant(line.slug, line.size)
@@ -182,16 +191,24 @@ export async function POST(request: NextRequest) {
       session,
       cartLines,
       stripeSessionId,
+      requiresManualFulfillment: manualLines.length > 0,
+      manualLines,
     });
 
     if (printfulLines.length === 0) {
+      // Nothing routes to Printful — this order is shipped by hand. Record it as
+      // "skipped" rather than "fulfilled": no automated fulfillment occurred, and
+      // marking it fulfilled here previously made hand-shipped orders (Kills
+      // Shorts) indistinguishable from ones Printful had actually dispatched.
+      // The order now carries requires_manual_fulfillment and appears on the
+      // manual fulfillment board at /admin/orders.
       await updateFulfillmentRecord({
         recordId,
-        status: "fulfilled",
+        status: "skipped",
         notes: `manual_ship;order=${orderResult.order.order_number};items=${cartLines.length}`,
       });
 
-      console.log("[stripe-webhook] manual merch order recorded", {
+      console.log("[stripe-webhook] manual merch order queued for hand fulfillment", {
         stripeSessionId,
         orderNumber: orderResult.order.order_number,
         items: cartLines,
@@ -199,7 +216,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         received: true,
-        fulfilled: true,
+        fulfilled: false,
         manual: true,
         orderNumber: orderResult.order.order_number,
       });
@@ -262,9 +279,14 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .join(";");
 
+    // Mixed cart: Printful took some lines, but the rest still need hand-shipping.
+    // "fulfilled" means nothing is left for a human — so a mixed order stays
+    // "skipped" (Printful ID retained in the record) until Gregory clears it on
+    // the manual fulfillment board. Previously these read as fully fulfilled
+    // while the hand-shipped lines existed only inside a notes string.
     await updateFulfillmentRecord({
       recordId,
-      status: "fulfilled",
+      status: manualLines.length > 0 ? "skipped" : "fulfilled",
       printfulOrderId: printfulResult.printfulOrderId,
       notes,
     });

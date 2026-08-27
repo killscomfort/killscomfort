@@ -2,11 +2,18 @@ import Link from "next/link";
 import { getAdminServiceClient } from "@/lib/admin/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
+import {
+  OrdersFulfillmentKanban,
+  type ManualOrder,
+} from "@/components/admin/OrdersFulfillmentKanban";
+import { normalizeFulfillmentStage } from "@/lib/fulfillment-stage";
 import { formatDate } from "@/lib/utils";
 import { formatPrice } from "@/lib/merch";
 import type { Order, OrderItem } from "@/types/database";
 
 type OrderWithItems = Order & { order_items: OrderItem[] };
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -27,6 +34,44 @@ export default async function AdminOrdersPage({
 
   const { data: orders, error } = await query;
   const items = (orders || []) as OrderWithItems[];
+
+  // Hand-shipped orders (anything without a Printful route) get their own board.
+  // Read from the full list rather than the filtered query so the pack queue
+  // doesn't disappear when a status filter is applied.
+  const { data: manualRows, error: manualError } = await supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("requires_manual_fulfillment", true)
+    .order("created_at", { ascending: false });
+
+  // If this query fails (most likely: the migration hasn't been applied and the
+  // column doesn't exist), manualRows is null and the board renders its
+  // "Nothing to ship" empty state — indistinguishable from a genuinely clear
+  // queue. The entire point of this board is that hand-shipped orders can't go
+  // unnoticed, so surface the failure instead of swallowing it.
+  if (manualError) {
+    console.error("[admin/orders] manual fulfillment query failed", manualError);
+  }
+
+  const manualOrders: ManualOrder[] = ((manualRows || []) as OrderWithItems[]).map(
+    (order) => ({
+      id: order.id,
+      order_number: order.order_number,
+      customer_name: order.customer_name,
+      customer_email: order.customer_email,
+      total_cents: order.total_cents,
+      fulfillment_stage: normalizeFulfillmentStage(order.fulfillment_stage),
+      fulfillment_notes: order.fulfillment_notes,
+      shipped_at: order.shipped_at,
+      created_at: order.created_at,
+      shipping_address: order.shipping_address,
+      items: (order.order_items || []).map((item) => ({
+        product_name: item.product_name,
+        size: item.size,
+        quantity: item.quantity,
+      })),
+    })
+  );
 
   const statuses = ["all", "pending", "paid", "failed", "cancelled", "refunded"];
 
@@ -49,6 +94,39 @@ export default async function AdminOrdersPage({
         title="Orders"
         description="Merch and booking payments from Stripe and PayPal."
       />
+
+      <section className="mb-12">
+        <h2 className="text-display mb-1 text-sm uppercase tracking-[0.14em] text-bone">
+          Ship It Yourself
+        </h2>
+        <p className="mb-4 text-xs text-bone/40">
+          Orders with items that don&apos;t route to Printful. Drag a card as you
+          pack and ship it.
+        </p>
+        {manualError ? (
+          <div className="border border-dried-blood/40 bg-dried-blood/10 px-4 py-3">
+            <p className="text-xs uppercase tracking-wider text-dried-blood">
+              Fulfillment board unavailable — this is not an empty queue
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-bone/60">
+              {manualError.message}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-bone/40">
+              If this mentions a missing column, apply{" "}
+              <code className="text-bone/70">
+                supabase/migrations/20260820_manual_fulfillment_kanban.sql
+              </code>
+              .
+            </p>
+          </div>
+        ) : (
+          <OrdersFulfillmentKanban orders={manualOrders} />
+        )}
+      </section>
+
+      <h2 className="text-display mb-4 text-sm uppercase tracking-[0.14em] text-bone">
+        All Orders
+      </h2>
 
       <div className="mb-6 flex flex-wrap gap-2">
         {statuses.map((s) => (

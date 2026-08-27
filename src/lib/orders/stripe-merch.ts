@@ -52,8 +52,21 @@ export async function persistStripeMerchOrder(params: {
   session: Stripe.Checkout.Session;
   cartLines: MerchCartLine[];
   stripeSessionId: string;
+  /**
+   * True when any line in this order has no Printful variant mapping and must be
+   * packed and shipped by hand. Puts the order on the manual fulfillment board.
+   */
+  requiresManualFulfillment?: boolean;
+  /** Lines that need hand-shipping, surfaced in the admin notification email. */
+  manualLines?: MerchCartLine[];
 }) {
-  const { session, cartLines, stripeSessionId } = params;
+  const {
+    session,
+    cartLines,
+    stripeSessionId,
+    requiresManualFulfillment = false,
+    manualLines = [],
+  } = params;
   const supabase = await createServiceClient();
 
   const { data: existing } = await supabase
@@ -100,6 +113,8 @@ export async function persistStripeMerchOrder(params: {
       subtotal_cents: calculatedTotal,
       total_cents: totalCents,
       status: "paid",
+      requires_manual_fulfillment: requiresManualFulfillment,
+      fulfillment_stage: "paid",
       stripe_session_id: stripeSessionId,
     })
     .select("id, order_number")
@@ -136,6 +151,11 @@ export async function persistStripeMerchOrder(params: {
     shipping: buildShippingAddress(shippingAddress),
     items,
     totalCents,
+    manualItems: manualLines.map((line) => {
+      const item = getMerchItem(line.slug);
+      const name = item?.name ?? line.slug;
+      return `${name}${line.size ? ` (${line.size})` : ""} × ${line.quantity}`;
+    }),
   };
 
   const [notificationResult, confirmationResult] = await Promise.all([

@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
 import { requireAdmin, getAdminClient, getAdminServiceClient } from "./auth";
 import type {
+  FulfillmentStage,
   InquiryStatus,
   LandingTemplate,
   MusicCategory,
   NewsletterDraftStatus,
   UserRole,
 } from "@/types/database";
+import { FULFILLMENT_STAGES } from "@/lib/fulfillment-stage";
 import { rideGameConfigSchema, type RideGameConfig } from "@/lib/game-config";
 import { saveRideGameConfig } from "@/lib/game-config-db";
 import {
@@ -31,7 +33,87 @@ function revalidateAdmin() {
   revalidatePath("/admin/newsletter");
   revalidatePath("/admin/newsletter/drafts");
   revalidatePath("/admin/games");
+  revalidatePath("/admin/orders");
   revalidatePath("/api/game/config");
+}
+
+/**
+ * Move a hand-shipped order along the manual fulfillment pipeline.
+ * Stamps shipped_at the first time an order reaches "shipped" so the board can
+ * show how long something has been in transit.
+ */
+export async function updateOrderFulfillmentStage(
+  id: string,
+  stage: FulfillmentStage
+) {
+  await requireAdmin();
+
+  if (!FULFILLMENT_STAGES.includes(stage)) {
+    throw new Error(`Invalid fulfillment stage: "${stage}"`);
+  }
+
+  const supabase = await getAdminServiceClient();
+
+  const { data: existing, error: readError } = await supabase
+    .from("orders")
+    .select("shipped_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (readError) throw new Error(readError.message);
+
+  const update: {
+    fulfillment_stage: FulfillmentStage;
+    updated_at: string;
+    shipped_at?: string;
+  } = {
+    fulfillment_stage: stage,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (
+    (stage === "shipped" || stage === "done") &&
+    !existing?.shipped_at
+  ) {
+    update.shipped_at = new Date().toISOString();
+  }
+
+  // .select() + row assertion: Supabase returns error === null when a filter
+  // matches zero rows, so without this a write against a stale or wrong id
+  // resolves as success and the board's optimistic move is never rolled back.
+  const { data: updated, error } = await supabase
+    .from("orders")
+    .update(update)
+    .eq("id", id)
+    .select("id, shipped_at")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!updated) throw new Error(`Order ${id} not found.`);
+
+  revalidateAdmin();
+  return { shipped_at: updated.shipped_at as string | null };
+}
+
+/** Save the tracking number / carrier note attached to a manual order card. */
+export async function updateOrderFulfillmentNotes(id: string, notes: string) {
+  await requireAdmin();
+  const supabase = await getAdminServiceClient();
+
+  const { data: updated, error } = await supabase
+    .from("orders")
+    .update({
+      fulfillment_notes: notes.trim() || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!updated) throw new Error(`Order ${id} not found.`);
+
+  revalidateAdmin();
 }
 
 export async function updateInquiryStatus(formData: FormData) {
