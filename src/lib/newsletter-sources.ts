@@ -1,10 +1,23 @@
 /** Instagram and web sources scanned for Miami event listings. */
 
+export type NewsletterSourceCategory =
+  | "brand"
+  | "venue"
+  | "promoter"
+  | "collective"
+  | "fitness"
+  | "art"
+  | "community"
+  | "market"
+  | "radio"
+  | "listings";
+
 export type NewsletterEventSource = {
-  handle: string;
+  /** Instagram handle, when the source is an IG account. Web-only sources omit it. */
+  handle?: string;
   label: string;
   url: string;
-  category: "brand" | "venue" | "promoter" | "collective";
+  category: NewsletterSourceCategory;
   notes?: string;
 };
 
@@ -80,17 +93,44 @@ export const MIAMI_NEWSLETTER_EVENT_SOURCES: NewsletterEventSource[] = [
     category: "venue",
     notes: "2898 NW 7th Ave, Allapattah — dive bar, local bands, pool",
   },
+  {
+    label: "Club Space",
+    url: "https://clubspace.com",
+    category: "venue",
+    notes: "Downtown — featured in the Aug 18 issue",
+  },
+  {
+    label: "LIV",
+    url: "https://www.livnightclub.com/miami/events/",
+    category: "venue",
+    notes: "Public events calendar — featured in the Aug 18 issue",
+  },
+  {
+    handle: "freeyogamiami",
+    label: "Free Yoga Miami",
+    url: "https://instagram.com/freeyogamiami",
+    category: "fitness",
+    notes: "Wed 6:30pm & Sun 5pm, Margaret Pace Park — featured in the Aug 18 issue",
+  },
+  {
+    label: "YO BK",
+    url: "https://yo-bk.com/miami",
+    category: "fitness",
+    notes: "Hot yoga + pilates, Oasis Wynwood — featured in the Aug 18 issue",
+  },
+  // TODO — art, community, market, radio and listings sources. Do not guess
+  // handles; a wrong @ in a newsletter is worse than an absent one.
 ];
 
 export function getNewsletterSourceByHandle(handle: string) {
   const normalized = handle.replace(/^@/, "").toLowerCase();
   return MIAMI_NEWSLETTER_EVENT_SOURCES.find(
-    (source) => source.handle.toLowerCase() === normalized
+    (source) => (source.handle ?? "").toLowerCase() === normalized
   );
 }
 
 export function formatNewsletterSourceList() {
-  return MIAMI_NEWSLETTER_EVENT_SOURCES.map(
-    (source) => `@${source.handle} (${source.label})`
+  return MIAMI_NEWSLETTER_EVENT_SOURCES.map((source) =>
+    source.handle ? `@${source.handle} (${source.label})` : source.label
   ).join(", ");
 }

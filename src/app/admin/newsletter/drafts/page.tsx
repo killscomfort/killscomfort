@@ -50,10 +50,12 @@ export default async function AdminNewsletterDraftsPage() {
       <div className="mb-6 grid gap-4 lg:grid-cols-[1fr_auto]">
         <AdminCard className="p-5">
           <p className="text-xs uppercase tracking-[0.18em] text-bone/45">
-            Instagram sources
+            Newsletter sources
           </p>
           <p className="mt-2 text-sm leading-relaxed text-bone/70">
-            {MIAMI_NEWSLETTER_EVENT_SOURCES.map((source) => `@${source.handle}`).join(
+            {MIAMI_NEWSLETTER_EVENT_SOURCES.map((source) =>
+              source.handle ? `@${source.handle}` : source.label
+            ).join(
               " · "
             )}
           </p>

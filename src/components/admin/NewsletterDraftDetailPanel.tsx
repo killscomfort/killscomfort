@@ -324,12 +324,12 @@ export function NewsletterDraftDetailPanel({
 
               <div>
                 <p className="mb-2 text-xs uppercase tracking-[0.18em] text-bone/40">
-                  Instagram sources to scan
+                  Sources to scan
                 </p>
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {MIAMI_NEWSLETTER_EVENT_SOURCES.map((source) => (
                     <li
-                      key={source.handle}
+                      key={source.url}
                       className="border border-white/8 bg-black/20 px-3 py-2 text-xs text-bone/60"
                     >
                       <a
@@ -338,7 +338,7 @@ export function NewsletterDraftDetailPanel({
                         rel="noreferrer"
                         className="text-bone hover:text-muted-gold"
                       >
-                        @{source.handle}
+                        {source.handle ? `@${source.handle}` : source.label}
                       </a>
                       <span className="block text-bone/40">{source.label}</span>
                     </li>
