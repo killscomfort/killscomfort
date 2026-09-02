@@ -31,14 +31,38 @@ export function buildSourceEventFromDbEvent(event: Event): NewsletterSourceEvent
     event_date: event.event_date,
     source: "killscomfort.com/events",
     description: event.description,
+    // NOTE: the `events` table has no ticket_url column, so site events can never
+    // carry a ticket link. Add one via migration if you want links on listings.
   };
+}
+
+/**
+ * Sections that are true every week, listings or not. Without these an empty
+ * calendar produced a one-sentence "newsletter" that was never worth sending —
+ * which is how several weeks went out as a single apologetic line.
+ */
+function standingSections() {
+  return [
+    emailParagraph(
+      `<strong>One thing worth knowing</strong><br/>Two records in the same key can still fight each other — key is only half of it. <a href="${SITE.url}/academy" style="color:#ffffff;text-decoration:underline;">KillsComfort Academy</a>`
+    ),
+    emailParagraph(
+      `Clubs, private, corporate — <a href="${SITE.url}/book" style="color:#ffffff;text-decoration:underline;">check availability</a>.`
+    ),
+  ].join("");
 }
 
 export function buildDraftHtmlFromEvents(events: NewsletterSourceEvent[]) {
   if (events.length === 0) {
-    return emailParagraph(
-      "No confirmed events this week yet — check back soon or follow along on Instagram for last-minute drops."
-    );
+    return [
+      emailParagraph(
+        "Quiet week on the calendar — nothing confirmed through the site yet. Here&apos;s what&apos;s worth knowing anyway."
+      ),
+      emailParagraph(
+        `<strong>Where to look</strong><br/>The rooms and crews that carry a Miami week: ${escapeHtml(formatNewsletterSourceList())}.`
+      ),
+      standingSections(),
+    ].join("");
   }
 
   const items = events
@@ -64,13 +88,11 @@ export function buildDraftHtmlFromEvents(events: NewsletterSourceEvent[]) {
     .join("");
 
   return [
-    emailParagraph(
-      `Here&apos;s what&apos;s happening in Miami this week — pulled from ${escapeHtml(formatNewsletterSourceList())} and the local scene.`
-    ),
+    // Deliberately does NOT claim these were "pulled from" the source handles —
+    // nothing fetches them. Listings here come from the site events table only.
+    emailParagraph("Here&apos;s what&apos;s happening in Miami this week."),
     `<ul style="margin:0 0 20px;padding-left:18px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6;color:#ffffff;opacity:0.88;">${items}</ul>`,
-    emailParagraph(
-      `Want ${escapeHtml(SITE.name)} at your next event? <a href="${SITE.url}/book" style="color:#ffffff;text-decoration:underline;">Book an inquiry</a>.`
-    ),
+    standingSections(),
   ].join("");
 }
 
