@@ -1,0 +1,17 @@
+{
+  "name": "KillsComfort Website",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev",
+      "description": "Next.js dev server on http://localhost:3000. The public site runs without secrets; add Supabase/Stripe/Resend/PayPal keys to .env.local to enable auth, admin, checkout, and email."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}
