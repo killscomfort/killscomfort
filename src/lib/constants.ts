@@ -80,6 +80,7 @@ export const NAV_LINKS = [
 
 export const SOCIAL_LINKS = {
   instagram: "https://instagram.com/killscomfort",
+  youtube: "https://www.youtube.com/@killscomfort",
   soundcloud: "https://soundcloud.com/killscomfort",
   spotify: "https://open.spotify.com/artist/1C0WKJTNpv2Xli0swIcTE8",
   appleMusic: "https://music.apple.com/us/artist/killscomfort/1729676379",

@@ -17,6 +17,14 @@ function InstagramIcon({ className }: SocialIconProps) {
   );
 }
 
+function YouTubeIcon({ className }: SocialIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
+      <path d="M23.5 6.2a3.02 3.02 0 00-2.12-2.14C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.38.46A3.02 3.02 0 00.5 6.2 31.6 31.6 0 000 12a31.6 31.6 0 00.5 5.8 3.02 3.02 0 002.12 2.14C4.5 20.4 12 20.4 12 20.4s7.5 0 9.38-.46a3.02 3.02 0 002.12-2.14A31.6 31.6 0 0024 12a31.6 31.6 0 00-.5-5.8zM9.75 15.57V8.43L15.84 12l-6.09 3.57z" />
+    </svg>
+  );
+}
+
 function SoundCloudIcon({ className }: SocialIconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden className={className} fill="currentColor">
@@ -51,6 +59,7 @@ function DeezerIcon({ className }: SocialIconProps) {
 
 const CONNECT_LINKS = [
   { href: SOCIAL_LINKS.instagram, label: "Instagram", Icon: InstagramIcon, external: true },
+  { href: SOCIAL_LINKS.youtube, label: "YouTube", Icon: YouTubeIcon, external: true },
   { href: SOCIAL_LINKS.soundcloud, label: "SoundCloud", Icon: SoundCloudIcon, external: true },
   { href: SOCIAL_LINKS.spotify, label: "Spotify", Icon: SpotifyIcon, external: true },
   { href: SOCIAL_LINKS.appleMusic, label: "Apple Music", Icon: AppleMusicIcon, external: true },

@@ -69,6 +69,7 @@ export function artistJsonLd() {
     genre: ["House", "Techno", "Hip-Hop", "Electronic"],
     sameAs: [
       "https://instagram.com/killscomfort",
+      "https://www.youtube.com/@killscomfort",
       "https://soundcloud.com/killscomfort",
       "https://open.spotify.com/artist/1C0WKJTNpv2Xli0swIcTE8",
       "https://music.apple.com/us/artist/killscomfort/1729676379",

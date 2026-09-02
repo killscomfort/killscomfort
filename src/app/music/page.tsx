@@ -52,7 +52,9 @@ export default function MusicPage() {
                   ? "Apple Music"
                   : platform === "soundcloud"
                     ? "SoundCloud"
-                    : platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    : platform === "youtube"
+                      ? "YouTube"
+                      : platform.charAt(0).toUpperCase() + platform.slice(1)}
               </a>
             ))}
           </div>
