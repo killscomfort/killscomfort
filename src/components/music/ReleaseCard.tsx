@@ -16,7 +16,7 @@ export function ReleaseCard({ release, compact = false }: ReleaseCardProps) {
 
   return (
     <article className={compact ? "mx-auto w-full max-w-[9.5rem]" : "group"}>
-      <div className="relative aspect-square overflow-hidden bg-near-black">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-desert-sand/50 border border-clay/70">
         <Image
           src={release.coverUrl}
           alt={`${release.title} cover art`}
@@ -46,7 +46,7 @@ export function ReleaseCard({ release, compact = false }: ReleaseCardProps) {
           href={listenUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-block uppercase tracking-widest text-bone/75 underline decoration-bone/25 underline-offset-4 transition-colors hover:text-muted-gold hover:decoration-muted-gold ${
+          className={`inline-block uppercase tracking-widest text-near-black/65 underline decoration-near-black/20 underline-offset-4 transition-colors hover:text-near-black hover:decoration-near-black ${
             compact
               ? "mt-2 text-[10px]"
               : "mt-4 text-[11px]"
@@ -57,7 +57,7 @@ export function ReleaseCard({ release, compact = false }: ReleaseCardProps) {
       )}
 
       <h4
-        className={`uppercase leading-snug tracking-wide text-bone ${
+        className={`uppercase leading-snug tracking-wide text-near-black/80 ${
           compact ? "mt-2 text-[10px]" : "mt-3 text-[11px]"
         }`}
       >

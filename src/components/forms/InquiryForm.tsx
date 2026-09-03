@@ -82,9 +82,9 @@ export function InquiryForm({
   if (success) {
     if (bookingPage) {
       return (
-        <div className="py-12 text-center">
-          <p className="mb-4 text-2xl text-bone">Inquiry received ✦</p>
-          <p className="mx-auto max-w-md text-sm text-bone/60">
+        <div className="rounded-[2rem] border border-clay/70 bg-bone/75 py-12 text-center">
+          <p className="mb-4 text-2xl text-near-black">Inquiry received ✦</p>
+          <p className="mx-auto max-w-md text-sm text-near-black/60">
             I&apos;ll get back to you within 24 hours with availability and a custom
             quote. Check your email (and spam folder) for a response from{" "}
             {SITE.email}.
@@ -94,9 +94,9 @@ export function InquiryForm({
     }
 
     return (
-      <div className="border border-moss-green/40 bg-moss-green/10 p-8 text-center">
-        <h3 className="text-display text-2xl uppercase text-bone">Message Received</h3>
-        <p className="mt-4 text-bone/70">
+      <div className="rounded-[2rem] border border-clay/70 bg-[#eadfc8]/60 p-8 text-center">
+        <h3 className="text-display text-2xl uppercase text-near-black">Message Received</h3>
+        <p className="mt-4 text-near-black/70">
           Thanks for reaching out. Gregory reviews every inquiry personally and
           will respond within 24 hours. Check your email for a confirmation.
         </p>
@@ -107,7 +107,7 @@ export function InquiryForm({
   return (
     <form method="POST" onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
       {error && (
-        <p className="border border-dried-blood/50 bg-dried-blood/10 px-4 py-3 text-sm text-dried-blood">
+        <p className="rounded-2xl border border-dried-blood/50 bg-dried-blood/10 px-4 py-3 text-sm text-dried-blood">
           {error}
         </p>
       )}

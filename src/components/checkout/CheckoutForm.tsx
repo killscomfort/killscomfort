@@ -167,16 +167,16 @@ export function CheckoutForm({
 
   if (!ready) {
     return (
-      <div className="border border-clay/30 bg-warm-charcoal/40 p-10 text-center">
-        <p className="text-bone/70">Loading cart...</p>
+      <div className="rounded-[2rem] border border-clay/70 bg-bone/70 p-10 text-center">
+        <p className="text-near-black/70">Loading cart...</p>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="border border-clay/30 bg-warm-charcoal/40 p-10 text-center">
-        <p className="text-bone/70">Your cart is empty.</p>
+      <div className="rounded-[2rem] border border-clay/70 bg-bone/70 p-10 text-center">
+        <p className="text-near-black/70">Your cart is empty.</p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button href="/merch">Shop Merch</Button>
         </div>
@@ -187,15 +187,15 @@ export function CheckoutForm({
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
       <div>
-        <h2 className="text-display text-xl uppercase text-bone">Your Cart</h2>
+        <h2 className="text-display text-xl uppercase text-near-black">Your Cart</h2>
         <ul className="mt-6 space-y-4">
           {items.map((item) => (
             <li
               key={`${item.slug}-${item.size ?? ""}`}
-              className="flex gap-4 border border-clay/20 bg-warm-charcoal/30 p-4"
+              className="flex gap-4 rounded-[1.75rem] border border-clay/70 bg-bone/70 p-4"
             >
               {item.image ? (
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden bg-warm-charcoal">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-desert-sand/50">
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -208,35 +208,35 @@ export function CheckoutForm({
                   />
                 </div>
               ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center border border-clay/20 bg-warm-charcoal text-[10px] uppercase tracking-widest text-bone/40">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-clay/70 bg-desert-sand/50 text-[10px] uppercase tracking-widest text-near-black/40">
                   Service
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-xs uppercase tracking-widest text-bone/40">
+                <p className="text-xs uppercase tracking-widest text-near-black/40">
                   {item.kind === "service" ? "Service" : "Merch"}
                 </p>
-                <p className="text-bone">{item.name}</p>
+                <p className="text-near-black">{item.name}</p>
                 {item.size && (
-                  <p className="text-xs uppercase tracking-widest text-bone/50">
+                  <p className="text-xs uppercase tracking-widest text-near-black/50">
                     Size {item.size}
                   </p>
                 )}
                 {item.description && item.kind === "service" && (
-                  <p className="mt-1 text-sm text-bone/50">{item.description}</p>
+                  <p className="mt-1 text-sm text-near-black/50">{item.description}</p>
                 )}
-                <p className="mt-1 text-sm text-muted-gold">
+                <p className="mt-1 text-sm text-burnt-sienna">
                   {formatPrice(item.priceCents)} each
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <label className="flex items-center gap-2 text-sm text-bone/70">
+                  <label className="flex items-center gap-2 text-sm text-near-black/70">
                     Qty
                     <select
                       value={item.quantity}
                       onChange={(e) =>
                         updateQuantity(item.slug, item.size, Number(e.target.value))
                       }
-                      className="border border-clay/30 bg-near-black px-2 py-1 text-bone"
+                      className="rounded-xl border border-clay/70 bg-bone/80 px-2 py-1 text-near-black"
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                         <option key={n} value={n}>
@@ -248,20 +248,20 @@ export function CheckoutForm({
                   <button
                     type="button"
                     onClick={() => removeItem(item.slug, item.size)}
-                    className="text-xs uppercase tracking-widest text-bone/40 hover:text-dried-blood"
+                    className="text-xs uppercase tracking-widest text-near-black/40 hover:text-dried-blood"
                   >
                     Remove
                   </button>
                 </div>
               </div>
-              <p className="text-sm text-bone">{formatPrice(item.lineTotalCents)}</p>
+              <p className="text-sm text-near-black">{formatPrice(item.lineTotalCents)}</p>
             </li>
           ))}
         </ul>
         {!requiresShipping && (
-          <p className="mt-4 text-sm text-bone/50">
+          <p className="mt-4 text-sm text-near-black/55">
             Need merch too?{" "}
-            <Link href="/merch" className="text-muted-gold hover:text-bone">
+            <Link href="/merch" className="underline text-near-black hover:opacity-70">
               Shop the store
             </Link>
             .
@@ -270,19 +270,19 @@ export function CheckoutForm({
       </div>
 
       <div>
-        <div className="border border-clay/30 bg-warm-charcoal/40 p-6">
-          <h2 className="text-display text-xl uppercase text-bone">Checkout</h2>
-          <p className="mt-2 text-sm text-bone/60">
-            Subtotal: <span className="text-muted-gold">{formatPrice(subtotalCents)}</span>
+        <div className="rounded-[2rem] border border-clay/70 bg-bone/75 p-6">
+          <h2 className="text-display text-xl uppercase text-near-black">Checkout</h2>
+          <p className="mt-2 text-sm text-near-black/60">
+            Subtotal: <span className="text-burnt-sienna">{formatPrice(subtotalCents)}</span>
           </p>
-          <p className="mt-1 text-xs text-bone/40">
+          <p className="mt-1 text-xs text-near-black/40">
             {useStripeMerchCheckout
               ? "Secure checkout via Stripe · Apple Pay · Google Pay · Cards"
               : "Secure checkout — PayPal, Venmo, cards, and mobile wallets."}
           </p>
           {!useStripeMerchCheckout && <AcceptedPaymentMethods compact />}
           {merchOnly && !stripeConfigured && (
-            <p className="mt-3 rounded border border-clay/20 bg-near-black/40 px-3 py-2 text-xs text-bone/55">
+            <p className="mt-3 rounded-2xl border border-clay/70 bg-desert-sand/60 px-3 py-2 text-xs text-near-black/60">
               Card checkout via Stripe is being configured. Merch orders can still
               checkout with PayPal below.
             </p>
@@ -299,7 +299,7 @@ export function CheckoutForm({
               >
                 {loading ? "Redirecting to Stripe…" : "Checkout with Stripe"}
               </Button>
-              <p className="text-xs text-bone/45">
+              <p className="text-xs text-near-black/45">
                 Shipping address is collected securely on Stripe checkout.
               </p>
             </div>

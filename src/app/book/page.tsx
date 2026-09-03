@@ -18,9 +18,9 @@ export const metadata = createMetadata({
 
 export default function BookPage() {
   return (
-    <div className="pt-24">
-      <section className="section-padding pb-28 md:pb-20">
-        <div className="mx-auto w-full min-w-0 max-w-3xl">
+    <div className="min-h-screen pt-28 pb-24">
+      <section className="section-shell">
+        <div className="glass-panel mx-auto w-full min-w-0 max-w-3xl p-6 sm:p-10">
           <SectionHeading
             label="Booking"
             title="Let's Create Something Unforgettable"

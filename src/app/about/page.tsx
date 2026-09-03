@@ -30,14 +30,14 @@ const offerings = [
 
 export default function AboutPage() {
   return (
-    <div className="pt-24">
-      <section className="section-padding">
+    <div className="pt-28 pb-24">
+      <section className="section-shell">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-display text-3xl uppercase text-bone sm:text-4xl">
+          <h1 className="text-display text-5xl uppercase text-near-black sm:text-6xl">
             What Is {SITE.name}?
           </h1>
 
-          <div className="mt-12 space-y-8 text-lg leading-relaxed text-bone/80 sm:text-xl">
+          <div className="mt-12 space-y-8 text-lg leading-relaxed text-near-black/80 sm:text-xl">
             <p>{SITE.name} is a reminder.</p>
             <p>
               To stay active. To stay curious. To keep evolving even when life
@@ -67,8 +67,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="section-padding">
-        <div className="mx-auto max-w-2xl space-y-6 text-base leading-relaxed text-bone/70 sm:text-lg">
+      <section className="section-shell mt-6">
+        <div className="mx-auto max-w-2xl space-y-6 text-base leading-relaxed text-near-black/70 sm:text-lg">
           <p>
             {SITE.founder} grew up in Miami — a melting pot where every block
             carries a different rhythm. An {SITE.founderEducation}, he honed the
@@ -76,7 +76,7 @@ export default function AboutPage() {
             power of showing up for others.
           </p>
           <p>
-            <strong className="text-bone">{SITE.name}</strong> isn&apos;t just a
+            <strong className="text-near-black">{SITE.name}</strong> isn&apos;t just a
             name. It&apos;s a philosophy. {SITE.tagline}. Every set, every track,
             every event is an invitation to step past what&apos;s familiar and
             find something real.
@@ -90,13 +90,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="section-padding border-t border-clay/15">
+      <section className="section-shell mt-6 border-t border-clay/50 pt-10">
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3 lg:gap-12">
             {ABOUT_GALLERY_IMAGES.map((src, i) => (
               <div
                 key={src}
-                className="relative aspect-[3/4] overflow-hidden bg-warm-charcoal"
+                className="relative aspect-[3/4] overflow-hidden rounded-[2rem] border border-clay/70 bg-desert-sand"
               >
                 <Image
                   src={src}
@@ -111,22 +111,22 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="section-padding border-t border-clay/15 bg-warm-charcoal/30 grain-overlay">
+      <section className="section-shell mt-6 border-t border-clay/50 pt-10">
         <div className="relative mx-auto max-w-2xl">
-          <h2 className="text-display text-center text-2xl uppercase text-bone sm:text-3xl">
+          <h2 className="text-display text-center text-4xl uppercase text-near-black sm:text-5xl">
             What I Do
           </h2>
-          <p className="mt-4 text-center text-sm text-bone/50">
+          <p className="mt-4 text-center text-sm text-near-black/55">
             Three lanes. One mission — create experiences that connect.
           </p>
 
           <div className="mt-12 space-y-10">
             {offerings.map((item) => (
               <div key={item.title} className="text-center">
-                <h3 className="text-lg uppercase tracking-wide text-muted-gold">
+                <h3 className="text-lg uppercase tracking-wide text-burnt-sienna">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-bone/65 sm:text-base">
+                <p className="mt-3 text-sm leading-relaxed text-near-black/65 sm:text-base">
                   {item.description}
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default function AboutPage() {
           <div className="mt-14 text-center">
             <Link
               href="/music"
-              className="text-xs uppercase tracking-[0.3em] text-bone/60 underline decoration-bone/25 underline-offset-4 transition-colors hover:text-muted-gold hover:decoration-muted-gold"
+              className="text-xs uppercase tracking-[0.3em] text-near-black/60 underline decoration-near-black/25 underline-offset-4 transition-colors hover:text-near-black"
             >
               Hear the music
             </Link>

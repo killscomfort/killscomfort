@@ -14,7 +14,7 @@ export function AcceptedPaymentMethods({ compact = false }: AcceptedPaymentMetho
   return (
     <div className={compact ? "mt-2" : "mt-3"}>
       {!compact && (
-        <p className="text-xs uppercase tracking-widest text-bone/40">
+        <p className="text-xs uppercase tracking-widest text-near-black/45">
           Accepted payment methods
         </p>
       )}
@@ -25,7 +25,7 @@ export function AcceptedPaymentMethods({ compact = false }: AcceptedPaymentMetho
         {METHODS.map((method) => (
           <li
             key={method.id}
-            className="border border-clay/30 bg-near-black/40 px-2.5 py-1 text-[11px] uppercase tracking-wider text-bone/60"
+            className="rounded-full border border-clay/70 bg-bone/70 px-2.5 py-1 text-[11px] uppercase tracking-wider text-near-black/65"
           >
             {method.label}
           </li>

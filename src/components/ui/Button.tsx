@@ -11,12 +11,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-muted-gold text-near-black hover:bg-desert-sand border border-muted-gold",
+    "border border-near-black bg-near-black text-bone hover:-translate-y-0.5 hover:bg-[#3b332b]",
   secondary:
-    "bg-transparent text-bone border border-clay/60 hover:bg-moss-green/40 hover:border-muted-gold",
-  ghost: "bg-transparent text-bone hover:bg-warm-charcoal border border-transparent",
+    "border border-clay bg-desert-sand text-near-black hover:-translate-y-0.5 hover:bg-[#e8d9c1]",
+  ghost: "border border-transparent bg-transparent text-near-black hover:bg-desert-sand/70",
   outline:
-    "bg-transparent text-bone border border-clay/60 hover:border-muted-gold hover:text-muted-gold",
+    "border border-clay bg-bone/60 text-near-black hover:-translate-y-0.5 hover:border-near-black",
 };
 
 const sizes = {
@@ -34,7 +34,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "terminal-ui inline-flex items-center justify-center text-lg tracking-wide transition-all duration-300",
+    "inline-flex items-center justify-center rounded-full text-sm font-medium tracking-[0.18em] uppercase transition-all duration-300",
     variants[variant],
     sizes[size],
     className

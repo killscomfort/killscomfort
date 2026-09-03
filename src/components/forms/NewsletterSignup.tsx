@@ -67,14 +67,13 @@ export function NewsletterSignup({ source, compact = false }: Props) {
     return (
       <div
         className={cn(
-          "rounded-sm border border-clay/20 bg-near-black/40 text-center",
+          "rounded-[2rem] border border-clay/70 bg-bone/75 text-center",
           compact ? "px-5 py-6 sm:px-8 sm:py-8" : "px-6 py-8 sm:px-10 sm:py-10"
         )}
       >
-        <p className="text-lg text-bone sm:text-xl">You&apos;re in Comfort Killers.</p>
-        <p className="mt-2 text-sm text-bone/60 sm:text-base">
-          Welcome to the Comfort Killers Newsletter — we&apos;ll send music, Miami
-          events, and ways to keep killing your comforts. No noise.
+        <p className="text-lg text-near-black sm:text-xl">You&apos;re in, Comfort Killer.</p>
+        <p className="mt-2 text-sm text-near-black/60 sm:text-base">
+          Music, Miami events, and ways to keep killing your comforts — straight to your inbox.
         </p>
       </div>
     );
@@ -83,38 +82,30 @@ export function NewsletterSignup({ source, compact = false }: Props) {
   return (
     <div
       className={cn(
-        "rounded-sm border border-clay/20 bg-near-black/40",
+        "rounded-[2rem] border border-clay/70 bg-bone/75",
         compact ? "px-5 py-6 sm:px-8 sm:py-8" : "px-6 py-8 sm:px-10 sm:py-10"
       )}
     >
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-xs uppercase tracking-[0.3em] text-muted-gold">
-          Comfort Killers Newsletter
-        </p>
-        <h2
-          className={cn(
-            "mt-3 font-normal normal-case tracking-normal text-bone",
-            compact ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"
-          )}
-        >
-          Find new ways to kill your comforts
-        </h2>
-        <p
-          className={cn(
-            "mt-3 leading-relaxed text-bone/65",
-            compact ? "text-sm" : "text-sm sm:text-base"
-          )}
-        >
-          New music, Miami events, and mindset — straight to your inbox. No spam,
-          just the Comfort Killers dispatch.
-        </p>
-      </div>
+      {!compact && (
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-near-black/45">
+            Comfort Killers Newsletter
+          </p>
+          <h2 className="mt-3 text-2xl text-near-black sm:text-3xl">
+            Kill the comfort. Keep the current.
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-near-black/65 sm:text-base">
+            New music, Miami events, and mindset — straight to your inbox. No spam,
+            just the Comfort Killers dispatch.
+          </p>
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
         className={cn(
           "mx-auto flex max-w-xl flex-col gap-3 sm:flex-row sm:items-start",
-          compact ? "mt-5 sm:mt-6" : "mt-6 sm:mt-8"
+          compact ? "" : "mt-6 sm:mt-8"
         )}
       >
         <div className="min-w-0 flex-1">
@@ -126,7 +117,6 @@ export function NewsletterSignup({ source, compact = false }: Props) {
             placeholder="you@email.com"
             error={fieldErrors.email}
             aria-label="Email address"
-            className="bg-near-black/60"
           />
         </div>
         <Button
@@ -135,7 +125,7 @@ export function NewsletterSignup({ source, compact = false }: Props) {
           disabled={loading}
           className="shrink-0 sm:mt-0 sm:h-[3.125rem]"
         >
-          {loading ? "Joining..." : "Join Comfort Killers"}
+          {loading ? "Joining..." : "Subscribe"}
         </Button>
       </form>
 
