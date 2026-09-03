@@ -35,21 +35,21 @@ function liveSetJsonLd() {
 
 export default function EventsPage() {
   return (
-    <div className="pt-24">
+    <div className="pt-28 pb-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(liveSetJsonLd()) }}
       />
 
-      <section className="section-padding">
-        <div className="mx-auto max-w-4xl">
+      <section className="section-shell">
+        <div className="glass-panel mx-auto max-w-4xl p-6 sm:p-10">
           <SectionHeading
             label="Events"
             title="Latest Live Set"
             description={`${set.lede} ${set.description}`}
           />
 
-          <p className="mb-8 font-mono text-[10px] uppercase tracking-[0.35em] text-bone/50">
+          <p className="mb-8 text-[10px] uppercase tracking-[0.35em] text-near-black/50">
             {formatDate(set.postedAt)}
             <span className="text-bone/25"> · </span>
             {set.durationLabel}
@@ -57,14 +57,14 @@ export default function EventsPage() {
             {set.venue}
           </p>
 
-          <h3 className="text-display text-2xl uppercase leading-tight text-bone sm:text-3xl">
+          <h3 className="text-display text-2xl uppercase leading-tight text-near-black sm:text-3xl">
             {set.title}
           </h3>
-          <p className="mt-2 text-sm uppercase tracking-[0.18em] text-bone/55 sm:text-base">
+          <p className="mt-2 text-sm uppercase tracking-[0.18em] text-near-black/55 sm:text-base">
             {set.credit}
           </p>
 
-          <div className="relative mt-8 aspect-video w-full overflow-hidden border border-clay/20 bg-near-black">
+          <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-[2rem] border border-clay/70 bg-desert-sand/50">
             <iframe
               src={set.youtube.embedUrl}
               title={set.youtube.title}
@@ -80,7 +80,7 @@ export default function EventsPage() {
               href={set.youtube.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-muted-gold/60 bg-muted-gold/10 px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-muted-gold transition-colors hover:bg-muted-gold hover:text-near-black"
+              className="inline-flex items-center gap-2 rounded-full border border-near-black bg-near-black px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-bone transition-all hover:-translate-y-0.5"
             >
               Watch on YouTube
               <ExternalLink className="h-3.5 w-3.5" />
@@ -89,14 +89,14 @@ export default function EventsPage() {
               href={set.soundcloud.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-clay/40 px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-bone/80 transition-colors hover:border-muted-gold hover:text-muted-gold"
+              className="inline-flex items-center gap-2 rounded-full border border-clay px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-near-black/80 transition-colors hover:border-near-black hover:text-near-black"
             >
               Listen on SoundCloud
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
 
-          <div className="mt-10 border border-clay/15 bg-warm-charcoal/40 p-1">
+          <div className="mt-10 overflow-hidden rounded-[2rem] border border-clay/70 bg-bone/70 p-1">
             <iframe
               src={set.soundcloud.embedUrl}
               title={set.soundcloud.title}
@@ -107,7 +107,7 @@ export default function EventsPage() {
             />
           </div>
 
-          <p className="mt-6 text-sm leading-relaxed text-bone/55">
+          <p className="mt-6 text-sm leading-relaxed text-near-black/55">
             Live art by{" "}
             {set.painters.map((painter, index) => (
               <span key={painter.name}>
@@ -116,7 +116,7 @@ export default function EventsPage() {
                   href={painter.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-bone/80 underline decoration-bone/25 underline-offset-4 transition-colors hover:text-muted-gold hover:decoration-muted-gold"
+                  className="text-near-black/80 underline decoration-near-black/25 underline-offset-4 transition-colors hover:text-near-black"
                 >
                   {painter.name}
                 </a>
@@ -125,8 +125,8 @@ export default function EventsPage() {
             . Set by {SITE.name}.
           </p>
 
-          <div className="mt-16 border-t border-clay/15 pt-12 text-center">
-            <p className="text-sm leading-relaxed text-bone/60 sm:text-base">
+          <div className="mt-16 border-t border-clay/50 pt-12 text-center">
+            <p className="text-sm leading-relaxed text-near-black/60 sm:text-base">
               Want this energy in the room? Reach out for clubs, studios,
               festivals, and private nights.
             </p>

@@ -160,16 +160,16 @@ export function StickyMediaPlayer() {
 
   return (
     <div
-      className="sticky-media-player fixed inset-x-0 bottom-0 z-[45] border-t border-white/10 bg-near-black/95 backdrop-blur-md"
+      className="sticky-media-player fixed inset-x-0 bottom-0 z-[45] border-t border-clay/70 bg-bone/92 backdrop-blur-md"
       role="region"
       aria-label="Now playing"
     >
       <div
-        className="absolute inset-x-0 top-0 h-px bg-white/10"
+        className="absolute inset-x-0 top-0 h-px bg-clay/60"
         aria-hidden
       >
         <div
-          className="h-full bg-white/70 transition-[width] duration-150"
+          className="h-full bg-near-black/75 transition-[width] duration-150"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -188,8 +188,8 @@ export function StickyMediaPlayer() {
           className={cn(
             "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors",
             playing
-              ? "border-white/30 bg-white/10 text-bone"
-              : "border-white/20 bg-white/5 text-bone hover:border-white/40"
+              ? "border-near-black/20 bg-near-black text-bone"
+              : "border-clay bg-bone/80 text-near-black hover:border-near-black/40"
           )}
           aria-label={playing ? "Pause track" : "Play track"}
         >
@@ -200,7 +200,7 @@ export function StickyMediaPlayer() {
           )}
         </button>
 
-        <div className="relative h-11 w-11 shrink-0 overflow-hidden border border-white/15">
+        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-clay/70">
           <Image
             src={release.coverUrl}
             alt=""
@@ -212,8 +212,8 @@ export function StickyMediaPlayer() {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-bone">{release.title}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-bone/45">
+          <p className="truncate text-sm font-medium text-near-black">{release.title}</p>
+          <p className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-near-black/45">
             {autoplayBlocked && !playing
               ? "Tap play to start"
               : `${formatTime(progress)} / ${formatTime(duration)}`}
@@ -225,7 +225,7 @@ export function StickyMediaPlayer() {
             href={listenUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-bone/55 transition-colors hover:text-bone sm:flex"
+            className="hidden items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-near-black/55 transition-colors hover:text-near-black sm:flex"
           >
             Full track
             <ExternalLink className="h-3 w-3" />
@@ -235,7 +235,7 @@ export function StickyMediaPlayer() {
         <button
           type="button"
           onClick={dismiss}
-          className="shrink-0 rounded p-1.5 text-bone/45 transition-colors hover:bg-white/5 hover:text-bone"
+          className="shrink-0 rounded-full p-1.5 text-near-black/45 transition-colors hover:bg-desert-sand hover:text-near-black"
           aria-label="Close player"
         >
           <X className="h-4 w-4" />

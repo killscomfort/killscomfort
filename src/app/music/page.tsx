@@ -31,9 +31,9 @@ const categories = [
 
 export default function MusicPage() {
   return (
-    <div className="pt-24">
-      <section className="section-padding">
-        <div className="mx-auto max-w-5xl">
+    <div className="pt-28 pb-24">
+      <section className="section-shell">
+        <div className="glass-panel mx-auto max-w-5xl p-6 sm:p-10">
           <SectionHeading
             title="The Music"
             description="Hear the range. Feel the energy."
@@ -46,7 +46,7 @@ export default function MusicPage() {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border border-clay/30 px-3 py-1.5 text-[10px] uppercase tracking-widest text-bone/70 hover:border-muted-gold hover:text-muted-gold transition-colors"
+                className="rounded-full border border-clay/70 px-3 py-1.5 text-[10px] uppercase tracking-widest text-near-black/70 hover:border-near-black hover:text-near-black transition-colors"
               >
                 {platform === "appleMusic"
                   ? "Apple Music"
@@ -63,11 +63,11 @@ export default function MusicPage() {
             <div key={cat.name} className="mb-14">
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <h3 className="text-display text-xl uppercase text-bone sm:text-2xl">
+                  <h3 className="text-display text-xl uppercase text-near-black sm:text-2xl">
                     {cat.name}
                   </h3>
                   {cat.description && (
-                    <p className="mt-1.5 text-xs text-bone/60">{cat.description}</p>
+                    <p className="mt-1.5 text-xs text-near-black/60">{cat.description}</p>
                   )}
                 </div>
                 {cat.profileHref && (
@@ -75,7 +75,7 @@ export default function MusicPage() {
                     href={cat.profileHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs uppercase tracking-widest text-muted-gold hover:text-bone transition-colors"
+                    className="text-xs uppercase tracking-widest text-near-black/65 hover:text-near-black transition-colors"
                   >
                     Full SoundCloud Profile →
                   </a>

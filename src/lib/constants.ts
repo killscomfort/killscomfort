@@ -14,7 +14,7 @@ export const SITE = {
   founder: "Gregory Tovar",
   founderRoles: "DJ, producer, and sound engineer",
   founderEducation: "SAE Institute alum",
-  tagline: "Growth lives on the otherside of killing your comforts",
+  tagline: "Kill the comfort. Keep the movement alive.",
   description:
     "Miami-based DJ, producer, sound engineer, SAE Institute alum, and creative visionary building a movement rooted in self-discovery, creative expression, and service to others.",
   location: "Miami, Florida",
@@ -24,16 +24,16 @@ export const SITE = {
 
 /** Base palette from killscomfort.com; accents from inverted hero image */
 export const COLORS = {
-  nearBlack: "#000000",
-  warmCharcoal: "#0E0E0E",
-  bone: "#FFFFFF",
-  midGray: "#6E6E6E",
-  driedBlood: "#CC3B3B",
-  mutedGold: "#FFFFFF",
-  burntSienna: "#FFFFFF",
-  clay: "#FFFFFF",
-  desertSand: "#FFFFFF",
-  mossGreen: "#FFFFFF",
+  nearBlack: "#221d17",
+  warmCharcoal: "#f8f1e4",
+  bone: "#fffdf7",
+  midGray: "#7e7366",
+  driedBlood: "#a34d3f",
+  mutedGold: "#d7b98e",
+  burntSienna: "#c58e64",
+  clay: "#d8c4a8",
+  desertSand: "#efe2cc",
+  mossGreen: "#8f9a78",
 } as const;
 
 export const EVENT_TYPES = [
@@ -67,15 +67,11 @@ export const BLOG_CATEGORIES = [
 ] as const;
 
 export const NAV_LINKS = [
-  { href: "/music", label: "Music" },
-  { href: "/merch", label: "Merch" },
-  { href: "/warehouse", label: "Warehouse" },
-  { href: "/academy", label: "Academy" },
-  { href: "/services", label: "Services" },
-  { href: "/events", label: "Events" },
-  { href: "/about", label: "About" },
-  { href: "/donate", label: "Donate" },
-  { href: "/book", label: "Book" },
+  { href: "/#story", label: "Story" },
+  { href: "/#music", label: "Music" },
+  { href: "/#merch", label: "Merch" },
+  { href: "/#support", label: "Support" },
+  { href: "/#connect", label: "Connect" },
 ] as const;
 
 export const SOCIAL_LINKS = {

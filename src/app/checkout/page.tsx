@@ -16,12 +16,12 @@ export default function CheckoutPage() {
   const stripeConfigured = isStripeConfigured();
 
   return (
-    <div className="pt-24">
-      <section className="section-padding">
-        <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen pt-28 pb-24">
+      <section className="section-shell">
+        <div className="glass-panel p-6 sm:p-10">
           <SectionHeading
             title="Checkout"
-            description="Merch, bookings, and lessons — one cart, one checkout."
+            description="Merch — cart, then Stripe checkout."
             align="center"
             className="mx-auto"
           />

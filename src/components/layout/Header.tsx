@@ -1,122 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { LOGO_SRC, NAV_LINKS, SITE } from "@/lib/constants";
+import { NAV_LINKS, SITE } from "@/lib/constants";
 import { isAcademyPath, isImmersiveLandPath, isRidePath } from "@/lib/ride-games";
-import { TERMINAL_ASCII_LOGO } from "@/lib/terminal-theme";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { SparkleWrap } from "@/components/ui/SparkleWrap";
 import { CartLink } from "@/components/layout/CartLink";
 
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [bookingFormInView, setBookingFormInView] = useState(false);
   const isLandingPage = pathname.startsWith("/lp") || isImmersiveLandPath(pathname);
   const isAdmin = pathname.startsWith("/admin");
-  const isHome = pathname === "/";
   const isRide = isRidePath(pathname);
   const isAcademy = isAcademyPath(pathname);
-  const showMobileAvailabilityBar = !pathname.startsWith("/book");
-  const hideAvailabilityCta = bookingFormInView;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const section = document.getElementById("book");
-    if (!section) {
-      setBookingFormInView(false);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setBookingFormInView(entry.isIntersecting),
-      { threshold: 0.12, rootMargin: "0px 0px -10% 0px" }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [pathname]);
-
-  const mobileBarVisible =
-    showMobileAvailabilityBar && scrolled && !hideAvailabilityCta;
-
-  useEffect(() => {
-    if (mobileBarVisible) {
-      document.body.classList.add("mobile-availability-active");
-    } else {
-      document.body.classList.remove("mobile-availability-active");
-    }
-
-    return () => document.body.classList.remove("mobile-availability-active");
-  }, [mobileBarVisible]);
-
   if (isLandingPage || isAdmin || isRide || isAcademy) return null;
+
+  const ctaHref = pathname === "/" ? "#book" : "/#book";
 
   return (
     <>
       <header
         className={cn(
-          "terminal-header fixed top-0 z-50 w-full transition-all duration-300",
+          "fixed top-0 z-50 w-full transition-all duration-300",
           scrolled
-            ? isHome
-              ? "border-b border-clay/15 bg-near-black/70 backdrop-blur-sm"
-              : "border-b border-clay/20 bg-near-black/95 backdrop-blur-md"
+            ? "border-b border-clay/60 bg-bone/80 shadow-[0_12px_36px_rgba(34,29,23,0.06)] backdrop-blur-md"
             : "bg-transparent"
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div className="section-shell flex items-center justify-between py-4">
           <Link href="/" className="block shrink-0">
-            <pre
-              className="terminal-brand-ascii"
-              aria-label={SITE.name}
-            >
-              {TERMINAL_ASCII_LOGO}
-            </pre>
-            <Image
-              src={LOGO_SRC}
-              alt={SITE.name}
-              width={360}
-              height={80}
-              className="terminal-brand-image h-16 w-auto sm:h-20"
-              priority
-            />
+            <p className="text-display text-3xl tracking-[0.12em] text-near-black sm:text-4xl">
+              {SITE.name}
+            </p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-near-black/55">
+              Miami · Music · Movement
+            </p>
           </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
-            {NAV_LINKS.filter((link) => link.href !== "/book").map((link) => (
+          <nav className="hidden items-center gap-6 md:flex">
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-lg text-bone/70 hover:text-muted-gold transition-colors"
+                className="text-sm uppercase tracking-[0.16em] text-near-black/60 transition-colors hover:text-near-black"
               >
                 {link.label}
               </Link>
             ))}
             <CartLink />
-            {!hideAvailabilityCta && (
-              <div className="hidden md:flex">
-                <SparkleWrap>
-                  <Button href="/book" size="sm">
-                    Check Availability
-                  </Button>
-                </SparkleWrap>
-              </div>
-            )}
+            <Button href={ctaHref} size="sm">
+              Book now
+            </Button>
           </nav>
 
           <button
-            className="md:hidden text-bone"
+            className="rounded-full border border-clay/60 bg-bone/80 p-2 text-near-black md:hidden"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -125,14 +75,14 @@ export function Header() {
         </div>
 
         {open && (
-          <div className="md:hidden border-t border-clay/20 bg-near-black/98 backdrop-blur-md">
+          <div className="border-t border-clay/60 bg-bone/95 shadow-[0_18px_40px_rgba(34,29,23,0.08)] backdrop-blur-md md:hidden">
             <nav className="flex flex-col gap-1 px-4 py-6">
-              {NAV_LINKS.filter((link) => link.href !== "/book").map((link) => (
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="px-2 py-3 text-lg text-bone/80 hover:text-muted-gold"
+                  className="px-2 py-3 text-sm uppercase tracking-[0.16em] text-near-black/70"
                 >
                   {link.label}
                 </Link>
@@ -140,29 +90,15 @@ export function Header() {
               <div className="px-2 py-3">
                 <CartLink />
               </div>
-              {!hideAvailabilityCta && (
-                <div className="mt-4">
-                  <SparkleWrap className="w-full">
-                    <Button href="/book" className="w-full">
-                      Check Availability
-                    </Button>
-                  </SparkleWrap>
-                </div>
-              )}
+              <div className="mt-4">
+                <Button href={ctaHref} className="w-full">
+                  Book now
+                </Button>
+              </div>
             </nav>
           </div>
         )}
       </header>
-
-      {showMobileAvailabilityBar && scrolled && !hideAvailabilityCta && (
-        <div className="mobile-availability-bar fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 border-t border-clay/30 bg-near-black/95 p-3 backdrop-blur-md md:hidden">
-          <SparkleWrap className="w-full">
-            <Button href="/book" className="w-full" size="md">
-              Check Availability
-            </Button>
-          </SparkleWrap>
-        </div>
-      )}
     </>
   );
 }

@@ -33,7 +33,7 @@ function MerchProductCard({ item }: { item: MerchItem }) {
 
   return (
     <article className="group">
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-white/[0.06] bg-warm-charcoal">
+      <div className="relative aspect-square overflow-hidden rounded-[1.5rem] border border-clay/70 bg-desert-sand/50">
         <Image
           src={item.image}
           alt={item.name}
@@ -44,11 +44,11 @@ function MerchProductCard({ item }: { item: MerchItem }) {
       </div>
 
       <div className="mt-5">
-        <p className="text-xs uppercase tracking-[0.25em] text-muted-gold">
+        <p className="text-xs uppercase tracking-[0.25em] text-near-black/55">
           {externalBuy ? "Available on Etsy" : formatPrice(item.priceCents)}
         </p>
-        <h3 className="mt-1 text-lg font-bold uppercase text-bone">{item.name}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-bone/60">{item.description}</p>
+        <h3 className="mt-1 text-lg font-medium uppercase text-near-black">{item.name}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-near-black/60">{item.description}</p>
 
         {!externalBuy && item.sizes && (
           <div className="mt-4">
@@ -74,7 +74,7 @@ function MerchProductCard({ item }: { item: MerchItem }) {
             href={item.buyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 flex w-full items-center justify-center rounded-xl bg-muted-gold py-3 text-sm font-bold uppercase tracking-[0.15em] text-near-black transition-all duration-300 hover:bg-desert-sand hover:shadow-lg hover:shadow-muted-gold/20"
+            className="mt-4 flex w-full items-center justify-center rounded-full border border-near-black bg-near-black py-3 text-sm font-medium uppercase tracking-[0.15em] text-bone transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3b332b]"
           >
             Buy Now
           </a>
@@ -82,9 +82,9 @@ function MerchProductCard({ item }: { item: MerchItem }) {
           <button
             type="button"
             onClick={handleAdd}
-            className="mt-4 w-full rounded-xl bg-muted-gold py-3 text-sm font-bold uppercase tracking-[0.15em] text-near-black transition-all duration-300 hover:bg-desert-sand hover:shadow-lg hover:shadow-muted-gold/20"
+            className="mt-4 w-full rounded-full border border-near-black bg-near-black py-3 text-sm font-medium uppercase tracking-[0.15em] text-bone transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#3b332b]"
           >
-            {added ? "Added to Cart" : "Add to Cart"}
+            {added ? "Added ✓" : "Add to Cart"}
           </button>
         )}
       </div>
@@ -104,9 +104,9 @@ export function MerchShop() {
       </div>
 
       {hasCartItems && (
-        <p className="mt-10 text-center text-sm text-bone/50">
+        <p className="mt-10 text-center text-sm text-near-black/55">
           Hoodies and shorts go to your cart.{" "}
-          <Link href="/checkout" className="text-muted-gold hover:text-bone">
+          <Link href="/checkout" className="underline text-near-black hover:opacity-70">
             Checkout with Stripe
           </Link>
         </p>

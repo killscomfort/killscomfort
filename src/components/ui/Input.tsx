@@ -13,17 +13,17 @@ export function Input({ label, error, className, id, type, ...props }: InputProp
   return (
     <div className="terminal-input-wrap min-w-0 space-y-2">
       {label && (
-        <label htmlFor={inputId} className="block text-sm text-bone/80">
+        <label htmlFor={inputId} className="block text-sm font-medium text-near-black/80">
           {label}
         </label>
       )}
-      <div className="terminal-input-field">
+      <div>
         <input
           id={inputId}
           type={type}
           className={cn(
-            "terminal-input box-border w-full min-w-0 max-w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-base text-bone placeholder:text-mid-gray",
-          "h-[3.125rem] focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
+            "box-border h-[3.125rem] w-full min-w-0 max-w-full rounded-2xl border border-clay/70 bg-bone/80 px-4 py-3 text-base text-near-black placeholder:text-mid-gray",
+          "focus:border-near-black focus:outline-none focus:ring-2 focus:ring-muted-gold/40",
           "transition-colors duration-200",
           isDateLike &&
             "input-date appearance-none leading-normal [-webkit-appearance:none]",
@@ -56,16 +56,16 @@ export function Textarea({
   return (
     <div className="terminal-input-wrap min-w-0 space-y-2">
       {label && (
-        <label htmlFor={inputId} className="block text-sm text-bone/80">
+        <label htmlFor={inputId} className="block text-sm font-medium text-near-black/80">
           {label}
         </label>
       )}
-      <div className="terminal-input-field">
+      <div>
         <textarea
           id={inputId}
           className={cn(
-            "terminal-input box-border w-full min-w-0 max-w-full resize-y border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-bone placeholder:text-mid-gray",
-          "focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
+            "box-border min-h-[120px] w-full min-w-0 max-w-full resize-y rounded-[1.5rem] border border-clay/70 bg-bone/80 px-4 py-3 text-near-black placeholder:text-mid-gray",
+          "focus:border-near-black focus:outline-none focus:ring-2 focus:ring-muted-gold/40",
           "transition-colors duration-200 min-h-[120px]",
           error && "border-dried-blood",
           className
@@ -97,16 +97,16 @@ export function Select({
   return (
     <div className="terminal-input-wrap min-w-0 space-y-2">
       {label && (
-        <label htmlFor={inputId} className="block text-sm text-bone/80">
+        <label htmlFor={inputId} className="block text-sm font-medium text-near-black/80">
           {label}
         </label>
       )}
-      <div className="terminal-input-field">
+      <div>
         <select
           id={inputId}
           className={cn(
-            "terminal-input box-border w-full min-w-0 max-w-full border border-clay/30 bg-warm-charcoal/80 px-4 py-3 text-base text-bone",
-          "h-[3.125rem] focus:border-muted-gold focus:outline-none focus:ring-1 focus:ring-muted-gold/50",
+            "box-border h-[3.125rem] w-full min-w-0 max-w-full rounded-2xl border border-clay/70 bg-bone/80 px-4 py-3 text-base text-near-black",
+          "focus:border-near-black focus:outline-none focus:ring-2 focus:ring-muted-gold/40",
           "transition-colors duration-200",
           error && "border-dried-blood",
           className
